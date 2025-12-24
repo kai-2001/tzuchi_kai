@@ -1,0 +1,117 @@
+<!-- 
+    ============================================
+    雲嘉學習網 - Moodle 自訂導覽列 (HTML 部分) v5.2
+    ============================================
+    
+    貼到：「網站管理」→「外觀」→「額外的HTML」→「當BODY標籤開始時」
+    
+    功能包含：
+    1. 完整的自訂導覽列 HTML 結構 (修復排版問題，與入口網完全一致)
+    2. 載入 Font Awesome 圖示庫
+    ============================================
+-->
+
+<!-- 載入 Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- 修正 Moodle 課程索引側邊欄選中項目樣式 -->
+<style>
+    /* 課程索引 - 選中的區段和項目 */
+    .courseindex .courseindex-item.pageitem,
+    .courseindex .courseindex-section-title.pageitem {
+        background: rgba(219, 234, 254, 0.9) !important;
+        backdrop-filter: blur(8px) !important;
+        border-radius: 8px !important;
+        border-left: 3px solid #2563eb !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+    }
+
+    /* 文字顏色 */
+    .courseindex .courseindex-item.pageitem,
+    .courseindex .courseindex-item.pageitem *,
+    .courseindex .courseindex-item.pageitem a,
+    .courseindex .courseindex-section-title.pageitem,
+    .courseindex .courseindex-section-title.pageitem * {
+        color: #1e40af !important;
+    }
+</style>
+
+<!-- 自訂導覽列結構 -->
+<nav id="portal-global-nav">
+    <!-- 左側區域：Logo + 選單 -->
+    <div style="display:flex; align-items:center;">
+        <a href="/index.php" class="pg-brand">
+            <i class="fas fa-cloud"></i>
+            <span>雲嘉學習網</span>
+        </a>
+
+        <div class="pg-menu">
+            <!-- 學生專用連結 (預設隱藏，由 JS 決定顯示) -->
+            <div id="pg-student-links" style="display:none; gap:5px; align-items:center;">
+                <a href="/index.php" class="pg-link">
+                    <i class="fas fa-home"></i> 個人主頁
+                </a>
+                <a href="/index.php?tab=quick-enroll" class="pg-link">
+                    <i class="fas fa-compass"></i> 探索課程
+                </a>
+                <a href="/index.php?tab=my-courses" class="pg-link">
+                    <i class="fas fa-book-open"></i> 我的課程
+                </a>
+            </div>
+
+            <!-- 開課教師專用連結 (預設隱藏) -->
+            <div id="pg-teacher-links" style="display:none; gap:5px; align-items:center;">
+                <a href="/index.php" class="pg-link">
+                    <i class="fas fa-home"></i> 個人主頁
+                </a>
+                <a href="/moodle/course/edit.php" class="pg-link">
+                    <i class="fas fa-plus-circle"></i> 新增課程
+                </a>
+                <a href="/index.php?tab=course-management" class="pg-link">
+                    <i class="fas fa-tasks"></i> 課程管理
+                </a>
+            </div>
+
+            <!-- 管理員專用連結 (預設隱藏) -->
+            <div id="pg-admin-links" style="display:none; gap:5px; align-items:center;">
+                <a href="/moodle/course/index.php" class="pg-link">
+                    <i class="fas fa-list"></i> 課程列表
+                </a>
+                <a href="/moodle/course/edit.php?category=2" class="pg-link">
+                    <i class="fas fa-plus-circle"></i> 新增課程
+                </a>
+                <a href="/moodle/admin/user.php" class="pg-link">
+                    <i class="fas fa-users"></i> 使用者
+                </a>
+                <a href="/moodle/admin/search.php" class="pg-link">
+                    <i class="fas fa-cogs"></i> 網站管理
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右側區域：切換角色 + 編輯模式開關 + 使用者選單 -->
+    <div id="pg-right-area">
+        <!-- 切換角色按鈕（教師/管理員專用，在課程內才顯示）-->
+        <a href="#" id="switch-role-link" class="pg-link" style="display:none; margin-right:10px;">
+            <i class="fas fa-user-graduate"></i> <span id="switch-role-text">切換為學生檢視</span>
+        </a>
+
+        <!-- 編輯模式開關容器 (將由 JS 填充) -->
+        <div id="custom-edit-mode-container"></div>
+
+        <div class="pg-dropdown" id="portal-user-menu">
+            <div class="pg-link" style="display:flex; align-items:center; gap:12px;">
+                <span id="custom-user-name">User</span>
+                <div class="user-avatar-circle" id="custom-user-avatar">U</div>
+            </div>
+            <div class="pg-dropdown-content" style="right:0; left:auto;">
+                <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
+                <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 編輯模式開關容器 (將由 JS 填充) -->
+<!-- <div id="custom-edit-mode-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div> -->

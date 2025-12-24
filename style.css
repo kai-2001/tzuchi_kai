@@ -1,0 +1,57 @@
+/* 全域 reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans TC", sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* 淺藍背景區塊 */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 🔥 淺藍背景 */
+    background: linear-gradient(135deg, #923551 0%, #d9ecff 100%);
+}
+
+/* 磨砂玻璃卡片 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(500px);
+    -webkit-backdrop-filter: blur(500px);
+
+    padding: 50px 65px;
+    border-radius: 28px;
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+
+    text-align: center;
+    max-width: 700px;
+    color: #fff;
+}
+
+/* 標題 */
+.glass-card h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+/* 內文 */
+.glass-card p {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    margin-bottom: 10px;
+}

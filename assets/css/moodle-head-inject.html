@@ -1,0 +1,565 @@
+<!-- 
+    雲嘉學習網 - Moodle 自訂主題樣式 v2.0
+    將此內容貼到 Moodle 後台的「額外的HTML」→「在HEAD區段內」欄位
+-->
+<style>
+    /* ==========================================
+   CSS 變數 (Design Tokens)
+   ========================================== */
+    :root {
+        --custom-primary: #2563eb;
+        --custom-primary-dark: #1d4ed8;
+        --custom-primary-light: #3b82f6;
+        --custom-accent: #06b6d4;
+        --custom-accent-light: #22d3ee;
+        --custom-text-primary: #1e293b;
+        --custom-text-secondary: #475569;
+        --custom-text-muted: #94a3b8;
+        --custom-radius-sm: 8px;
+        --custom-radius-md: 12px;
+        --custom-radius-lg: 16px;
+        --custom-radius-xl: 24px;
+    }
+
+    /* ==========================================
+   全域背景 - 淺藍漸層
+   ========================================== */
+    body {
+        background: linear-gradient(135deg, #e8f4fc 0%, #f0f4ff 25%, #f8f0ff 50%, #f0f8ff 75%, #e8f4fc 100%) !important;
+        background-attachment: fixed !important;
+        font-family: 'Inter', 'Microsoft JhengHei', -apple-system, sans-serif !important;
+        color: var(--custom-text-primary) !important;
+    }
+
+    /* 漸層光暈動畫背景 */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+            radial-gradient(ellipse 600px 400px at 15% 20%, rgba(99, 179, 237, 0.25) 0%, transparent 70%),
+            radial-gradient(ellipse 500px 350px at 85% 25%, rgba(167, 139, 250, 0.2) 0%, transparent 70%),
+            radial-gradient(ellipse 450px 300px at 75% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 70%),
+            radial-gradient(ellipse 550px 400px at 25% 75%, rgba(52, 211, 153, 0.15) 0%, transparent 70%);
+        animation: bgGradientFloat 25s ease-in-out infinite;
+    }
+
+    /* 浮游粒子效果 */
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+            radial-gradient(3px 3px at 20px 30px, rgba(37, 99, 235, 0.25), transparent),
+            radial-gradient(3px 3px at 80px 70px, rgba(6, 182, 212, 0.2), transparent),
+            radial-gradient(2px 2px at 140px 40px, rgba(99, 102, 241, 0.2), transparent),
+            radial-gradient(3px 3px at 180px 90px, rgba(6, 182, 212, 0.2), transparent),
+            radial-gradient(2px 2px at 50px 120px, rgba(37, 99, 235, 0.15), transparent);
+        background-size: 200px 150px;
+        animation: bodyParticleFloat 30s linear infinite;
+    }
+
+    @keyframes bgGradientFloat {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        25% {
+            transform: translate(2%, 3%) scale(1.02);
+        }
+
+        50% {
+            transform: translate(-1%, 2%) scale(1);
+        }
+
+        75% {
+            transform: translate(3%, -2%) scale(1.01);
+        }
+    }
+
+    @keyframes bodyParticleFloat {
+        0% {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: 150px -350px;
+        }
+    }
+
+    /* ==========================================
+   Academi 主題頂部導覽列覆寫 - 改為淺色
+   ========================================== */
+    header#header,
+    .navbar-academi,
+    .academi-header,
+    #page-header,
+    .page-context-header,
+    nav.fixed-top,
+    .fixed-top {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(25px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    header#header a,
+    header#header .nav-link,
+    .navbar-academi a,
+    .academi-header a,
+    .navbar-dark .navbar-nav .nav-link,
+    .fixed-top a,
+    .fixed-top .nav-link {
+        color: var(--custom-text-secondary) !important;
+        font-weight: 500 !important;
+        transition: color 0.2s ease !important;
+    }
+
+    header#header a:hover,
+    .fixed-top a:hover,
+    .fixed-top .nav-link:hover {
+        color: var(--custom-accent) !important;
+    }
+
+    .logo-area,
+    .navbar-brand {
+        color: var(--custom-text-primary) !important;
+    }
+
+    /* ==========================================
+   頂部導覽列 - 通用霧面玻璃效果
+   ========================================== */
+    .navbar,
+    nav.navbar,
+    .primary-navigation {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(25px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .navbar .nav-link,
+    .navbar a,
+    .primary-navigation a {
+        color: var(--custom-text-secondary) !important;
+        font-weight: 500 !important;
+    }
+
+    .navbar .nav-link:hover,
+    .navbar a:hover {
+        color: var(--custom-accent) !important;
+    }
+
+    /* ==========================================
+   頁籤導覽樣式 (網站管理 tabs)
+   ========================================== */
+    .nav-tabs {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
+        gap: 5px !important;
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--custom-text-secondary) !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: var(--custom-radius-sm) var(--custom-radius-sm) 0 0 !important;
+        padding: 12px 20px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--custom-primary) !important;
+        background: rgba(37, 99, 235, 0.05) !important;
+    }
+
+    .nav-tabs .nav-link.active,
+    .nav-tabs .nav-item.show .nav-link {
+        color: white !important;
+        background: linear-gradient(135deg, var(--custom-primary) 0%, var(--custom-accent) 100%) !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
+    }
+
+    .secondary-navigation .nav-tabs .nav-link.active,
+    .moremenu .nav-link.active {
+        background: linear-gradient(135deg, var(--custom-primary) 0%, var(--custom-accent) 100%) !important;
+        color: white !important;
+    }
+
+    /* ==========================================
+   連結顏色統一
+   ========================================== */
+    a {
+        color: var(--custom-primary) !important;
+        text-decoration: none !important;
+        transition: color 0.2s ease !important;
+    }
+
+    a:hover {
+        color: var(--custom-accent) !important;
+    }
+
+    #region-main a,
+    .card-body a,
+    .block a {
+        color: var(--custom-primary) !important;
+    }
+
+    #region-main a:hover,
+    .card-body a:hover,
+    .block a:hover {
+        color: var(--custom-accent) !important;
+    }
+
+    /* ==========================================
+   主要內容區域
+   ========================================== */
+    #page,
+    #page-wrapper,
+    #page-content,
+    #region-main,
+    .main-inner,
+    .pagelayout-admin #region-main-box {
+        background: transparent !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ==========================================
+   卡片樣式 - 玻璃質感
+   ========================================== */
+    .card,
+    .block,
+    .course-card,
+    .dashboard-card,
+    #region-main-box,
+    .generalbox {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 255, 0.9) 100%) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        border-radius: var(--custom-radius-lg) !important;
+        box-shadow:
+            0 4px 24px rgba(99, 179, 237, 0.12),
+            0 12px 48px rgba(167, 139, 250, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    .card:hover,
+    .block:hover {
+        box-shadow:
+            0 8px 32px rgba(99, 179, 237, 0.18),
+            0 16px 56px rgba(167, 139, 250, 0.12) !important;
+        transform: translateY(-2px);
+        transition: all 0.3s ease !important;
+    }
+
+    .card-header,
+    .card-title {
+        color: var(--custom-text-primary) !important;
+        font-weight: 600 !important;
+        background: transparent !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* ==========================================
+   按鈕樣式
+   ========================================== */
+    .btn-primary,
+    input[type="submit"].btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%) !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 30px !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.45) !important;
+    }
+
+    .btn-secondary,
+    .btn-outline-secondary {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: 2px solid rgba(0, 0, 0, 0.1) !important;
+        color: var(--custom-text-primary) !important;
+        border-radius: 30px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .btn-secondary:hover,
+    .btn-outline-secondary:hover {
+        border-color: var(--custom-primary) !important;
+        color: var(--custom-primary) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    /* ==========================================
+   課程卡片
+   ========================================== */
+    .coursebox,
+    .courses .coursebox {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 255, 0.9) 100%) !important;
+        border-radius: var(--custom-radius-lg) !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 4px 24px rgba(99, 179, 237, 0.12) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .coursebox:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 12px 40px rgba(99, 179, 237, 0.2) !important;
+    }
+
+    /* ==========================================
+   側邊抽屜與下拉選單
+   ========================================== */
+    .drawer,
+    .dropdown-menu,
+    .popover,
+    .modal-content {
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(37, 99, 235, 0.1) !important;
+        border-radius: var(--custom-radius-md) !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .dropdown-item {
+        color: var(--custom-text-secondary) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(37, 99, 235, 0.08) !important;
+        color: var(--custom-primary) !important;
+    }
+
+    /* ==========================================
+   表格樣式
+   ========================================== */
+    .table,
+    .generaltable {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border-radius: var(--custom-radius-md) !important;
+        overflow: hidden !important;
+    }
+
+    .table thead th,
+    .generaltable thead th {
+        background: linear-gradient(90deg, var(--custom-primary) 0%, var(--custom-primary-light) 100%) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+    }
+
+    .table tbody tr:hover,
+    .generaltable tbody tr:hover {
+        background: rgba(37, 99, 235, 0.03) !important;
+    }
+
+    /* ==========================================
+   表單元素
+   ========================================== */
+    .form-control,
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="search"],
+    textarea,
+    select {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        border-radius: var(--custom-radius-sm) !important;
+        color: var(--custom-text-primary) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .form-control:focus,
+    input:focus {
+        border-color: var(--custom-primary) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+        outline: none !important;
+    }
+
+    .search-input-group,
+    input[type="search"] {
+        border-radius: 30px !important;
+    }
+
+    /* ==========================================
+   標題樣式
+   ========================================== */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .h1,
+    .h2,
+    .h3,
+    .h4,
+    .h5,
+    .h6 {
+        color: var(--custom-text-primary) !important;
+        font-weight: 600 !important;
+    }
+
+    .page-header-headings h1,
+    .page-context-header h1 {
+        color: var(--custom-text-primary) !important;
+    }
+
+    /* ==========================================
+   頁腳
+   ========================================== */
+    #page-footer,
+    footer,
+    .footer-main {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(15px) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+        color: var(--custom-text-secondary) !important;
+    }
+
+    /* ==========================================
+   捲軸樣式
+   ========================================== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    /* ==========================================
+   進度條與警告
+   ========================================== */
+    .progress {
+        background: rgba(0, 0, 0, 0.05) !important;
+        border-radius: 20px !important;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, var(--custom-primary) 0%, var(--custom-accent) 100%) !important;
+        border-radius: 20px !important;
+    }
+
+    .alert {
+        border-radius: var(--custom-radius-md) !important;
+        border: none !important;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%) !important;
+        color: var(--custom-primary-dark) !important;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%) !important;
+        color: #047857 !important;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%) !important;
+        color: #b45309 !important;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%) !important;
+        color: #b91c1c !important;
+    }
+
+    /* ==========================================
+   徽章
+   ========================================== */
+    .badge {
+        border-radius: 20px !important;
+        font-weight: 500 !important;
+    }
+
+    .badge-primary,
+    .badge.bg-primary {
+        background: linear-gradient(135deg, var(--custom-primary) 0%, var(--custom-primary-light) 100%) !important;
+    }
+
+    /* ==========================================
+   移除深色背景
+   ========================================== */
+    .bg-dark,
+    .navbar-dark,
+    .bg-primary,
+    header.navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    .navbar-dark .navbar-nav .nav-link,
+    .navbar-dark .navbar-brand,
+    .bg-dark a {
+        color: var(--custom-text-secondary) !important;
+    }
+
+    /* ==========================================
+   使用者頭像
+   ========================================== */
+    .userpicture,
+    .usermenu .avatars img {
+        border: 2px solid var(--custom-accent) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 10px rgba(6, 182, 212, 0.2) !important;
+    }
+
+    /* ==========================================
+   麵包屑
+   ========================================== */
+    .breadcrumb {
+        background: transparent !important;
+    }
+
+    .breadcrumb-item a {
+        color: var(--custom-primary) !important;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--custom-text-muted) !important;
+    }
+</style>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雲海動態背景展示 - Cloud Sea Background Demo</title>
+    <link rel="stylesheet" href="assets/css/cloud-sea.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* 內容展示區 */
+        .demo-content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 50px 60px;
+            max-width: 700px;
+            text-align: center;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card h1 {
+            font-size: 2.8rem;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+        }
+
+        .glass-card p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .glass-card .subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .feature-tag {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-tag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .time-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: #fff;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .time-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .time-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 使用說明區 */
+        .usage-section {
+            margin-top: 60px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .usage-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px 40px;
+            text-align: left;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .usage-card h3 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .usage-card pre {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .usage-card code {
+            color: #a5d6ff;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .usage-card .comment {
+            color: #7ee787;
+        }
+
+        .usage-card .tag {
+            color: #ff7b72;
+        }
+
+        .usage-card .attr {
+            color: #ffa657;
+        }
+
+        .usage-card .string {
+            color: #a5d6ff;
+        }
+
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 30px 25px;
+            }
+
+            .glass-card h1 {
+                font-size: 2rem;
+            }
+
+            .usage-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body data-cloud-sea-auto>
+
+    <div class="demo-content">
+        <div class="glass-card">
+            <h1>☁️ 雲海動態背景</h1>
+            <p>45度角俯視的雲海效果，雲朵如海浪般翻湧，搭配純淨藍天</p>
+            <p class="subtitle">適用於網站首頁、登入頁面或任何需要沉浸式背景的場景</p>
+
+            <div class="feature-list">
+                <span class="feature-tag">✨ 多層雲朵</span>
+                <span class="feature-tag">🌊 波浪動畫</span>
+                <span class="feature-tag">🎯 45度視角</span>
+                <span class="feature-tag">🖱️ 滑鼠互動</span>
+                <span class="feature-tag">💫 粒子效果</span>
+                <span class="feature-tag">📱 響應式設計</span>
+            </div>
+
+            <p style="margin-bottom: 20px; color: rgba(255,255,255,0.8);">切換時間模式：</p>
+            <div class="time-controls">
+                <button class="time-btn" onclick="setTime('dawn')">🌅 黎明</button>
+                <button class="time-btn active" onclick="setTime('day')">☀️ 白天</button>
+                <button class="time-btn" onclick="setTime('sunset')">🌇 黃昏</button>
+                <button class="time-btn" onclick="setTime('night')">🌙 夜晚</button>
+            </div>
+        </div>
+
+        <div class="usage-section">
+            <div class="usage-card">
+                <h3>📋 使用方式</h3>
+                <pre><code><span class="comment">&lt;!-- 1. 引入CSS和JS --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"assets/css/cloud-sea.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="string">"assets/js/cloud-sea.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="comment">&lt;!-- 2. 在body標籤加上自動初始化屬性 --&gt;</span>
+<span class="tag">&lt;body</span> <span class="attr">data-cloud-sea-auto</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- 或者手動初始化 --&gt;</span>
+<span class="tag">&lt;script&gt;</span>
+  const cloudSea = new CloudSeaBackground({
+    enableParticles: true,
+    particleCount: 30,
+    enableMouseInteraction: true
+  });
+<span class="tag">&lt;/script&gt;</span></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/cloud-sea.js"></script>
+    <script>
+        function setTime(time) {
+            if (window.cloudSeaBg) {
+                window.cloudSeaBg.setTimeOfDay(time);
+            }
+
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

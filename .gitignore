@@ -1,0 +1,27 @@
+# --- Private Configs (CRITICAL) ---
+moodle/config.php
+speech/includes/config.php
+includes/config.php
+
+# --- Large/Temporary Folders ---
+# Exclude video uploads that exceed GitHub's 100MB limit
+speech/uploads/
+moodle/uploaddata/
+
+# Moodle's runtime data
+moodle/cache/*
+moodle/localcache/*
+moodle/temp/*
+moodle/sessions/*
+moodle/trashcan/*
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+node_modules/
+.vscode/
+.idea/
+.gemini/

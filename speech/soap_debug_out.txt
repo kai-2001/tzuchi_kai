@@ -1,0 +1,13 @@
+Attempting SOAP connection...
+Calling login method...
+SOAP Fault Exception:
+Code: HTTP
+String: Not Found
+
+--- Last Request ---
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="https://lms.tzuchi.com.tw/tzuchi/webservice/user" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:login><param0 xsi:type="xsd:string">test_user</param0><param1 xsi:type="xsd:string">4ac1b63dca561d274c6055ebf3ed97db</param1></ns1:login></SOAP-ENV:Body></SOAP-ENV:Envelope>
+
+
+--- Last Response ---
+
