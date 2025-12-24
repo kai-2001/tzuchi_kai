@@ -10,6 +10,11 @@ if (!is_logged_in()) {
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+// Increment view count
+if ($id > 0) {
+    $conn->query("UPDATE videos SET views = views + 1 WHERE id = $id");
+}
+
 $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position, c.name as campus_name 
                       FROM videos v
                       LEFT JOIN speakers s ON v.speaker_id = s.id
@@ -207,6 +212,10 @@ $is_html = (pathinfo($video['content_path'], PATHINFO_EXTENSION) === 'html');
                     <li>
                         <i class="fa-solid fa-calendar"></i>
                         <span><strong>演講日期：</strong><?php echo htmlspecialchars($video['event_date']); ?></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-eye"></i>
+                        <span><strong>觀看次數：</strong><?php echo number_format($video['views']); ?> 次</span>
                     </li>
                     <li>
                         <i class="fa-solid fa-file-video"></i>

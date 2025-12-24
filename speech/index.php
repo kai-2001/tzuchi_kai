@@ -154,6 +154,8 @@ $campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
                                     <?php echo htmlspecialchars($v['affiliation']); ?></span>
                                 <span><i class="fa-solid fa-calendar"></i>
                                     <?php echo htmlspecialchars($v['event_date']); ?></span>
+                                <span><i class="fa-solid fa-eye"></i>
+                                    <?php echo number_format($v['views']); ?></span>
                             </div>
                         </div>
                     </div>

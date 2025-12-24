@@ -78,7 +78,6 @@ function check_auto_login()
                 $_SESSION['user_id'] = $user_row['username'];  // 使用 username 作為 ID
                 $_SESSION['username'] = $user_row['username'];
                 $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
-                $_SESSION['moodle_token'] = base64_encode(openssl_encrypt($user_row['password'], 'AES-256-CBC', $db_pass, 0, substr(md5($db_pass), 0, 16)));
                 $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
 
                 // 檢測開課教師角色
@@ -94,6 +93,40 @@ function check_auto_login()
         } catch (Exception $e) {
             error_log("Auto login error: " . $e->getMessage());
         }
+    }
+}
+
+/**
+ * SOAP 認證
+ */
+function soap_login($username, $password)
+{
+    try {
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            ]
+        ]);
+
+        $client = new SoapClient(null, [
+            'location' => SOAP_LOCATION,
+            'uri' => SOAP_URI,
+            'trace' => 1,
+            'exceptions' => true,
+            'stream_context' => $context
+        ]);
+
+        $result = $client->login($username, md5($password));
+
+        if ($result == '1' || is_array($result) || is_object($result)) {
+            return $result;
+        }
+        return false;
+    } catch (Exception $e) {
+        error_log("SOAP Login Error: " . $e->getMessage());
+        return 'error';
     }
 }
 
@@ -114,7 +147,7 @@ function process_login()
         return "安全驗證失敗，請重新整理頁面後再試。";
     }
 
-    $input_user = $_POST['username'];
+    $input_user = strtolower(trim($_POST['username']));
     $input_pass = $_POST['password'];
     $remember_me = isset($_POST['remember']);
 
@@ -126,43 +159,129 @@ function process_login()
         return "系統暫時無法連線，請稍後再試。";
     }
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->bind_param("s", $input_user);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 0) {
-        $stmt->close();
-        $conn->close();
-        return "帳號或密碼錯誤！";
-    }
-
-    $user_row = $result->fetch_assoc();
     $login_success = false;
+    $user_row = null;
 
-    if (password_verify($input_pass, $user_row['password'])) {
-        $login_success = true;
-    } elseif ($user_row['password'] === $input_pass) {
-        // 舊的明碼密碼，升級為雜湊
-        $login_success = true;
-        $new_hash = password_hash($input_pass, PASSWORD_DEFAULT);
-        $up_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-        $up_stmt->bind_param("si", $new_hash, $user_row['id']);
-        $up_stmt->execute();
-        $up_stmt->close();
+    if (defined('AUTH_MODE') && AUTH_MODE === 'soap') {
+        // --- SOAP 模式 ---
+        $soap_result = soap_login($input_user, $input_pass);
+
+        if ($soap_result === 'error') {
+            $conn->close();
+            return "登入服務暫時無法使用，請稍後再試。";
+        }
+
+        if ($soap_result) {
+            $login_success = true;
+            // 檢查本地資料庫是否已有此使用者
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt->bind_param("s", $input_user);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows === 0) {
+                // 自動註冊 (同步本地資料庫)
+                $stmt->close();
+                $fullname = "";
+                if (is_array($soap_result) && isset($soap_result['sn'])) {
+                    $fullname = $soap_result['sn'];
+                } elseif (is_object($soap_result) && isset($soap_result->sn)) {
+                    $fullname = $soap_result->sn;
+                }
+
+                // --- 1. 準備 Moodle 帳號資料 ---
+                $last_name = mb_substr($fullname, 0, 1, "utf-8"); // 取第一個字當姓
+                $first_name = mb_substr($fullname, 1, null, "utf-8"); // 剩下的字當名
+                if (empty($first_name))
+                    $first_name = $last_name; // 只有一個字的情況
+                $email = $input_user . "@example.com"; // 如果 SOAP 沒給，先用預設
+
+                // --- 2. 呼叫 Moodle API 建立使用者 (同步 Moodle) ---
+                // 一律使用符合 Moodle 規定之強密碼，避免原始密碼過短導致建立失敗。
+                // 反正 SSO 只看帳號，Moodle 內部存什麼密碼不重要。
+                $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
+
+                $moodle_user_data = [
+                    'users' => [
+                        [
+                            'username' => $input_user,
+                            'password' => $moodle_password,
+                            'firstname' => $first_name,
+                            'lastname' => $last_name,
+                            'email' => $email,
+                            'auth' => 'manual',
+                        ]
+                    ]
+                ];
+
+                global $moodle_url, $moodle_token;
+                $serverurl = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_create_users&moodlewsrestformat=json';
+
+                $curl = curl_init();
+                curl_setopt($curl, CURLOPT_URL, $serverurl);
+                curl_setopt($curl, CURLOPT_POST, true);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($moodle_user_data));
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+                curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
+                $resp = curl_exec($curl);
+                curl_close($curl);
+
+                $moodle_result = json_decode($resp, true);
+                if (isset($moodle_result['exception'])) {
+                    error_log("Moodle sync fail: " . $moodle_result['message']);
+                }
+
+                // --- 3. 自動註冊 (同步本地資料庫) ---
+                $ins_stmt = $conn->prepare("INSERT INTO users (username, fullname, password, role, email) VALUES (?, ?, ?, 'student', ?)");
+                $hashed_pass = password_hash($input_pass, PASSWORD_DEFAULT);
+                $ins_stmt->bind_param("ssss", $input_user, $fullname, $hashed_pass, $email);
+                $ins_stmt->execute();
+                $ins_stmt->close();
+
+                // 重新讀取剛建立的使用者
+                $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+                $stmt->bind_param("s", $input_user);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            }
+            $user_row = $result->fetch_assoc();
+            $stmt->close();
+        }
+    } else {
+        // --- 本地模式 ---
+        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->bind_param("s", $input_user);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $user_row = $result->fetch_assoc();
+            if (password_verify($input_pass, $user_row['password'])) {
+                $login_success = true;
+            } elseif ($user_row['password'] === $input_pass) {
+                // 舊的明碼密碼，升級為雜湊
+                $login_success = true;
+                $new_hash = password_hash($input_pass, PASSWORD_DEFAULT);
+                $up_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $up_stmt->bind_param("si", $new_hash, $user_row['id']);
+                $up_stmt->execute();
+                $up_stmt->close();
+            }
+        }
+        $stmt->close();
     }
 
     if (!$login_success) {
-        $stmt->close();
         $conn->close();
         return "帳號或密碼錯誤！";
     }
 
     // 登入成功，設定 Session
-    $_SESSION['user_id'] = $user_row['username'];  // 使用 username 作為 ID（資料表沒有 id 欄位）
+    $_SESSION['user_id'] = $user_row['username'];
     $_SESSION['username'] = $user_row['username'];
     $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
-    $_SESSION['moodle_token'] = base64_encode(openssl_encrypt($input_pass, 'AES-256-CBC', $db_pass, 0, substr(md5($db_pass), 0, 16)));
+    $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
     $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
 
     // 檢測開課教師角色 (teacherplus)
@@ -185,7 +304,6 @@ function process_login()
         }
     }
 
-    $stmt->close();
     $conn->close();
 
     header("Location: index.php");

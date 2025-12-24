@@ -21,6 +21,7 @@ CREATE TABLE videos (
     event_date DATE,
     campus_id INT,
     speaker_id INT,
+    views INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (campus_id) REFERENCES campuses(id),
     FOREIGN KEY (speaker_id) REFERENCES speakers(id)
