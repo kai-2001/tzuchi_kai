@@ -293,32 +293,82 @@
             }
 
             const moodleUrl = '<?php echo $moodle_url; ?>';
+
+            // 收集所有不重複的分類名稱 (以父類別為主，用於動態建立篩選器)
+            const categorySet = new Set();
+            courses.forEach(course => {
+                const catName = course.parent_category || course.categoryname || '其他';
+                categorySet.add(catName);
+            });
+
+            // 更新篩選按鈕（如果有篩選器容器）
+            const filterContainer = document.getElementById('course-type-filters');
+            if (filterContainer && categorySet.size > 0) {
+                let filterHtml = '<button class="filter-btn active" data-type="all">全部</button>';
+                categorySet.forEach(catName => {
+                    // 使用分類名稱的 hash 作為 data-type（避免特殊字元問題）
+                    let typeKey = catName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
+                    if (!typeKey) typeKey = 'cat-' + Math.abs(catName.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+                    filterHtml += `<button class="filter-btn" data-type="${typeKey}">${catName}</button>`;
+                });
+                filterContainer.innerHTML = filterHtml;
+
+                // 重新綁定篩選事件
+                filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // 不需要手動切換 active，由 filterCourses 統一處理
+                        filterCoursesByType(this.dataset.type, this);
+                    });
+                });
+            }
+
             container.innerHTML = courses.map(course => {
-                const catName = course.categoryname || course.displayname || '其他';
-                let typeTag = 'other', typeLabel = '一般';
-                if (catName.includes('實體')) {
-                    typeTag = 'physical';
-                    typeLabel = '實體';
-                } else if (catName.includes('數位') || catName.includes('線上')) {
-                    typeTag = 'digital';
-                    typeLabel = '數位';
+                const mainCat = course.parent_category || course.categoryname || '其他';
+                const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
+                
+                // 使用父類別名稱的 hash 作為 data-type (篩選器以大類為主)
+                let typeKey = mainCat.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
+                if (!typeKey) typeKey = 'cat-' + Math.abs(mainCat.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+
+                const moodleUrl = '<?php echo $moodle_url; ?>';
+                
+                // 狀態標示邏輯
+                let statusHtml = '';
+                let buttonHtml = '';
+                
+                if (course.is_enrolled) {
+                    const progress = course.progress || 0;
+                    statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
+                                    ${progress >= 100 ? '已完成' : '學習中 (' + progress + '%)'}
+                                  </span>`;
+                    buttonHtml = `<button class="btn btn-sm" 
+                                          style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
+                                          onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
+                                      <i class="fas fa-sign-in-alt me-1"></i>進入課程
+                                  </button>`;
+                } else {
+                    statusHtml = `<span class="badge bg-secondary ms-2" style="font-size: 10px; opacity: 0.7;">未選課</span>`;
+                    buttonHtml = `<button class="btn btn-sm" 
+                                          style="background: var(--primary); color: white; border-radius: 20px; padding: 8px 20px;"
+                                          onclick="goToMoodle('${moodleUrl}/enrol/index.php?id=${course.id}')">
+                                      <i class="fas fa-plus me-1"></i>選課
+                                  </button>`;
                 }
 
                 return `
-                <div class="col-md-6 course-item" data-type="${typeTag}" data-name="${course.fullname.toLowerCase()}">
+                <div class="col-md-6 course-item" data-type="${typeKey}" data-name="${course.fullname.toLowerCase()}">
                     <div class="card course-card h-100 position-relative">
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title fw-bold mb-2">${course.fullname}</h6>
-                                <small class="text-muted"><i class="fas fa-folder me-1"></i>${catName}</small>
+                                <h6 class="card-title fw-bold mb-1">${course.fullname}${statusHtml}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-folder-open me-1"></i>${mainCat}
+                                    ${subCat ? `<i class="fas fa-chevron-right mx-1" style="font-size: 8px; vertical-align: middle; opacity: 0.5;"></i>${subCat}` : ''}
+                                </small>
                             </div>
-                            <button class="btn btn-sm" 
-                                    style="background: var(--primary); color: white; border-radius: 20px; padding: 8px 20px;"
-                                    onclick="goToMoodle('${moodleUrl}/enrol/index.php?id=${course.id}')">
-                                <i class="fas fa-plus me-1"></i>選課
-                            </button>
+                            ${buttonHtml}
                         </div>
-                        <span class="category-label label-${typeTag}">${typeLabel}</span>
+                        <span class="category-label">${mainCat}</span>
                     </div>
                 </div>
             `;
@@ -355,7 +405,8 @@
                         return aOrder - bOrder;
                     });
                     icons = sortedItems.map(item => {
-                        const title = `${item.fullname}: ${item.status === 'green' ? '已完成' : item.status === 'yellow' ? '未完成' : '尚未選課'}`;
+                        const fullCatName = item.category_name || catName;
+                        const title = `${item.fullname} (${fullCatName}): ${item.status === 'green' ? '已完成' : item.status === 'yellow' ? '未完成' : '尚未選課'}`;
                         const iconClass = item.status === 'green' ? 'fas fa-check-circle icon-green' :
                             item.status === 'yellow' ? 'fas fa-exclamation-circle icon-yellow' :
                                 'far fa-play-circle icon-red';
@@ -647,7 +698,7 @@
             // 替換各區塊內容
             const widgets = document.querySelectorAll('.announcement-body, #available-courses-container, #curriculum-progress-widget, #grades-chart-container, #my-courses .row, #history');
             widgets.forEach(el => {
-                if(el) el.innerHTML = message;
+                if (el) el.innerHTML = message;
             });
         }
 

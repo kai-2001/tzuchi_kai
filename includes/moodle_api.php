@@ -83,12 +83,71 @@ function fetch_moodle_data($type = 'all')
                 krsort($data['history_by_year']);
             }
 
-            // 整理可選修
-            $my_course_ids = array_flip(array_column($data['my_courses_raw'], 'id'));
-            foreach ($all_courses as $course) {
-                if (!isset($my_course_ids[$course['id']]) && $course['id'] != 1) {
-                    $data['available_courses'][] = $course;
+            // 整理可選修與課程狀態 (不再過濾已選課程)
+            $my_courses_by_id = [];
+            foreach ($data['my_courses_raw'] as $c) {
+                $my_courses_by_id[$c['id']] = $c;
+            }
+
+            // 取得所有分類（確保包含階層資訊）
+            $all_categories = call_moodle($moodle_url, $moodle_token, 'core_course_get_categories', ['addsubcategories' => 1]);
+            $cat_info = [];
+            if (is_array($all_categories) && !isset($all_categories['exception'])) {
+                foreach ($all_categories as $cat) {
+                    $cat_info[$cat['id']] = $cat;
                 }
+            }
+
+            foreach ($all_courses as $course) {
+                if ($course['id'] == 1)
+                    continue;
+
+                $cid = $course['id'];
+                $cat_id = isset($course['categoryid']) ? $course['categoryid'] : null;
+
+                // 初始為空
+                $parent_name = '';
+                $child_name = $course['categoryname'] ?? '';
+
+                // 解析分類階層（向上追溯到頂層分類）
+                if ($cat_id && isset($cat_info[$cat_id])) {
+                    $curr_cat = $cat_info[$cat_id];
+                    $child_name = $curr_cat['name'];
+
+                    // 如果有父類別，持續往上找直到頂層
+                    $temp_cat = $curr_cat;
+                    while ($temp_cat['parent'] > 0 && isset($cat_info[$temp_cat['parent']])) {
+                        $temp_cat = $cat_info[$temp_cat['parent']];
+                    }
+                    $parent_name = $temp_cat['name'];
+
+                    // 如果目前就是頂層，則子類別為空
+                    if ($curr_cat['id'] == $temp_cat['id']) {
+                        $child_name = '';
+                    }
+                } elseif (isset($course['categoryname'])) {
+                    $parent_name = $course['categoryname'];
+                    $child_name = '';
+                }
+
+                // 確保 parent_name 有值
+                if (empty($parent_name)) {
+                    $parent_name = ($course['categoryname'] ?? '') ?: '其他';
+                }
+
+                $course['parent_category'] = $parent_name;
+                $course['child_category'] = ($child_name && $child_name !== $parent_name) ? $child_name : '';
+                $course['display_category'] = $course['child_category'] ? ($parent_name . ' - ' . $course['child_category']) : $parent_name;
+
+                $course['is_enrolled'] = isset($my_courses_by_id[$cid]);
+                if ($course['is_enrolled']) {
+                    $course['progress'] = isset($my_courses_by_id[$cid]['progress']) ? $my_courses_by_id[$cid]['progress'] : 0;
+                    $course['completed'] = isset($my_courses_by_id[$cid]['completed']) ? $my_courses_by_id[$cid]['completed'] : false;
+                } else {
+                    $course['progress'] = 0;
+                    $course['completed'] = false;
+                }
+                $data['available_courses'][] = $course;
             }
         }
 
@@ -142,11 +201,21 @@ function fetch_curriculum_status($my_courses_raw)
 {
     global $moodle_url, $moodle_token;
 
-    $category_map = [
-        '數位課程' => 2,
-        '實體課程' => 4,
-    ];
+    // 1. 取得所有可視課程 (用於確定必修藍圖)
+    // 使用 search_courses 取得學生能看到的所有課程，這比逐個分類抓取更穩定且全面
+    $search_results = call_moodle($moodle_url, $moodle_token, 'core_course_search_courses', [
+        'criterianame' => 'search',
+        'criteriavalue' => '', // 搜尋全部
+        'page' => 0,
+        'perpage' => 500       // 提高上限，確保抓到所有課程
+    ]);
 
+    $all_courses = [];
+    if (isset($search_results['courses']) && is_array($search_results['courses'])) {
+        $all_courses = $search_results['courses'];
+    }
+
+    // 2. 建立已選課程對照表
     $my_courses_lookup = [];
     if (!empty($my_courses_raw) && is_array($my_courses_raw)) {
         foreach ($my_courses_raw as $c) {
@@ -156,57 +225,84 @@ function fetch_curriculum_status($my_courses_raw)
         }
     }
 
-    // 平行請求所有類別的課程資料
-    $parallel_requests = [];
-    foreach ($category_map as $cat_name => $cat_id) {
-        $parallel_requests[] = [
-            'key' => $cat_name,
-            'func' => 'core_course_get_courses_by_field',
-            'params' => ['field' => 'category', 'value' => $cat_id]
-        ];
-    }
-
-    $category_results = call_moodle_parallel($moodle_url, $moodle_token, $parallel_requests);
-
+    // 3. 依分類分組課程
     $curriculum_status = [];
 
-    foreach ($category_map as $cat_name => $cat_id) {
-        $row_data = [];
-        $cat_courses = isset($category_results[$cat_name]) ? $category_results[$cat_name] : [];
-
-        if (!empty($cat_courses) && isset($cat_courses['courses'])) {
-            $target_courses = $cat_courses['courses'];
-        } elseif (is_array($cat_courses) && !isset($cat_courses['exception'])) {
-            $target_courses = $cat_courses;
-        } else {
-            $target_courses = [];
+    // 取得全分類資訊以解析階層
+    $all_categories = call_moodle($moodle_url, $moodle_token, 'core_course_get_categories', []);
+    $cat_info = [];
+    if (is_array($all_categories) && !isset($all_categories['exception'])) {
+        foreach ($all_categories as $cat) {
+            $cat_info[$cat['id']] = $cat;
         }
+    }
 
-        foreach ($target_courses as $course) {
-            if (isset($course['visible']) && $course['visible'] == 0)
-                continue;
+    // 將課程放入對應的桶子
+    foreach ($all_courses as $course) {
+        if ($course['id'] == 1)
+            continue;
 
-            $tid = $course['id'];
-            $status = 'red';
+        $cat_id = isset($course['categoryid']) ? $course['categoryid'] : null;
+        $original_cat_name = $course['categoryname'] ?? '其他';
+        $parent_name = '';
+        $child_name = '';
 
-            if (isset($my_courses_lookup[$tid])) {
-                $user_course = $my_courses_lookup[$tid];
-                $progress = isset($user_course['progress']) ? $user_course['progress'] : 0;
-                $is_completed = isset($user_course['completed']) ? $user_course['completed'] : false;
-                if ($progress >= 100 || $is_completed) {
-                    $status = 'green';
-                } else {
-                    $status = 'yellow';
-                }
+        // 向上尋找頂層分類
+        if ($cat_id && isset($cat_info[$cat_id])) {
+            $curr_cat = $cat_info[$cat_id];
+            $child_name = $curr_cat['name'];
+            $temp_cat = $curr_cat;
+            $visited = [];
+            while ($temp_cat['parent'] > 0 && isset($cat_info[$temp_cat['parent']]) && !in_array($temp_cat['parent'], $visited)) {
+                $visited[] = $temp_cat['id'];
+                $temp_cat = $cat_info[$temp_cat['parent']];
             }
-
-            $row_data[] = [
-                'id' => $tid,
-                'fullname' => $course['fullname'],
-                'status' => $status
-            ];
+            $parent_name = $temp_cat['name'];
+            if ($curr_cat['id'] == $temp_cat['id']) {
+                $child_name = '';
+            }
         }
-        $curriculum_status[$cat_name] = $row_data;
+
+        if (empty($parent_name)) {
+            $parent_name = $original_cat_name;
+        }
+
+        $group_name = $parent_name;
+        $display_cat_name = ($child_name && $child_name !== $parent_name) ? ($parent_name . ' - ' . $child_name) : $parent_name;
+
+        $tid = $course['id'];
+        $status = 'red';
+
+        if (isset($my_courses_lookup[$tid])) {
+            $user_course = $my_courses_lookup[$tid];
+            $progress = isset($user_course['progress']) ? $user_course['progress'] : 0;
+            $is_completed = isset($user_course['completed']) ? $user_course['completed'] : false;
+
+            if ($progress >= 100 || $is_completed) {
+                $status = 'green';
+            } else {
+                $status = 'yellow';
+            }
+        }
+
+        $course_data = [
+            'id' => $tid,
+            'fullname' => $course['fullname'],
+            'status' => $status,
+            'category_name' => $display_cat_name
+        ];
+
+        if (!isset($curriculum_status[$group_name])) {
+            $curriculum_status[$group_name] = [];
+        }
+        $curriculum_status[$group_name][] = $course_data;
+    }
+
+    // 移除沒有課程的分類，避免介面太亂
+    foreach ($curriculum_status as $cat_name => $courses) {
+        if (empty($courses)) {
+            unset($curriculum_status[$cat_name]);
+        }
     }
 
     return $curriculum_status;

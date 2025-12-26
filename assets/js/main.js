@@ -2,7 +2,15 @@
  * 跳轉到 Moodle 並自動登入（使用 SSO）
  * 如果是選課連結，會先清除快取
  */
+// 全域過渡動畫旗標
+let isRedirecting = false;
+
 function goToMoodle(targetUrl) {
+    if (isRedirecting) return;
+
+    // 顯示全域讀取動畫
+    showGlobalLoading('正在前往課程...');
+
     // 如果是選課頁面，先清除快取
     if (targetUrl.includes('/enrol/') || targetUrl.includes('/course/view.php')) {
         fetch('index.php?clear_cache=1', { method: 'GET' })
@@ -15,26 +23,71 @@ function goToMoodle(targetUrl) {
 }
 
 /**
+ * 顯示全域讀取動畫 (SSO 跳轉用)
+ */
+function showGlobalLoading(text) {
+    let loader = document.getElementById('global-nav-loader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'global-nav-loader';
+        loader.className = 'global-nav-loader-overlay';
+        loader.innerHTML = `
+            <div class="loader-content">
+                <img src="assets/img/tenor.gif" alt="Loading..." style="width: 120px; height: auto; margin-bottom: 20px;">
+                <div class="loader-text">${text || '正在處理中...'}</div>
+            </div>
+        `;
+        document.body.appendChild(loader);
+
+        // 動態加入樣式
+        const style = document.createElement('style');
+        style.textContent = `
+            .global-nav-loader-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(15px);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                pointer-events: all;
+            }
+            .global-nav-loader-overlay.show { opacity: 1; }
+            .loader-content { text-align: center; }
+            .loader-text { 
+                font-weight: 600; 
+                color: var(--primary); 
+                font-size: 18px;
+                letter-spacing: 1px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    setTimeout(() => loader.classList.add('show'), 10);
+    isRedirecting = true;
+}
+
+/**
  * 透過 SSO 跳轉到 Moodle
  */
 function redirectWithSSO(targetUrl) {
     console.log('SSO: Fetching URL for', targetUrl);
     fetch('get_sso_url.php?url=' + encodeURIComponent(targetUrl))
         .then(function (response) {
-            console.log('SSO: Response status', response.status);
             return response.json();
         })
         .then(function (data) {
-            console.log('SSO: Data received', data);
             if (data.success && data.sso_url) {
                 window.location.href = data.sso_url;
             } else {
-                console.error('SSO Failed:', data);
                 window.location.href = targetUrl;
             }
         })
         .catch(function (error) {
-            console.error('SSO Error:', error);
             window.location.href = targetUrl;
         });
 }
@@ -135,10 +188,16 @@ var currentFilterType = 'all';
 function filterCourses(type, btnElement) {
     if (type) {
         currentFilterType = type;
+        // 如果沒傳入按鈕元素，嘗試根據 type 在 DOM 中尋找
+        if (!btnElement) {
+            btnElement = document.querySelector(`.filter-btn[data-type="${type}"]`);
+        }
+
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
         if (btnElement) btnElement.classList.add('active');
     }
-    var searchInput = document.getElementById('courseSearchInput').value.toLowerCase();
+    var searchEl = document.getElementById('courseSearchInput');
+    var searchInput = searchEl ? searchEl.value.toLowerCase() : '';
     var items = document.querySelectorAll('.course-item');
     var visibleCount = 0;
     items.forEach(function (item) {
@@ -157,6 +216,14 @@ function filterCourses(type, btnElement) {
     if (noResult) {
         noResult.style.display = (visibleCount === 0) ? 'block' : 'none';
     }
+}
+
+/**
+ * 過濾課程（由動態按鈕使用）
+ * 這是 filterCourses 的別名，用於支援動態生成的分類篩選器
+ */
+function filterCoursesByType(type, btn) {
+    filterCourses(type, btn);
 }
 
 /**

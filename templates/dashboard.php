@@ -221,10 +221,9 @@
                     <div class="filter-control-bar">
                         <div class="d-flex align-items-center gap-3">
                             <span class="fw-bold" style="color: var(--text-secondary);">課程類型</span>
-                            <div class="filter-btn-group">
-                                <button class="filter-btn active" onclick="filterCourses('all', this)">全部</button>
-                                <button class="filter-btn" onclick="filterCourses('physical', this)">實體</button>
-                                <button class="filter-btn" onclick="filterCourses('digital', this)">數位</button>
+                            <div class="filter-btn-group" id="course-type-filters">
+                                <!-- 動態載入分類按鈕 -->
+                                <button class="filter-btn active" data-type="all">全部</button>
                             </div>
                         </div>
                         <div class="search-wrapper">
@@ -240,18 +239,12 @@
                             </div>
                         <?php else: ?>
                             <?php foreach ($available_courses as $course):
-                                $catName = isset($course['categoryname']) ? $course['categoryname'] : (isset($course['displayname']) ? $course['displayname'] : '其他');
-                                $typeTag = 'other';
-                                $typeLabel = '一般';
-                                if (strpos($catName, '實體') !== false) {
-                                    $typeTag = 'physical';
-                                    $typeLabel = '實體';
-                                } elseif (strpos($catName, '數位') !== false || strpos($catName, '線上') !== false) {
-                                    $typeTag = 'digital';
-                                    $typeLabel = '數位';
-                                }
+                                // 使用實際的分類名稱（從 Moodle API 取得）
+                                $catName = isset($course['categoryname']) ? $course['categoryname'] : '其他';
+                                // 使用分類名稱作為篩選 key（移除特殊字元）
+                                $typeKey = preg_replace('/[^a-zA-Z0-9\x{4e00}-\x{9fa5}]/u', '', $catName);
                             ?>
-                                <div class="col-md-6 course-item" data-type="<?php echo $typeTag; ?>" data-name="<?php echo strtolower($course['fullname']); ?>">
+                                <div class="col-md-6 course-item" data-type="<?php echo $typeKey; ?>" data-name="<?php echo strtolower($course['fullname']); ?>">
                                     <div class="card course-card h-100 position-relative">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
@@ -264,7 +257,7 @@
                                                 <i class="fas fa-plus me-1"></i>選課
                                             </button>
                                         </div>
-                                        <span class="category-label label-<?php echo $typeTag; ?>"><?php echo $typeLabel; ?></span>
+                                        <span class="category-label"><?php echo $catName; ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>

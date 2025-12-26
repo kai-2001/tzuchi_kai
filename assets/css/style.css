@@ -868,6 +868,7 @@ body::after {
 
 .filter-btn-group {
     display: flex;
+    flex-wrap: wrap;
     background: var(--surface-1);
     border-radius: var(--radius-md);
     padding: 4px;
