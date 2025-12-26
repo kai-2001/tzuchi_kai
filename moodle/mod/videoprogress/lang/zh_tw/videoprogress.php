@@ -89,3 +89,6 @@ $string['error:invalidurl'] = '無效的 YouTube 網址。';
 
 // 完成條件
 $string['completiondetail:percent'] = '觀看至少 {$a}% 的影片';
+
+// ZIP 安全驗證
+$string['zip_validation_failed'] = 'ZIP 驗證失敗：{$a}';

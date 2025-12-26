@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024121604;        // 版本號 (YYYYMMDDXX)
+$plugin->version   = 2025122407;        // 版本號 (YYYYMMDDXX)
 $plugin->requires  = 2022041900;        // 需要 Moodle 4.0+
 $plugin->component = 'mod_videoprogress'; // 完整插件名稱
 $plugin->maturity  = MATURITY_ALPHA;    // 開發階段
-$plugin->release   = '1.4.0';           // 人類可讀版本
+$plugin->release   = '1.5.0';           // 人類可讀版本

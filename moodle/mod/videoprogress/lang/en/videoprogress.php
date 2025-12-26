@@ -89,3 +89,6 @@ $string['error:invalidurl'] = 'Invalid YouTube URL.';
 
 // 完成條件
 $string['completiondetail:percent'] = 'Watch at least {$a}% of the video';
+
+// ZIP 安全驗證
+$string['zip_validation_failed'] = 'ZIP validation failed: {$a}';

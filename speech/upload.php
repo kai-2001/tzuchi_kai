@@ -1,18 +1,32 @@
 <?php
+/**
+ * Upload Page Controller
+ * 
+ * Handles: Video upload processing, file handling, speaker management
+ * Template: templates/upload.php
+ */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
-// Access Control
+// ============================================
+// LOGIC: Access Control
+// ============================================
 if (!is_manager()) {
     die("未授權：僅管理員可進入此頁面。");
 }
 
+// ============================================
+// LOGIC: Initialize messages
+// ============================================
 $msg = '';
 $error = '';
 
+// ============================================
+// LOGIC: Handle form submission
+// ============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Detect if post_max_size was exceeded (resulting in empty $_POST)
+        // Detect if post_max_size was exceeded
         if (empty($_POST) && $_SERVER['CONTENT_LENGTH'] > 0) {
             $maxPostSize = ini_get('post_max_size');
             throw new Exception("上傳失敗：檔案總大小超過了伺服器限制 ($maxPostSize)。請縮小檔案或聯絡管理員調整 php.ini。");
@@ -79,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $total_uncompressed_size = 0;
                         $max_uncompressed_size = 512 * 1024 * 1024; // 512MB
 
-                        // 1. Pre-check total size to prevent decompression bombs
+                        // Pre-check total size
                         for ($i = 0; $i < $zip->numFiles; $i++) {
                             $stat = $zip->statIndex($i);
                             $total_uncompressed_size += $stat['size'];
@@ -94,21 +108,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         for ($i = 0; $i < $zip->numFiles; $i++) {
                             $filename = $zip->getNameIndex($i);
 
-                            // 2. Path Traversal Protection (Zip Slip)
+                            // Path Traversal Protection
                             if (strpos($filename, '..') !== false || strpos($filename, '/') === 0 || strpos($filename, '\\') === 0) {
-                                continue; // Skip dangerous paths
+                                continue;
                             }
 
-                            // 3. Extension Whitelisting
+                            // Extension Whitelisting
                             $inner_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                            // Skip directories and disallowed extensions
                             if (empty($inner_ext) || !in_array($inner_ext, $allowed_inner_exts)) {
-                                if (substr($filename, -1) !== '/') { // If not a directory
+                                if (substr($filename, -1) !== '/') {
                                     continue;
                                 }
                             }
 
-                            // 4. Extract safe files individually
                             $zip->extractTo($extract_dir, $filename);
 
                             if (basename($filename) === 'index.html') {
@@ -120,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if ($index_found) {
                             $content_path = 'uploads/videos/' . $file_id . '/index.html';
                         } else {
-                            // Cleanup on failure
                             deleteDir($extract_dir);
                             throw new Exception("ZIP 檔案中未找到 index.html 檔案，或所有檔案皆因安全限制被攔截。");
                         }
@@ -155,8 +166,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// ============================================
+// LOGIC: Get campuses for form
+// ============================================
 $campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
 
+// ============================================
+// HELPER: Delete directory function
+// ============================================
 function deleteDir($dirPath)
 {
     if (!is_dir($dirPath))
@@ -167,139 +184,11 @@ function deleteDir($dirPath)
     }
     return rmdir($dirPath);
 }
-?>
-<!DOCTYPE html>
-<html lang="zh-TW">
 
-<head>
-    <meta charset="UTF-8">
-    <title>上傳演講 - <?php echo APP_NAME; ?></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+// ============================================
+// TEMPLATE: Pass data to template
+// ============================================
+$page_title = '上傳演講';
+$page_css_files = ['forms.css'];
 
-        .full-width {
-            grid-column: span 2;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-        }
-
-        .btn-submit {
-            padding: 15px 40px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-submit:hover {
-            background: #006b75;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 132, 145, 0.2);
-        }
-
-        /* RWD */
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .full-width {
-                grid-column: span 1;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <header>
-            <div class="header-top">
-                <div class="header-left">
-                    <a href="index.php" class="logo">
-                        <h1 class="logo-text">學術演講影片平台</h1>
-                    </a>
-                    <span class="breadcrumb-separator">/</span>
-                    <h2 class="page-title">上傳新演講</h2>
-                </div>
-                <div class="user-nav">
-                    <a href="index.php" class="btn-logout"><i class="fa-solid fa-house"></i> 返回首頁</a>
-                </div>
-            </div>
-        </header>
-
-        <div class="upload-form">
-            <?php if ($msg): ?>
-                <div style="color: #4ade80; margin-bottom: 20px;"><?php echo $msg; ?></div><?php endif; ?>
-            <?php if ($error): ?>
-                <div style="color: #f87171; margin-bottom: 20px;"><?php echo $error; ?></div><?php endif; ?>
-
-            <form action="upload.php" method="POST" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>演講標題</label>
-                        <input type="text" name="title" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>所屬院區</label>
-                        <select name="campus_id" required>
-                            <?php foreach ($campuses as $c): ?>
-                                <option value="<?php echo $c['id']; ?>"><?php echo $c['name']; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>演講日期</label>
-                        <input type="date" name="event_date" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>講者姓名</label>
-                        <input type="text" name="speaker_name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>服務單位</label>
-                        <input type="text" name="affiliation" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>職務 (如醫師、護理師)</label>
-                        <input type="text" name="position" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>上傳縮圖 (JPG/PNG)</label>
-                        <input type="file" name="thumbnail" accept="image/*" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>上傳影片或 Zip 檔 (包含 index.html)</label>
-                        <input type="file" name="video_file" accept=".mp4,.zip" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit">開始上傳</button>
-            </form>
-        </div>
-    </div>
-</body>
-
-</html>
+include 'templates/upload.php';

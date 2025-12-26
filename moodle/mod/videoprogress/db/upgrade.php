@@ -74,5 +74,20 @@ function xmldb_videoprogress_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024121603, 'videoprogress');
     }
 
+    if ($oldversion < 2024122302) {
+        // 新增 completionenabled 欄位
+        $table = new xmldb_table('videoprogress');
+        $field = new xmldb_field('completionenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'requirefocus');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // 將所有現有活動設為 1
+        $DB->execute("UPDATE {videoprogress} SET completionenabled = 1");
+
+        upgrade_mod_savepoint(true, 2024122302, 'videoprogress');
+    }
+
     return true;
 }

@@ -82,11 +82,23 @@ class mod_videoprogress_mod_form extends moodleform_mod {
             array(
                 'subdirs' => 0,
                 'maxfiles' => 1,
-                'accepted_types' => array('video'),
+                'accepted_types' => array('video', '.zip'),
             )
         );
         $mform->addHelpButton('videofile', 'videofile', 'videoprogress');
         $mform->hideIf('videofile', 'videotype', 'neq', 'upload');
+        
+        // Evercam ZIP 套件說明
+        $mform->addElement('static', 'upload_zip_note', '', 
+            '<div class="alert alert-info mt-2" style="padding: 10px 15px;">' .
+            '<i class="fa fa-info-circle"></i> <strong>支援 Evercam ZIP 套件</strong><br>' .
+            '<small>' .
+            '• 如上傳 <strong>ZIP 檔案</strong>，需包含：<code>index.html</code>（必要）、影片檔案、<code>config.js</code>（可選，用於章節目錄）<br>' .
+            '• 如為<strong>單純影片檔</strong>（MP4、MOV 等），請直接上傳影片檔案即可' .
+            '</small>' .
+            '</div>'
+        );
+        $mform->hideIf('upload_zip_note', 'videotype', 'neq', 'upload');
 
         // 影片長度（隱藏欄位，由系統自動偵測）
         $mform->addElement('hidden', 'videoduration', 0);
@@ -97,28 +109,42 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         // ==========================================
         $mform->addElement('header', 'completionsettings', get_string('completionpercent', 'videoprogress'));
 
-        // 完成門檻百分比
-        $percentages = array();
+        // 完成門檻百分比（現在也適用於外部網址模式）
+        $percentages = array(0 => '0%');
         for ($i = 10; $i <= 100; $i += 10) {
             $percentages[$i] = $i . '%';
         }
         $mform->addElement('select', 'completionpercent', get_string('completionpercent', 'videoprogress'), $percentages);
         $mform->addHelpButton('completionpercent', 'completionpercent', 'videoprogress');
-        $mform->setDefault('completionpercent', 80);
-        $mform->hideIf('completionpercent', 'videotype', 'eq', 'external');
+        $mform->setDefault('completionpercent', 0);
+        
+        // 完成門檻說明
+        $mform->addElement('static', 'completionpercent_note', '', 
+            '<small style="color: #000;">設為 0% 表示點開即完成</small>'
+        );
 
-        // 外部網址專用：最少停留秒數（移至此處）
+        // 外部網址專用：最少停留秒數
         $mform->addElement('text', 'externalmintime', get_string('externalmintime', 'videoprogress'), array('size' => '10'));
         $mform->setType('externalmintime', PARAM_INT);
         $mform->addHelpButton('externalmintime', 'externalmintime', 'videoprogress');
         $mform->setDefault('externalmintime', 60);
         $mform->hideIf('externalmintime', 'videotype', 'neq', 'external');
 
-        // 專注模式（切換分頁時暫停）- 僅 YouTube / 上傳影片
+        // 外部網址偵測說明
+        $mform->addElement('static', 'external_detection_note', '', 
+            '<div class="alert alert-info">' .
+            '<strong>外部網址自動偵測：</strong><br>' .
+            '系統會嘗試自動偵測網頁中的影片。如果偵測成功，將使用「觀看百分比」作為完成條件；' .
+            '如果無法偵測，則使用「最少停留秒數」作為完成條件。' .
+            '</div>'
+        );
+        $mform->hideIf('external_detection_note', 'videotype', 'neq', 'external');
+
+        // 專注模式（切換分頁時暫停）- 現在也適用於外部網址
         $mform->addElement('advcheckbox', 'requirefocus', get_string('requirefocus', 'videoprogress'));
         $mform->addHelpButton('requirefocus', 'requirefocus', 'videoprogress');
         $mform->setDefault('requirefocus', 0);
-        $mform->hideIf('requirefocus', 'videotype', 'eq', 'external');
+        // 不再隱藏 - 外部網址如果偵測成功也會有專注模式
 
         // ==========================================
         // 標準課程模組元素
@@ -139,6 +165,8 @@ class mod_videoprogress_mod_form extends moodleform_mod {
      * @return array 錯誤訊息
      */
     public function validation($data, $files) {
+        global $USER;
+        
         $errors = parent::validation($data, $files);
 
         // YouTube 必須填網址
@@ -156,6 +184,36 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         // 外部網址必須填
         if ($data['videotype'] === 'external' && empty($data['externalurl'])) {
             $errors['externalurl'] = get_string('required');
+        }
+
+        // 上傳模式：檢查 ZIP 檔案是否包含 index.html
+        if ($data['videotype'] === 'upload' && !empty($data['videofile'])) {
+            $fs = get_file_storage();
+            $usercontext = context_user::instance($USER->id);
+            
+            // 從 draft area 取得上傳的檔案
+            $draftfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $data['videofile'], 'id', false);
+            $draftfile = reset($draftfiles);
+            
+            if ($draftfile && strtolower(pathinfo($draftfile->get_filename(), PATHINFO_EXTENSION)) === 'zip') {
+                // 檢查 ZIP 內容
+                $packer = get_file_packer('application/zip');
+                $zipcontents = $draftfile->list_files($packer);
+                
+                $hasIndexHtml = false;
+                if ($zipcontents) {
+                    foreach ($zipcontents as $file) {
+                        if (isset($file->pathname) && basename($file->pathname) === 'index.html') {
+                            $hasIndexHtml = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!$hasIndexHtml) {
+                    $errors['videofile'] = 'ZIP 檔案必須包含 index.html 檔案。請確認您的 ZIP 套件結構正確。';
+                }
+            }
         }
 
         return $errors;
@@ -210,5 +268,27 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         if ($mform->elementExists('completionunlocked')) {
             $mform->removeElement('completionunlocked');
         }
+    }
+
+    /**
+     * 新增自訂完成規則
+     * 這個方法讓 Moodle 知道我們有自訂的完成條件
+     */
+    public function add_completion_rules() {
+        $mform = $this->_form;
+        
+        // 新增一個隱藏的完成規則元素（永遠為 1）
+        $mform->addElement('hidden', 'completionenabled', 1);
+        $mform->setType('completionenabled', PARAM_INT);
+        
+        return array('completionenabled');
+    }
+
+    /**
+     * 檢查完成規則是否啟用
+     */
+    public function completion_rule_enabled($data) {
+        // completionenabled 永遠是 1，所以規則永遠啟用
+        return !empty($data['completionenabled']);
     }
 }

@@ -59,8 +59,6 @@ function videoprogress_save_segment($videogressid, $userid, $start, $end) {
 
     $now = time();
 
-
-
     // 簡單策略：只插入，不刪除。讓 update_progress 處理重疊計算。
     // 這樣可以避免 Race Condition 導致資料遺失。
     
@@ -73,7 +71,6 @@ function videoprogress_save_segment($videogressid, $userid, $start, $end) {
     
     // 直接插入
     $newid = $DB->insert_record('videoprogress_segments', $record);
-
 
     // 更新進度摘要
     videoprogress_update_progress($videogressid, $userid, $end);
@@ -93,8 +90,6 @@ function videoprogress_update_progress($videogressid, $userid, $lastposition = n
 
     $now = time();
 
-
-
     // 取得活動資訊
     $videoprogress = $DB->get_record('videoprogress', array('id' => $videogressid), '*', MUST_EXIST);
 
@@ -105,14 +100,12 @@ function videoprogress_update_progress($videogressid, $userid, $lastposition = n
     ));
 
     // 根據影片類型使用不同的計算方式
-    if ($videoprogress->videotype === 'external') {
-        // 外部網址：簡單累加所有區段時間（每次觀看都計算）
-        $watchedtime = 0;
-        foreach ($segments as $segment) {
-            $watchedtime += ($segment->segmentend - $segment->segmentstart);
-        }
-    } else {
-        // YouTube / 上傳影片：使用區間合併算法（避免重複計算同一段落）
+    // 外部網址如果有 duration（使用 HTML5 Video 模式），跟上傳影片一樣用區間合併
+    $usePercentMode = ($videoprogress->videotype !== 'external') || 
+                      ($videoprogress->videotype === 'external' && $videoprogress->videoduration > 0);
+    
+    if ($usePercentMode) {
+        // YouTube / 上傳影片 / 外部網址(HTML5)：使用區間合併算法（避免重複計算同一段落）
         $intervals = array();
         foreach ($segments as $segment) {
             $intervals[] = array($segment->segmentstart, $segment->segmentend);
@@ -145,19 +138,24 @@ function videoprogress_update_progress($videogressid, $userid, $lastposition = n
         foreach ($merged as $interval) {
             $watchedtime += ($interval[1] - $interval[0]);
         }
+    } else {
+        // 外部網址（iframe 計時模式）：簡單累加所有區段時間
+        $watchedtime = 0;
+        foreach ($segments as $segment) {
+            $watchedtime += ($segment->segmentend - $segment->segmentstart);
+        }
     }
-
 
     // 計算百分比和完成狀態
     $duration = $videoprogress->videoduration;
     
-    if ($videoprogress->videotype === 'external') {
-        // ...
+    if ($videoprogress->videotype === 'external' && $duration <= 0) {
+        // 外部網址（iframe 計時模式）：用累計時間
         $requiredSeconds = isset($videoprogress->externalmintime) ? $videoprogress->externalmintime : 60;
         $percentcomplete = $requiredSeconds > 0 ? min(100, round(($watchedtime / $requiredSeconds) * 100)) : 0;
         $completed = $watchedtime >= $requiredSeconds ? 1 : 0;
     } else {
-        // ...
+        // YouTube / 上傳影片 / 外部網址(HTML5)：用百分比
         $percentcomplete = $duration > 0 ? min(100, round(($watchedtime / $duration) * 100)) : 0;
         $completed = $percentcomplete >= $videoprogress->completionpercent ? 1 : 0;
     }
@@ -333,8 +331,138 @@ function videoprogress_fix_completion_records($cmid, $userid) {
 }
 
 /**
- * 除錯日誌 helper（已停用）
+ * 偵測外部網址的實際影片 URL 和時長
+ * 
+ * @param string $externalurl 外部網址
+ * @return array|null ['videourl' => string, 'duration' => int] 或 null
  */
-function videoprogress_log($msg) {
-    // Debug logging disabled in production
+function videoprogress_detect_external_video($externalurl) {
+    global $CFG;
+    
+    if (empty($externalurl)) {
+        return null;
+    }
+    
+    // 如果已經是直接影片格式，直接回傳
+    if (preg_match('/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i', $externalurl)) {
+        return [
+            'videourl' => $externalurl,
+            'duration' => null,
+            'is_direct_video' => true
+        ];
+    }
+    
+    // 呼叫 detect_video.php 的邏輯（內部重複使用）
+    require_once(__DIR__ . '/detect_video.php');
+    
+    // 由於 detect_video.php 是為 AJAX 設計的，我們需要直接呼叫其中的函數
+    // 先檢查函數是否存在
+    if (!function_exists('getVideoDuration')) {
+        return null;
+    }
+    
+    // 嘗試解析網頁找出影片 URL
+    $videoUrl = null;
+    $method = '';
+    
+    // 使用 cURL 取得外部網頁內容
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $externalurl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    ]);
+    
+    $html = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    curl_close($ch);
+    
+    if ($html === false || $httpCode !== 200) {
+        return null;
+    }
+    
+    // 取得基底 URL
+    $parsedUrl = parse_url($finalUrl);
+    $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+    if (isset($parsedUrl['port'])) {
+        $baseUrl .= ':' . $parsedUrl['port'];
+    }
+    $basePath = isset($parsedUrl['path']) ? dirname($parsedUrl['path']) : '';
+    if ($basePath === '\\' || $basePath === '/') {
+        $basePath = '';
+    }
+    
+    // 輔助函數：轉換為絕對 URL
+    $makeAbsoluteUrl = function($relativeUrl) use ($baseUrl, $basePath) {
+        if (preg_match('/^https?:\/\//i', $relativeUrl)) {
+            return $relativeUrl;
+        }
+        if (strpos($relativeUrl, '//') === 0) {
+            return 'https:' . $relativeUrl;
+        }
+        if (strpos($relativeUrl, '/') === 0) {
+            return $baseUrl . $relativeUrl;
+        }
+        return $baseUrl . $basePath . '/' . $relativeUrl;
+    };
+    
+    // 嘗試各種方法找出影片 URL
+    $patterns = [
+        '/<video[^>]+src=["\']([^"\']+\.(mp4|webm|ogg|ogv|mov|m4v)[^"\']*)["\']/' => 'video_src',
+        '/<source[^>]+src=["\']([^"\']+\.(mp4|webm|ogg|ogv|mov|m4v)[^"\']*)["\']/' => 'source_src',
+        '/file:\s*["\']([^"\']+\.(mp4|webm|ogg|ogv|mov|m4v)[^"\']*)["\']/' => 'jwplayer',
+        '/["\']([^"\']*\.(mp4|webm)[^"\']*)["\']/' => 'generic',
+    ];
+    
+    foreach ($patterns as $pattern => $methodName) {
+        if (preg_match($pattern, $html, $matches)) {
+            $videoUrl = $makeAbsoluteUrl($matches[1]);
+            $method = $methodName;
+            break;
+        }
+    }
+    
+    // 如果還沒找到，嘗試常見檔名
+    if (!$videoUrl) {
+        $commonNames = ['media.mp4', 'video.mp4', 'main.mp4', 'content.mp4'];
+        foreach ($commonNames as $name) {
+            $testUrl = $baseUrl . $basePath . '/' . $name;
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $testUrl,
+                CURLOPT_NOBODY => true,
+                CURLOPT_TIMEOUT => 5,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            curl_exec($ch);
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($code === 200) {
+                $videoUrl = $testUrl;
+                $method = 'common_name';
+                break;
+            }
+        }
+    }
+    
+    if (!$videoUrl) {
+        return null;
+    }
+    
+    // 取得影片時長
+    $debug = [];
+    $duration = getVideoDuration($videoUrl, $debug);
+    
+    return [
+        'videourl' => $videoUrl,
+        'duration' => $duration,
+        'method' => $method,
+        'is_direct_video' => false
+    ];
 }

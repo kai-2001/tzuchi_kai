@@ -1,6 +1,0 @@
-Testing https://lms.tzuchi.com.tw/tzuchi/webservice/user/svr.php ... HTTP CODE: 404
-Testing http://lms.tzuchi.com.tw/tzuchi/webservice/user/svr.php ... HTTP CODE: 0
-Testing https://lms.tzuchi.com.tw/webservice/user/svr.php ... HTTP CODE: 404
-Testing http://lms.tzuchi.com.tw/webservice/user/svr.php ... HTTP CODE: 0
-Testing https://lms.tzuchi.com.tw/tzuchi/webservice/user/ ... HTTP CODE: 404
-Testing https://lms.tzuchi.com.tw/tzuchi/ ... HTTP CODE: 200

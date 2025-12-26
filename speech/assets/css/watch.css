@@ -1,0 +1,124 @@
+/**
+ * Watch Page Styles
+ */
+
+.watch-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.video-player-container {
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 25px;
+}
+
+.player-wrapper {
+    position: relative;
+    padding-top: 56.25%;
+    background: #000;
+}
+
+.player-wrapper iframe,
+.player-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.video-details-section {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    margin-bottom: 40px;
+}
+
+.campus-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f1f5f9;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.video-title-main {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 25px;
+    line-height: 1.3;
+}
+
+.meta-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 25px;
+}
+
+.meta-info-list li {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.meta-info-list li i {
+    width: 20px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.meta-info-list li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.watch-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-open-popup {
+    padding: 8px 15px;
+    background: white;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-open-popup:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: #f0f9ff;
+}
+
+@media (max-width: 768px) {
+    .video-details-section {
+        padding: 25px;
+    }
+
+    .video-title-main {
+        font-size: 1.4rem;
+    }
+}
