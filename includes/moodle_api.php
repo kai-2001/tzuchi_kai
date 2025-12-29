@@ -331,12 +331,24 @@ function fetch_announcements($my_courses_raw)
     $forums = call_moodle($moodle_url, $moodle_token, 'mod_forum_get_forums_by_courses', $f_params);
 
     if (!empty($forums)) {
+        $p_requests = [];
         foreach ($forums as $forum) {
             if ($forum['type'] === 'news' || strpos($forum['name'], '公告') !== false) {
-                $d_params = ['forumid' => $forum['id']];
-                $discussions_data = call_moodle($moodle_url, $moodle_token, 'mod_forum_get_forum_discussions', $d_params);
-                if (isset($discussions_data['discussions'])) {
-                    foreach ($discussions_data['discussions'] as $disc) {
+                $p_requests[] = [
+                    'key' => $forum['id'],
+                    'func' => 'mod_forum_get_forum_discussions',
+                    'params' => ['forumid' => $forum['id']]
+                ];
+            }
+        }
+
+        if (!empty($p_requests)) {
+            $p_results = call_moodle_parallel($moodle_url, $moodle_token, $p_requests);
+
+            foreach ($forums as $forum) {
+                $forum_id = $forum['id'];
+                if (isset($p_results[$forum_id]['discussions'])) {
+                    foreach ($p_results[$forum_id]['discussions'] as $disc) {
                         $latest_announcements[] = [
                             'course_name' => isset($course_names[$forum['course']]) ? $course_names[$forum['course']] : '全站公告',
                             'subject' => $disc['subject'],

@@ -20,6 +20,8 @@ $target_url = isset($_GET['url']) ? $_GET['url'] : $moodle_url . '/my/';
 
 // 產生 SSO URL
 $username = $_SESSION['username'];
+session_write_close(); // 🚀 關鍵優化：讀完後立即釋放 Session 鎖，讓後續跳轉後的 Moodle 不會被卡住
+
 $timestamp = time();
 
 // 建立 payload

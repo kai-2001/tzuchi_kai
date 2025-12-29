@@ -5,44 +5,50 @@
  * 檢查使用者是否為開課教師 (teacherplus)
  * 透過 portal_db 的 role 欄位查詢
  * @param string $username 使用者帳號
+ * @param mysqli $conn 可選的現有資料庫連線
  * @return bool 是否為開課教師
  */
-function check_teacherplus_role($username)
+function check_teacherplus_role($username, $conn = null)
 {
     global $db_host, $db_user, $db_pass, $db_name;
+    $local_conn = false;
 
     try {
-        $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+        if (!$conn) {
+            $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+            $local_conn = true;
+        }
+
         if ($conn->connect_error) {
-            error_log("DB connection error: " . $conn->connect_error);
             return false;
         }
 
         // 查詢使用者的 role 欄位
         $stmt = $conn->prepare("SELECT role FROM users WHERE username = ?");
         if (!$stmt) {
-            // role 欄位可能不存在
-            $conn->close();
+            if ($local_conn)
+                $conn->close();
             return false;
         }
 
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
+        $is_teacherplus = false;
 
         if ($row = $result->fetch_assoc()) {
-            $stmt->close();
-            $conn->close();
-            return ($row['role'] === 'teacherplus');
+            $is_teacherplus = ($row['role'] === 'teacherplus');
         }
 
         $stmt->close();
-        $conn->close();
+        if ($local_conn)
+            $conn->close();
+        return $is_teacherplus;
+
     } catch (Exception $e) {
         error_log("Role check error: " . $e->getMessage());
+        return false;
     }
-
-    return false;
 }
 
 
@@ -64,7 +70,6 @@ function check_auto_login()
 
             $stmt = $conn->prepare("SELECT * FROM users WHERE remember_token = ?");
             if (!$stmt) {
-                // remember_token 欄位可能不存在
                 $conn->close();
                 return;
             }
@@ -75,15 +80,15 @@ function check_auto_login()
 
             if ($result->num_rows > 0) {
                 $user_row = $result->fetch_assoc();
-                $_SESSION['user_id'] = $user_row['username'];  // 使用 username 作為 ID
+                $_SESSION['user_id'] = $user_row['username'];
                 $_SESSION['username'] = $user_row['username'];
                 $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
                 $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
 
-                // 檢測開課教師角色
-                $_SESSION['is_teacherplus'] = check_teacherplus_role($user_row['username']);
+                // 檢測開課教師角色 (帶入現有連線)
+                $_SESSION['is_teacherplus'] = check_teacherplus_role($user_row['username'], $conn);
 
-                // 設定角色 Cookie (供 Moodle 前端判斷使用)
+                // 設定角色 Cookie
                 setcookie('portal_is_admin', $_SESSION['is_admin'] ? '1' : '0', 0, '/');
                 setcookie('portal_is_teacherplus', $_SESSION['is_teacherplus'] ? '1' : '0', 0, '/');
             }
@@ -284,8 +289,8 @@ function process_login()
     $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
     $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
 
-    // 檢測開課教師角色 (teacherplus)
-    $_SESSION['is_teacherplus'] = check_teacherplus_role($user_row['username']);
+    // 檢測開課教師角色 (teacherplus) - 帶入現有連線
+    $_SESSION['is_teacherplus'] = check_teacherplus_role($user_row['username'], $conn);
 
     // 設定角色 Cookie (供 Moodle 前端判斷使用)
     setcookie('portal_is_admin', $_SESSION['is_admin'] ? '1' : '0', 0, '/');

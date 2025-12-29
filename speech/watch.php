@@ -42,9 +42,17 @@ if (!$video) {
 }
 
 // ============================================
-// LOGIC: Determine content type
+// LOGIC: Fetch user progress
 // ============================================
-$is_html = (pathinfo($video['content_path'], PATHINFO_EXTENSION) === 'html');
+$user_id = $_SESSION['user_id'];
+$last_position = 0;
+$stmt = $conn->prepare("SELECT last_position FROM video_progress WHERE user_id = ? AND video_id = ?");
+$stmt->bind_param("ii", $user_id, $id);
+$stmt->execute();
+$progress_res = $stmt->get_result()->fetch_assoc();
+if ($progress_res) {
+    $last_position = $progress_res['last_position'];
+}
 
 // ============================================
 // TEMPLATE: Pass data to template

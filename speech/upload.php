@@ -71,6 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle Content (MP4 or ZIP)
         $content_path = '';
+        $format = 'mp4';
+        $metadata = null;
+        $duration = 0;
+
         if (isset($_FILES['video_file'])) {
             if ($_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
                 $ext = strtolower(pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION));
@@ -81,60 +85,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $filename = $file_id . '.mp4';
                     move_uploaded_file($temp_name, UPLOAD_DIR_VIDEOS . $filename);
                     $content_path = 'uploads/videos/' . $filename;
+                    $format = 'mp4';
                 } elseif ($ext === 'zip') {
                     $zip = new ZipArchive;
                     if ($zip->open($temp_name) === TRUE) {
                         $extract_dir = UPLOAD_DIR_VIDEOS . $file_id . '/';
                         mkdir($extract_dir, 0777, true);
 
-                        // Allowed extensions whitelist
-                        $allowed_inner_exts = ['html', 'htm', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'mp4', 'json'];
-                        $index_found = false;
-                        $total_uncompressed_size = 0;
-                        $max_uncompressed_size = 512 * 1024 * 1024; // 512MB
+                        // Locate config.js and identify video file
+                        $config_content = '';
+                        $video_filename = '';
+                        $has_config = false;
 
-                        // Pre-check total size
                         for ($i = 0; $i < $zip->numFiles; $i++) {
-                            $stat = $zip->statIndex($i);
-                            $total_uncompressed_size += $stat['size'];
+                            $zf = $zip->getNameIndex($i);
+                            if (basename($zf) === 'config.js') {
+                                $config_content = $zip->getFromIndex($i);
+                                $has_config = true;
+                            }
                         }
 
-                        if ($total_uncompressed_size > $max_uncompressed_size) {
+                        if (!$has_config) {
                             $zip->close();
                             deleteDir($extract_dir);
-                            throw new Exception("上傳失敗：ZIP 內容解壓縮後預計佔用 " . round($total_uncompressed_size / 1024 / 1024, 2) . "MB，超過系統限制 (100MB)。");
+                            throw new Exception("ZIP 檔案中未找到 config.js，這可能不是標準的 EverCam 網頁匯出檔。");
                         }
 
-                        for ($i = 0; $i < $zip->numFiles; $i++) {
-                            $filename = $zip->getNameIndex($i);
+                        // Parse config.js for video filename and chapters
+                        // Format: var config = { ... };
+                        if (preg_match('/var\s+config\s*=\s*(\{.*\})/s', $config_content, $matches)) {
+                            $json_text = trim($matches[1]);
+                            // Remove trailing semicolon if captured inside the brace block by mistake (though unlikely with {.*})
+                            $json_text = rtrim($json_text, ';');
 
-                            // Path Traversal Protection
-                            if (strpos($filename, '..') !== false || strpos($filename, '/') === 0 || strpos($filename, '\\') === 0) {
-                                continue;
-                            }
-
-                            // Extension Whitelisting
-                            $inner_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                            if (empty($inner_ext) || !in_array($inner_ext, $allowed_inner_exts)) {
-                                if (substr($filename, -1) !== '/') {
-                                    continue;
+                            $config_data = json_decode($json_text, true);
+                            if ($config_data) {
+                                if (isset($config_data['src'][0]['src'])) {
+                                    $video_filename = $config_data['src'][0]['src'];
+                                }
+                                if (isset($config_data['index'])) {
+                                    // Store with indentation if present
+                                    $metadata = json_encode($config_data['index']);
+                                }
+                                if (isset($config_data['duration'])) {
+                                    $duration = (int) ($config_data['duration'] / 1000); // ms to s
                                 }
                             }
+                        }
 
-                            $zip->extractTo($extract_dir, $filename);
-
-                            if (basename($filename) === 'index.html') {
-                                $index_found = true;
+                        if (empty($video_filename)) {
+                            // Try fallback to media.mp4
+                            for ($i = 0; $i < $zip->numFiles; $i++) {
+                                if (basename($zip->getNameIndex($i)) === 'media.mp4') {
+                                    $video_filename = 'media.mp4';
+                                    break;
+                                }
                             }
                         }
+
+                        if (empty($video_filename)) {
+                            $zip->close();
+                            deleteDir($extract_dir);
+                            throw new Exception("無法從 ZIP 中識別影片檔案。");
+                        }
+
+                        // Extract ONLY the video file and config.js
+                        $zip->extractTo($extract_dir, ['config.js', $video_filename]);
                         $zip->close();
 
-                        if ($index_found) {
-                            $content_path = 'uploads/videos/' . $file_id . '/index.html';
-                        } else {
-                            deleteDir($extract_dir);
-                            throw new Exception("ZIP 檔案中未找到 index.html 檔案，或所有檔案皆因安全限制被攔截。");
-                        }
+                        $content_path = 'uploads/videos/' . $file_id . '/' . $video_filename;
+                        $format = 'evercam';
                     } else {
                         throw new Exception("無法開啟 ZIP 檔案。");
                     }
@@ -152,10 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Save Video with ownership
+        // Save Video with ownership and new metadata
         $user_id = $_SESSION['user_id'];
-        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, thumbnail_path, event_date, campus_id, speaker_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssiii", $title, $content_path, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id);
+        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssissiii", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id);
         $stmt->execute();
 
         $conn->commit();

@@ -7,22 +7,34 @@
     margin: 0 auto;
 }
 
-.video-player-container {
+.video-player-section {
     background: #000;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     border: 1px solid var(--glass-border);
     margin-bottom: 25px;
 }
 
-.player-wrapper {
-    position: relative;
-    padding-top: 56.25%;
-    background: #000;
+.player-layout.dual-view {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    background: #111;
 }
 
-.player-wrapper iframe,
+.main-player {
+    background: #000;
+    display: flex;
+    align-items: center;
+}
+
+.player-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    /* 16:9 */
+}
+
 .player-wrapper video {
     position: absolute;
     top: 0;
@@ -30,6 +42,103 @@
     width: 100%;
     height: 100%;
     border: none;
+}
+
+/* Sidebar Styling */
+.chapters-sidebar {
+    background: #1a1a1a;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: calc(100vw * 9/16 / (1 + 300/1000));
+    /* Approx matching video height */
+}
+
+@media (min-width: 1100px) {
+    .chapters-sidebar {
+        max-height: 618px;
+    }
+}
+
+.sidebar-header {
+    padding: 15px 20px;
+    background: #252525;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chapter-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.chapter-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.chapter-item:hover {
+    background: #2a2a2a;
+}
+
+.chapter-item.active {
+    background: #333;
+    border-left-color: var(--primary-color);
+}
+
+.chap-num {
+    color: #666;
+    font-size: 0.85rem;
+    font-family: monospace;
+    margin-top: 2px;
+}
+
+.chapter-item.active .chap-num {
+    color: var(--primary-color);
+}
+
+.chap-title {
+    flex: 1;
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chapter-item.active .chap-title {
+    color: #fff;
+    font-weight: 500;
+}
+
+.chap-time {
+    color: #666;
+    font-size: 0.8rem;
+    background: #252525;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+    .player-layout.dual-view {
+        grid-template-columns: 1fr;
+    }
+
+    .chapters-sidebar {
+        border-left: none;
+        border-top: 1px solid #333;
+        max-height: 300px;
+    }
 }
 
 .video-details-section {
@@ -59,6 +168,102 @@
     color: var(--text-primary);
     margin-bottom: 25px;
     line-height: 1.3;
+}
+
+/* Resume Prompt - Floating Pop-up at top center */
+.resume-prompt-overlay {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.prompt-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(0, 132, 145, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 132, 145, 0.2);
+    pointer-events: auto;
+}
+
+.resume-prompt-overlay[style*="display: flex"] {
+    transform: translateX(-50%) translateY(0);
+}
+
+.prompt-content i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.prompt-content span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.prompt-content span strong {
+    color: var(--primary-color);
+}
+
+.btn-resume-action {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-resume-action:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.btn-resume-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.btn-resume-close:hover {
+    color: #ff4d4d;
+}
+
+@media (max-width: 600px) {
+    .resume-prompt-overlay {
+        top: 20px;
+        width: 90%;
+    }
+
+    .prompt-content {
+        width: 100%;
+        padding: 8px 15px;
+        gap: 8px;
+    }
+
+    .prompt-content span {
+        font-size: 0.8rem;
+    }
 }
 
 .meta-info-list {

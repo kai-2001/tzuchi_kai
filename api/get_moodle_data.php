@@ -30,6 +30,10 @@ if (!isset($_SESSION['username'])) {
 // 檢查是否為管理員
 $is_admin = isset($_SESSION['is_admin']) ? $_SESSION['is_admin'] : false;
 
+// 🚀 關鍵優化：在進入耗時的 API 抓取前釋放 Session 鎖
+// 這讓使用者在背景同步資料的同時，依然可以點擊其他連結或前往 Moodle
+session_write_close();
+
 if ($is_admin) {
     // 管理員不需要資料
     echo json_encode([

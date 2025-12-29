@@ -59,7 +59,7 @@ echo "歡迎登入, " . htmlspecialchars($username);
 ?>
 ```
 
-## 4. 關鍵安全要點 (主管必看)
+## 4. 關鍵安全要點
 
 > [!IMPORTANT]
 > **共享金鑰管理**：每一對平台(入口網-App A, 入口網-App B) 應使用獨立的金鑰。即便 App A 的金鑰外洩，也不會影響到 App B 的安全。
