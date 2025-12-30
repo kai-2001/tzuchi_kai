@@ -9,24 +9,27 @@
 include __DIR__ . '/partials/header.php';
 ?>
 
-<header>
-    <div class="header-top">
+<header class="static-header">
+    <div class="header-container">
         <div class="header-left">
             <a href="index.php" class="logo">
-                <h1 class="logo-text">學術演講影片平台</h1>
+                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
             </a>
-            <span class="breadcrumb-separator">/</span>
-            <h2 class="page-title"><?= htmlspecialchars($video['title']) ?></h2>
+            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
+            <h2 class="page-title"
+                style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0; max-width: 600px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <?= htmlspecialchars($video['title']) ?>
+            </h2>
         </div>
         <div class="user-nav">
-            <a href="javascript:history.back()" class="btn-logout">
+            <a href="javascript:history.back()" class="btn-admin">
                 <i class="fa-solid fa-rotate-left"></i> 返回上一頁
             </a>
         </div>
     </div>
 </header>
 
-<div class="watch-container">
+<div class="watch-container" style="padding-top: 120px;">
     <?php if ($last_position > 0): ?>
         <?php
         $m = floor($last_position / 60);

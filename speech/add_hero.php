@@ -1,0 +1,50 @@
+<?php
+/**
+ * Add Hero Slide Controller
+ */
+require_once 'includes/config.php';
+require_once 'includes/auth.php';
+
+if (!is_manager()) {
+    die("未授權");
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = $_POST['title'];
+    $speaker_name = $_POST['speaker_name'];
+    $event_date = $_POST['event_date'];
+    $campus_id = (int) $_POST['campus_id'];
+    $link_url = $_POST['link_url'];
+    $sort_order = (int) $_POST['sort_order'];
+    $is_hero = isset($_POST['is_hero']) ? 1 : 0;
+    $image_url = '';
+
+    // Handle Image Upload
+    if (isset($_FILES['slide_image']) && $_FILES['slide_image']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'uploads/hero/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        $file_ext = pathinfo($_FILES['slide_image']['name'], PATHINFO_EXTENSION);
+        $new_filename = uniqid('hero_') . '.' . $file_ext;
+        $target_path = $upload_dir . $new_filename;
+
+        if (move_uploaded_file($_FILES['slide_image']['tmp_name'], $target_path)) {
+            $image_url = $target_path;
+        }
+    }
+
+    $stmt = $conn->prepare("INSERT INTO hero_slides (title, speaker_name, event_date, campus_id, link_url, sort_order, image_url, is_hero) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssisisi", $title, $speaker_name, $event_date, $campus_id, $link_url, $sort_order, $image_url, $is_hero);
+    $stmt->execute();
+
+    header("Location: manage_hero.php?msg=added");
+    exit;
+}
+
+$campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
+$page_title = '新增橫幅';
+$page_css_files = ['manage.css'];
+
+include 'templates/add_hero.php';
+?>

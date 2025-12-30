@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $video_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
     $position = isset($_POST['position']) ? (int) $_POST['position'] : 0;
     $user_id = $_SESSION['user_id'];
+    session_write_close();
 
     if ($video_id > 0) {
         // Use UPSERT (INSERT ... ON DUPLICATE KEY UPDATE)

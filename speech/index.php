@@ -7,6 +7,7 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
+session_write_close();
 
 // ============================================
 // LOGIC: Pagination settings
@@ -78,28 +79,41 @@ $videos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
 
 // ============================================
-// LOGIC: Get Upcoming Lectures
+// LOGIC: Get Upcoming Lectures (Fallback for Hero)
 // ============================================
 $upcoming_query = "SELECT u.*, c.name as campus_name 
-                  FROM upcoming_lectures u
+                  FROM announcements u
                   LEFT JOIN campuses c ON u.campus_id = c.id
-                  WHERE u.event_date >= CURRENT_DATE
+                  WHERE u.event_date >= CURRENT_DATE AND u.is_active = 1
                   ORDER BY u.event_date ASC";
 $upcoming_raw = $conn->query($upcoming_query)->fetch_all(MYSQLI_ASSOC);
 
 // Group by Month -> Campus
 $upcoming_grouped = [];
 foreach ($upcoming_raw as $lecture) {
+    if (!$lecture['event_date'])
+        continue;
     $month = date('Y-m', strtotime($lecture['event_date']));
-    $campus = $lecture['campus_name'];
+    $campus = $lecture['campus_name'] ?? '全院';
     $upcoming_grouped[$month][$campus][] = $lecture;
 }
 
 // ============================================
+// LOGIC: Get Hero Slides (Curated)
+// query announcements where is_hero = 1
+// ============================================
+$hero_query = "SELECT s.*, c.name as campus_name FROM announcements s 
+               LEFT JOIN campuses c ON s.campus_id = c.id 
+               WHERE s.is_active = 1 AND s.is_hero = 1
+               ORDER BY s.sort_order ASC, s.created_at DESC LIMIT 5";
+$hero_slides = $conn->query($hero_query)->fetch_all(MYSQLI_ASSOC);
+
+// ============================================
 // TEMPLATE: Pass data to template
 // ============================================
-$page_title = APP_NAME;
-$show_login_modal = true;
+$page_title = '首頁';
+$page_css_files = [];
 $page_js = "window.isLoggedIn = " . (is_logged_in() ? 'true' : 'false') . ";";
+$show_login_modal = true;
 
 include 'templates/home.php';

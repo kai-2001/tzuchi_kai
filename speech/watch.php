@@ -45,6 +45,7 @@ if (!$video) {
 // LOGIC: Fetch user progress
 // ============================================
 $user_id = $_SESSION['user_id'];
+session_write_close();
 $last_position = 0;
 $stmt = $conn->prepare("SELECT last_position FROM video_progress WHERE user_id = ? AND video_id = ?");
 $stmt->bind_param("ii", $user_id, $id);

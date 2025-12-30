@@ -1,12 +1,6 @@
 <?php
 /**
- * Manage Upcoming Lectures Template
- * 
- * Variables:
- * - $lectures (array)
- * - $search (string)
- * - $page (int)
- * - $total_pages (int)
+ * Manage Announcements Template
  */
 include __DIR__ . '/partials/header.php';
 ?>
@@ -19,10 +13,9 @@ include __DIR__ . '/partials/header.php';
             </a>
             <span class="breadcrumb-separator" style="color: #ccc;">/</span>
             <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                近期預告管理</h2>
+                公告管理</h2>
         </div>
         <div class="user-nav">
-            <a href="manage_hero.php" class="btn-admin"><i class="fa-solid fa-image"></i> 橫幅管理</a>
             <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-video"></i> 影片管理</a>
             <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> 返回首頁</a>
         </div>
@@ -33,57 +26,69 @@ include __DIR__ . '/partials/header.php';
     <div class="upload-form">
         <?php if (isset($_GET['msg'])): ?>
             <?php if ($_GET['msg'] === 'deleted'): ?>
-                <div class="alert alert-success">預告已成功刪除。</div>
+                <div class="alert alert-success">公告已成功刪除。</div>
             <?php elseif ($_GET['msg'] === 'updated'): ?>
-                <div class="alert alert-success">預告已成功更新。</div>
+                <div class="alert alert-success">狀態已更新。</div>
             <?php elseif ($_GET['msg'] === 'added'): ?>
-                <div class="alert alert-success">預告已成功新增。</div>
+                <div class="alert alert-success">公告已成功新增。</div>
             <?php endif; ?>
         <?php endif; ?>
 
         <div class="search-bar">
-            <form action="manage_upcoming.php" method="GET" style="display:flex; width:100%; gap:10px;">
-                <input type="text" name="q" placeholder="搜尋預告標題或講者..." value="<?= htmlspecialchars($search) ?>">
+            <form action="manage_announcements.php" method="GET" style="display:flex; width:100%; gap:10px;">
+                <input type="text" name="q" placeholder="搜尋標題、講者或地點..." value="<?= htmlspecialchars($search ?? '') ?>">
                 <button type="submit" class="btn-admin" style="width: auto; padding: 0 20px;"><i
                         class="fa-solid fa-magnifying-glass"></i></button>
             </form>
-            <a href="add_upcoming.php" class="btn-admin btn-primary-gradient"
+            <a href="add_announcement.php" class="btn-admin btn-primary-gradient"
                 style="white-space: nowrap; width: auto; padding: 0 25px; text-decoration: none; display: flex; align-items: center; border-radius: 12px;">
-                <i class="fa-solid fa-plus me-2"></i> 新增預告
+                <i class="fa-solid fa-plus me-2"></i> 新增公告
             </a>
         </div>
 
-        <?php if (empty($lectures)): ?>
+        <?php if (empty($announcements)): ?>
             <div style="text-align: center; padding: 40px;">
-                <i class="fa-solid fa-folder-open" style="font-size: 3rem; opacity: 0.2; margin-bottom: 20px;"></i>
-                <p>目前還沒有任何預告資訊。</p>
+                <i class="fa-solid fa-bullhorn" style="font-size: 3rem; opacity: 0.2; margin-bottom: 20px;"></i>
+                <p>目前還沒有任何公告。</p>
             </div>
         <?php else: ?>
             <div class="table-responsive">
                 <table class="glass-table">
                     <thead>
                         <tr>
-                            <th style="width: 120px;">日期</th>
+                            <th style="width: 110px;">日期</th>
                             <th>標題</th>
                             <th>講者</th>
-                            <th>院區</th>
-                            <th>地點</th>
-                            <th style="width: 100px;">操作</th>
+                            <th style="width: 90px;">分院</th>
+                            <th style="width: 120px; text-align: center;">橫幅顯示</th>
+                            <th style="width: 100px; text-align: center;">操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($lectures as $l): ?>
+                        <?php foreach ($announcements as $a): ?>
                             <tr>
-                                <td><?= htmlspecialchars($l['event_date']) ?></td>
-                                <td><?= htmlspecialchars($l['title']) ?></td>
-                                <td><?= htmlspecialchars($l['speaker_name']) ?></td>
-                                <td><?= htmlspecialchars($l['campus_name']) ?></td>
-                                <td><?= htmlspecialchars($l['location']) ?></td>
+                                <td><?= htmlspecialchars($a['event_date']) ?></td>
                                 <td>
-                                    <div class="actions-wrapper">
-                                        <a href="edit_upcoming.php?id=<?= $l['id'] ?>" class="btn-edit" title="編輯"><i
+                                    <?= htmlspecialchars($a['title']) ?>
+                                    <?php if ($a['image_url']): ?>
+                                        <i class="fa-regular fa-image" style="color: #64748b; margin-left: 5px;" title="包含圖片"></i>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($a['speaker_name']) ?></td>
+                                <td><?= htmlspecialchars($a['campus_name'] ?? '全部') ?></td>
+                                <td style="text-align: center;">
+                                    <a href="manage_announcements.php?action=toggle_hero&id=<?= $a['id'] ?>"
+                                        class="btn-status <?= $a['is_hero'] ? 'active' : '' ?>" style="<?= $a['is_hero'] ? 'background: #0ea5e9; color: white;' : 'background: #e2e8f0; color: #94a3b8;' ?> 
+                                               white-space: nowrap; padding: 6px 15px; border-radius: 20px; display: inline-block; font-size: 0.9rem;
+                                               text-decoration: none; transition: all 0.3s ease;" title="點擊切換首頁橫幅顯示">
+                                        <?= $a['is_hero'] ? '顯示中' : '隱藏' ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="actions-wrapper" style="justify-content: center;">
+                                        <a href="edit_announcement.php?id=<?= $a['id'] ?>" class="btn-edit" title="編輯"><i
                                                 class="fa-solid fa-pen-to-square"></i></a>
-                                        <a href="#" onclick="confirmDelete(<?= $l['id'] ?>)" class="btn-delete" title="刪除"><i
+                                        <a href="#" onclick="confirmDelete(<?= $a['id'] ?>)" class="btn-delete" title="刪除"><i
                                                 class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
@@ -119,8 +124,8 @@ include __DIR__ . '/partials/header.php';
 
 <script>
     function confirmDelete(id) {
-        if (confirm('確定要刪除這筆預告嗎？')) {
-            window.location.href = 'manage_upcoming.php?action=delete&id=' + id;
+        if (confirm('確定要刪除這個公告嗎？')) {
+            window.location.href = 'manage_announcements.php?action=delete&id=' + id;
         }
     }
 </script>
