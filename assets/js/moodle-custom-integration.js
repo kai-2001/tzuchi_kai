@@ -18,7 +18,7 @@
     <nav id="portal-global-nav">
         <!-- 左側區域：Logo + 選單 -->
         <div style="display:flex; align-items:center;">
-            <a href="/index.php" class="pg-brand">
+            <a href="/index.php?tab=showHome" class="pg-brand">
                 <i class="fas fa-cloud"></i>
                 <span>雲嘉學習網</span>
             </a>

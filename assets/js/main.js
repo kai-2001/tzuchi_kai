@@ -11,6 +11,9 @@ function goToMoodle(targetUrl) {
     // 顯示全域讀取動畫
     showGlobalLoading('正在前往課程...');
 
+    // 設定 Dirty Flag Cookie，告訴入口網：使用者去了 Moodle，回來時必須強制重新整理快取
+    document.cookie = "moodle_dirty=1; path=/; max-age=3600";
+
     // 如果是選課頁面，先清除快取
     if (targetUrl.includes('/enrol/') || targetUrl.includes('/course/view.php')) {
         fetch('index.php?clear_cache=1', { method: 'GET' })
@@ -252,14 +255,8 @@ window.addEventListener('load', function () {
         // 優化：處理完 URL 參數後立刻將其從網址列抹除，避免重新整理時重複觸發
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, document.title, newUrl);
-    } else if (sessionTab) {
-        if (sessionTab === 'showHome') {
-            showHome();
-        } else {
-            showTab(sessionTab);
-        }
     } else {
-        // 預設顯示首頁
+        // 預設回到首頁 (Option B: 不帶參數一律回歸首頁)
         showHome();
     }
 

@@ -30,23 +30,37 @@ if (!isset($_SESSION['username'])) {
 // 檢查是否為管理員
 $is_admin = isset($_SESSION['is_admin']) ? $_SESSION['is_admin'] : false;
 
-// 🚀 關鍵優化：在進入耗時的 API 抓取前釋放 Session 鎖
-// 這讓使用者在背景同步資料的同時，依然可以點擊其他連結或前往 Moodle
-session_write_close();
+// 🚀 關鍵優化：檢查快取與 Dirty Flag
+$type = isset($_GET['type']) ? $_GET['type'] : 'all';
+$force_refresh = isset($_COOKIE['moodle_dirty']) || (isset($_GET['refresh']) && $_GET['refresh'] == '1');
 
-if ($is_admin) {
-    // 管理員不需要資料
+// 快取邏輯
+$cache_ttl = 600; // 10 分鐘快取
+$cached_data = null;
+$age = 0;
+
+if (!$force_refresh && isset($_SESSION['moodle_cache'][$type])) {
+    $age = time() - (isset($_SESSION['moodle_cache_time'][$type]) ? $_SESSION['moodle_cache_time'][$type] : 0);
+    if ($age < $cache_ttl) {
+        $cached_data = $_SESSION['moodle_cache'][$type];
+    }
+}
+
+// 在確定沒有快取、需要呼叫 API 前，先釋放 Session 鎖
+if (!$cached_data) {
+    session_write_close();
+}
+
+if ($cached_data) {
     echo json_encode([
         'success' => true,
-        'is_admin' => true,
-        'data' => [
-            'my_courses_raw' => [],
-            'history_by_year' => [],
-            'available_courses' => [],
-            'latest_announcements' => [],
-            'curriculum_status' => []
-        ]
-    ]);
+        'is_admin' => false,
+        'type' => $type,
+        'data' => $cached_data,
+        'cached' => true,
+        'cache_age' => $age,
+        'source' => 'session_cache'
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit;
 }
 
@@ -66,14 +80,21 @@ try {
         exit;
     }
 
-    /* 🚀 暫時關閉寫入快取以便測試
-    if ($type === 'all') {
-        session_start();
-        $_SESSION['moodle_cache'] = $moodle_data;
-        $_SESSION['moodle_cache_time'] = time();
-        session_write_close();
+    // 🚀 寫入快取
+    session_start();
+    if (!isset($_SESSION['moodle_cache']))
+        $_SESSION['moodle_cache'] = [];
+    if (!isset($_SESSION['moodle_cache_time']))
+        $_SESSION['moodle_cache_time'] = [];
+
+    $_SESSION['moodle_cache'][$type] = $moodle_data;
+    $_SESSION['moodle_cache_time'][$type] = time();
+
+    // 如果成功讀取並更新了，就清除 Dirty Flag
+    if (isset($_COOKIE['moodle_dirty'])) {
+        setcookie('moodle_dirty', '', time() - 3600, '/');
     }
-    */
+    session_write_close();
 
     // 回傳成功結果
     echo json_encode([
@@ -81,10 +102,8 @@ try {
         'is_admin' => false,
         'type' => $type,
         'data' => $moodle_data,
-        'cached' => isset($_SESSION['moodle_cache_time']),
-        'cache_age' => isset($_SESSION['moodle_cache_time'])
-            ? (time() - $_SESSION['moodle_cache_time'])
-            : null
+        'cached' => false,
+        'source' => 'live_api'
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 } catch (Exception $e) {
