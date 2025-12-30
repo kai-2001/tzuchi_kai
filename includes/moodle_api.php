@@ -153,19 +153,19 @@ function fetch_moodle_data($type = 'all')
 
         // 2. 必修進度 (curriculum) - 依賴 my_courses_raw
         if ($type === 'all' || $type === 'curriculum') {
-            $courses = ($type === 'curriculum') ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
+            $courses = ($type === 'curriculum' && empty($data['my_courses_raw'])) ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
             $data['curriculum_status'] = fetch_curriculum_status($courses);
         }
 
         // 3. 最新公告 (announcements)
         if ($type === 'all' || $type === 'announcements') {
-            $courses = ($type === 'announcements') ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
+            $courses = ($type === 'announcements' && empty($data['my_courses_raw'])) ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
             $data['latest_announcements'] = fetch_announcements($courses);
         }
 
         // 4. 成績資料 (grades)
         if ($type === 'all' || $type === 'grades') {
-            $courses = ($type === 'grades') ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
+            $courses = ($type === 'grades' && empty($data['my_courses_raw'])) ? fetch_my_courses_simple($moodle_uid) : $data['my_courses_raw'];
             $data['grades'] = fetch_user_grades($moodle_uid, $courses);
         }
 
