@@ -723,3 +723,306 @@ select:focus {
 .video-card {
     animation: fadeIn 0.6s ease-out forwards;
 }
+
+/* Upcoming Lectures Section */
+.upcoming-section {
+    margin-bottom: 60px;
+    background: var(--glass-white);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    margin-bottom: 35px;
+    border-left: 5px solid var(--primary-color);
+    padding-left: 20px;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.upcoming-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.month-group {
+    display: flex;
+    gap: 30px;
+}
+
+.month-label {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), #00a8b9);
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(0, 132, 145, 0.2);
+}
+
+.month-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.year-text {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.month-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.campus-subgroup {
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    padding-left: 20px;
+}
+
+.campus-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    opacity: 0.6;
+}
+
+.lecture-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.lecture-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lecture-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
+}
+
+.lecture-date {
+    width: 45px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #f1f5f9;
+    padding-right: 12px;
+    flex-shrink: 0;
+}
+
+.lecture-date .day {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.lecture-date .weekday {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.lecture-main {
+    flex: 1;
+}
+
+.lecture-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.lecture-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.lecture-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.lecture-meta i {
+    color: var(--primary-color);
+    opacity: 0.6;
+}
+
+/* Homepage Layout */
+.home-content-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 40px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+.main-column {
+    min-width: 0;
+    /* Prevent grid blowout */
+}
+
+.sidebar-column {
+    position: sticky;
+    top: 20px;
+}
+
+/* Sidebar Specific Upcoming Styles */
+.upcoming-section.sidebar-style {
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.upcoming-section.sidebar-style .section-header {
+    margin-bottom: 20px;
+}
+
+.upcoming-section.sidebar-style .section-title {
+    font-size: 1.3rem;
+    gap: 10px;
+}
+
+.upcoming-section.sidebar-style .upcoming-container {
+    gap: 25px;
+}
+
+.upcoming-section.sidebar-style .month-group {
+    gap: 15px;
+}
+
+.upcoming-section.sidebar-style .month-label {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0, 132, 145, 0.15);
+}
+
+.upcoming-section.sidebar-style .month-text {
+    font-size: 1.3rem;
+}
+
+.upcoming-section.sidebar-style .month-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.upcoming-section.sidebar-style .campus-subgroup {
+    padding-left: 15px;
+}
+
+.upcoming-section.sidebar-style .campus-label {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.upcoming-section.sidebar-style .lecture-item {
+    padding: 10px;
+}
+
+.upcoming-section.sidebar-style .lecture-date {
+    width: 38px;
+    padding-right: 10px;
+}
+
+.upcoming-section.sidebar-style .lecture-date .day {
+    font-size: 1rem;
+}
+
+.upcoming-section.sidebar-style .lecture-title {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+@media (max-width: 1024px) {
+    .home-content-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-column {
+        position: static;
+        order: 0;
+    }
+
+    .upcoming-section.sidebar-style .month-content {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .home-content-layout {
+        gap: 20px;
+    }
+
+    .upcoming-section.sidebar-style {
+        padding: 20px;
+    }
+
+    .month-group {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .month-label {
+        width: 60px;
+        height: 60px;
+    }
+
+    .month-text {
+        font-size: 1.4rem;
+    }
+
+    .upcoming-section.sidebar-style .month-content {
+        grid-template-columns: 1fr;
+    }
+
+    .upcoming-section {
+        padding: 25px;
+    }
+}

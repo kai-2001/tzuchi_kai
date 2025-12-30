@@ -28,15 +28,16 @@ function fetch_moodle_data($type = 'all')
         return $data;
     }
 
-    // 檢查快取 (只在 type 為 all 時使用全域快取)
+    /* 🚀 暫時關閉快取功能以測試平行化效能
     if ($type === 'all' && isset($_SESSION['moodle_cache']) && isset($_SESSION['moodle_cache_time'])) {
         if (time() - $_SESSION['moodle_cache_time'] < CACHE_DURATION) {
             return $_SESSION['moodle_cache'];
         }
     }
+    */
 
     try {
-        // 步驟 1: 取得 Moodle 使用者 ID
+        // 步驟 1: 取得 Moodle 使用者 ID (通常已在 Session 中)
         if (isset($_SESSION['moodle_uid'])) {
             $moodle_uid = $_SESSION['moodle_uid'];
         } else {
@@ -52,7 +53,8 @@ function fetch_moodle_data($type = 'all')
         }
         $data['moodle_uid'] = $moodle_uid;
 
-        // ======= Wave 1: 基礎資料平行抓取 (我的課程, 所有課程, 分類資訊) =======
+        // ======= Wave 1: 基礎資料平行抓取 =======
+        // 幾乎所有類型都需要課程清單與分類資訊作為基礎
         $wave1_requests = [
             ['key' => 'my_courses', 'func' => 'core_enrol_get_users_courses', 'params' => ['userid' => $moodle_uid]],
             ['key' => 'all_courses_search', 'func' => 'core_course_search_courses', 'params' => ['criterianame' => 'search', 'criteriavalue' => '', 'page' => 0, 'perpage' => 500]],
@@ -73,28 +75,46 @@ function fetch_moodle_data($type = 'all')
             }
         }
 
-        // 整理學習歷程
-        if (!empty($data['my_courses_raw'])) {
-            foreach ($data['my_courses_raw'] as $course) {
-                $start_ts = $course['startdate'] ?? 0;
-                $year = ($start_ts > 0) ? date('Y', $start_ts) : '未設定年份';
-                $data['history_by_year'][$year][] = $course;
+        // 如果只需要課程或學習歷程，可以在此提早結束
+        if ($type === 'courses') {
+            // 整理學習歷程
+            if (!empty($data['my_courses_raw'])) {
+                foreach ($data['my_courses_raw'] as $course) {
+                    $start_ts = $course['startdate'] ?? 0;
+                    $year = ($start_ts > 0) ? date('Y', $start_ts) : '未設定年份';
+                    $data['history_by_year'][$year][] = $course;
+                }
+                krsort($data['history_by_year']);
             }
-            krsort($data['history_by_year']);
+
+            // 處理可選修
+            $my_courses_by_id = [];
+            foreach ($data['my_courses_raw'] as $c) {
+                $my_courses_by_id[$c['id'] ?? 0] = $c;
+            }
+            foreach ($all_search_courses as $course) {
+                if (($course['id'] ?? 0) <= 1)
+                    continue;
+                $course['is_enrolled'] = isset($my_courses_by_id[$course['id']]);
+                $course['progress'] = $course['is_enrolled'] ? ($my_courses_by_id[$course['id']]['progress'] ?? 0) : 0;
+                $data['available_courses'][] = $course;
+            }
+            return $data;
         }
 
-        // ======= Wave 2: 依賴資料平行抓取 (論壇清單, 成績單) =======
-        // 找出最近 5 門課準備抓成績
-        $recent_course_ids = array_slice(array_column($data['my_courses_raw'], 'id'), 0, 5);
+        // 處理必修進度 (如果請求的是 curriculum 或 all)
+        if ($type === 'curriculum' || $type === 'all') {
+            $data['curriculum_status'] = process_curriculum_locally($all_search_courses, $data['my_courses_raw'], $cat_info);
+            if ($type === 'curriculum')
+                return $data;
+        }
+
+        // ======= Wave 2 & 3: 依賴資料抓取 =======
         $wave2_requests = [];
+        $recent_course_ids = array_slice(array_column($data['my_courses_raw'], 'id'), 0, 8);
 
-        if (!empty($data['my_courses_raw'])) {
-            $wave2_requests[] = [
-                'key' => 'forums',
-                'func' => 'mod_forum_get_forums_by_courses',
-                'params' => ['courseids' => array_column($data['my_courses_raw'], 'id')]
-            ];
-
+        // 如果請求的是 grades
+        if ($type === 'grades' || $type === 'all') {
             foreach ($recent_course_ids as $cid) {
                 $wave2_requests[] = [
                     'key' => 'grade_' . $cid,
@@ -104,108 +124,130 @@ function fetch_moodle_data($type = 'all')
             }
         }
 
+        // 如果請求的是 announcements
+        if ($type === 'announcements' || $type === 'all') {
+            $wave2_requests[] = [
+                'key' => 'forums',
+                'func' => 'mod_forum_get_forums_by_courses',
+                'params' => ['courseids' => array_column($data['my_courses_raw'], 'id')]
+            ];
+        }
+
         $wave2_results = !empty($wave2_requests) ? call_moodle_parallel($moodle_url, $moodle_token, $wave2_requests) : [];
 
-        // ======= Wave 3: 深層資料平行抓取 (公告內容) =======
-        $forums = $wave2_results['forums'] ?? [];
-        $wave3_requests = [];
-        foreach ($forums as $forum) {
-            if (($forum['type'] ?? '') === 'news' || strpos($forum['name'] ?? '', '公告') !== false) {
-                $wave3_requests[] = [
-                    'key' => 'disc_' . $forum['id'],
-                    'func' => 'mod_forum_get_forum_discussions',
-                    'params' => ['forumid' => $forum['id']]
-                ];
-            }
-        }
-
-        $wave3_results = !empty($wave3_requests) ? call_moodle_parallel($moodle_url, $moodle_token, $wave3_requests) : [];
-
-        // ======= 最後階段: 組合所有資料 =======
-
-        // 1. 處理可選修與課程狀態 (Available Courses)
-        $my_courses_by_id = [];
-        foreach ($data['my_courses_raw'] as $c) {
-            $my_courses_by_id[$c['id'] ?? 0] = $c;
-        }
-
-        foreach ($all_search_courses as $course) {
-            if (($course['id'] ?? 0) <= 1)
-                continue;
-
-            $cat_id = $course['categoryid'] ?? null;
-            $parent_name = '其他';
-            $child_name = '';
-
-            if ($cat_id && isset($cat_info[$cat_id])) {
-                $curr_cat = $cat_info[$cat_id];
-                $child_name = $curr_cat['name'];
-                $temp_cat = $curr_cat;
-                while (($temp_cat['parent'] ?? 0) > 0 && isset($cat_info[$temp_cat['parent']])) {
-                    $temp_cat = $cat_info[$temp_cat['parent']];
+        // 處理成績結果
+        if ($type === 'grades' || $type === 'all') {
+            foreach ($data['my_courses_raw'] as $course) {
+                $g_key = 'grade_' . $course['id'];
+                if (isset($wave2_results[$g_key]['usergrades'][0]['gradeitems'])) {
+                    foreach ($wave2_results[$g_key]['usergrades'][0]['gradeitems'] as $item) {
+                        if (($item['itemtype'] ?? '') === 'course' && isset($item['graderaw'])) {
+                            $data['grades'][] = [
+                                'course_id' => $course['id'],
+                                'course_name' => $course['fullname'],
+                                'grade' => round($item['graderaw'], 1),
+                                'grade_max' => $item['grademax'] ?? 100,
+                                'grade_formatted' => $item['gradeformatted'] ?? '-'
+                            ];
+                        }
+                    }
                 }
-                $parent_name = $temp_cat['name'];
-                if ($curr_cat['id'] == $temp_cat['id']) {
-                    $child_name = '';
-                }
+                if (count($data['grades']) >= 5)
+                    break;
             }
-
-            $course['parent_category'] = $parent_name;
-            $course['child_category'] = ($child_name && $child_name !== $parent_name) ? $child_name : '';
-            $course['display_category'] = $course['child_category'] ? ($parent_name . ' - ' . $child_name) : $parent_name;
-            $course['is_enrolled'] = isset($my_courses_by_id[$course['id']]);
-            $course['progress'] = $course['is_enrolled'] ? ($my_courses_by_id[$course['id']]['progress'] ?? 0) : 0;
-            $course['completed'] = $course['is_enrolled'] ? ($my_courses_by_id[$course['id']]['completed'] ?? false) : false;
-
-            $data['available_courses'][] = $course;
+            if ($type === 'grades')
+                return $data;
         }
 
-        // 2. 處理必修進度 (本地計算)
-        $data['curriculum_status'] = process_curriculum_locally($all_search_courses, $data['my_courses_raw'], $cat_info);
-
-        // 3. 處理最新公告 (使用 Wave 3 結果)
-        $raw_announcements = [];
-        $course_names = array_column($data['my_courses_raw'], 'fullname', 'id');
-        foreach ($forums as $forum) {
-            $disc_key = 'disc_' . ($forum['id'] ?? 0);
-            if (isset($wave3_results[$disc_key]['discussions'])) {
-                foreach ($wave3_results[$disc_key]['discussions'] as $disc) {
-                    $raw_announcements[] = [
-                        'course_name' => $course_names[$forum['course']] ?? '全站公告',
-                        'subject' => $disc['subject'] ?? '無主旨',
-                        'author' => $disc['userfullname'] ?? '系統',
-                        'date' => $disc['created'] ?? 0,
-                        'link' => $moodle_url . '/mod/forum/discuss.php?d=' . ($disc['discussion'] ?? 0)
+        // 處理公告 (Wave 3)
+        if ($type === 'announcements' || $type === 'all') {
+            $forums = $wave2_results['forums'] ?? [];
+            $wave3_requests = [];
+            foreach ($forums as $forum) {
+                if (($forum['type'] ?? '') === 'news' || strpos($forum['name'] ?? '', '公告') !== false) {
+                    $wave3_requests[] = [
+                        'key' => 'disc_' . $forum['id'],
+                        'func' => 'mod_forum_get_forum_discussions',
+                        'params' => ['forumid' => $forum['id']]
                     ];
                 }
             }
-        }
-        usort($raw_announcements, function ($a, $b) {
-            return ($b['date'] ?? 0) - ($a['date'] ?? 0); });
-        $data['latest_announcements'] = array_slice($raw_announcements, 0, 5);
+            $wave3_results = !empty($wave3_requests) ? call_moodle_parallel($moodle_url, $moodle_token, $wave3_requests) : [];
 
-        // 4. 處理成績 (使用 Wave 2 結果)
-        foreach ($data['my_courses_raw'] as $course) {
-            if (count($data['grades']) >= 5)
-                break;
-            $g_key = 'grade_' . $course['id'];
-            if (isset($wave2_results[$g_key]['usergrades'][0]['gradeitems'])) {
-                foreach ($wave2_results[$g_key]['usergrades'][0]['gradeitems'] as $item) {
-                    if (($item['itemtype'] ?? '') === 'course' && isset($item['graderaw'])) {
-                        $data['grades'][] = [
-                            'course_id' => $course['id'],
-                            'course_name' => $course['fullname'],
-                            'grade' => round($item['graderaw'], 1),
-                            'grade_max' => $item['grademax'] ?? 100,
-                            'grade_formatted' => $item['gradeformatted'] ?? '-'
+            $raw_announcements = [];
+            $course_names = array_column($data['my_courses_raw'], 'fullname', 'id');
+            foreach ($forums as $forum) {
+                $disc_key = 'disc_' . ($forum['id'] ?? 0);
+                if (isset($wave3_results[$disc_key]['discussions'])) {
+                    foreach ($wave3_results[$disc_key]['discussions'] as $disc) {
+                        $raw_announcements[] = [
+                            'course_name' => $course_names[$forum['course']] ?? '全站公告',
+                            'subject' => $disc['subject'] ?? '無主旨',
+                            'author' => $disc['userfullname'] ?? '系統', // Added author back
+                            'date' => $disc['created'] ?? 0,
+                            'link' => $moodle_url . '/mod/forum/discuss.php?d=' . ($disc['discussion'] ?? 0)
                         ];
                     }
                 }
             }
+            usort($raw_announcements, function ($a, $b) {
+                return ($b['date'] ?? 0) - ($a['date'] ?? 0); });
+            $data['latest_announcements'] = array_slice($raw_announcements, 0, 5);
         }
 
-        // 更新快取
+        // For 'all' type, ensure all data is processed and then cached.
+        // The individual type blocks return early, so if we reach here, it's 'all' or an unhandled type.
         if ($type === 'all') {
+            // Ensure history_by_year is processed for 'all' type if not already done by 'courses' block
+            if (empty($data['history_by_year']) && !empty($data['my_courses_raw'])) {
+                foreach ($data['my_courses_raw'] as $course) {
+                    $start_ts = $course['startdate'] ?? 0;
+                    $year = ($start_ts > 0) ? date('Y', $start_ts) : '未設定年份';
+                    $data['history_by_year'][$year][] = $course;
+                }
+                krsort($data['history_by_year']);
+            }
+
+            // Ensure available_courses is processed for 'all' type if not already done by 'courses' block
+            if (empty($data['available_courses'])) {
+                $my_courses_by_id = [];
+                foreach ($data['my_courses_raw'] as $c) {
+                    $my_courses_by_id[$c['id'] ?? 0] = $c;
+                }
+
+                foreach ($all_search_courses as $course) {
+                    if (($course['id'] ?? 0) <= 1)
+                        continue;
+
+                    $cat_id = $course['categoryid'] ?? null;
+                    $parent_name = '其他';
+                    $child_name = '';
+
+                    if ($cat_id && isset($cat_info[$cat_id])) {
+                        $curr_cat = $cat_info[$cat_id];
+                        $child_name = $curr_cat['name'];
+                        $temp_cat = $curr_cat;
+                        while (($temp_cat['parent'] ?? 0) > 0 && isset($cat_info[$temp_cat['parent']])) {
+                            $temp_cat = $cat_info[$temp_cat['parent']];
+                        }
+                        $parent_name = $temp_cat['name'];
+                        if ($curr_cat['id'] == $temp_cat['id']) {
+                            $child_name = '';
+                        }
+                    }
+
+                    $course['parent_category'] = $parent_name;
+                    $course['child_category'] = ($child_name && $child_name !== $parent_name) ? $child_name : '';
+                    $course['display_category'] = $course['child_category'] ? ($parent_name . ' - ' . $child_name) : $parent_name;
+                    $course['is_enrolled'] = isset($my_courses_by_id[$course['id']]);
+                    $course['progress'] = $course['is_enrolled'] ? ($my_courses_by_id[$course['id']]['progress'] ?? 0) : 0;
+                    $course['completed'] = $course['is_enrolled'] ? ($my_courses_by_id[$course['id']]['completed'] ?? false) : false;
+
+                    $data['available_courses'][] = $course;
+                }
+            }
+
+            // Update cache for 'all' type
             $_SESSION['moodle_cache'] = $data;
             $_SESSION['moodle_cache_time'] = time();
         }

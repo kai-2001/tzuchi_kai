@@ -12,8 +12,20 @@
         const glow = document.getElementById('mouse-glow');
         if (!glow) return;
 
+        let mouseX = 0, mouseY = 0;
+        let ticking = false;
+
         document.addEventListener('mousemove', function (e) {
-            glow.style.transform = `translate(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%))`;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            if (!ticking) {
+                window.requestAnimationFrame(function () {
+                    glow.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+                    ticking = false;
+                });
+                ticking = true;
+            }
         });
     })();
 </script>

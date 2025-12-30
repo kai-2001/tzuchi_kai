@@ -78,6 +78,24 @@ $videos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
 
 // ============================================
+// LOGIC: Get Upcoming Lectures
+// ============================================
+$upcoming_query = "SELECT u.*, c.name as campus_name 
+                  FROM upcoming_lectures u
+                  LEFT JOIN campuses c ON u.campus_id = c.id
+                  WHERE u.event_date >= CURRENT_DATE
+                  ORDER BY u.event_date ASC";
+$upcoming_raw = $conn->query($upcoming_query)->fetch_all(MYSQLI_ASSOC);
+
+// Group by Month -> Campus
+$upcoming_grouped = [];
+foreach ($upcoming_raw as $lecture) {
+    $month = date('Y-m', strtotime($lecture['event_date']));
+    $campus = $lecture['campus_name'];
+    $upcoming_grouped[$month][$campus][] = $lecture;
+}
+
+// ============================================
 // TEMPLATE: Pass data to template
 // ============================================
 $page_title = APP_NAME;

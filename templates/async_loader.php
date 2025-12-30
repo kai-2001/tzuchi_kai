@@ -12,7 +12,6 @@
             return; // 非非同步模式或管理員,不執行
         }
 
-        // 如果是開課教師，定義並載入教師課程資料
         // 3D Loading Animation HTML (Enhanced Original Neon Portal with Energy Core)
         const loading3dHtml = `
             <div class="loader-3d-portal">
@@ -720,44 +719,35 @@
         function loadMoodleData() {
             showLoading();
 
-            // 🚀 改為發送單一請求取得所有資料，減少連線數與 Session 鎖定競爭
-            fetch(`api/get_moodle_data.php?type=all`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return response.json();
-                })
-                .then(result => {
-                    if (!result.success) throw new Error(result.message || 'Unknown error');
+            // 🚀 極致優化：改為「原子化併行載入 (Atomic Concurrent Loading)」
+            // 每個組件各跑各的，快的先顯示，慢的慢慢跑，互不干擾，體感速度最快！
+            
+            // 1. 載入課程相關 (包含 我的課程、可選修、學習歷程)
+            fetchSubData('courses', data => {
+                if (data.my_courses_raw) renderMyCourses(data.my_courses_raw);
+                if (data.available_courses) renderAvailableCourses(data.available_courses);
+                if (data.history_by_year) renderLearningHistory(data.history_by_year);
+            });
 
-                    // 處理 Moodle 帳號未建立的情況
-                    if (result.data_not_found) {
-                        handleUserNotFound();
-                        return;
-                    }
+            // 2. 載入必修進度
+            fetchSubData('curriculum', data => {
+                if (data.curriculum_status) {
+                    renderCurriculumStatus(data.curriculum_status);
+                    renderCurriculumProgressWidget(data.curriculum_status);
+                }
+            });
 
-                    const data = result.data;
+            // 3. 載入最新公告 (通常最慢)
+            fetchSubData('announcements', data => {
+                if (data.latest_announcements) renderAnnouncements(data.latest_announcements);
+            });
 
-                    // 同步渲染所有區塊
-                    if (data.available_courses) renderAvailableCourses(data.available_courses);
-                    if (data.my_courses_raw) renderMyCourses(data.my_courses_raw);
-                    if (data.history_by_year) renderLearningHistory(data.history_by_year);
-                    if (data.latest_announcements) renderAnnouncements(data.latest_announcements);
-                    if (data.curriculum_status) {
-                        renderCurriculumStatus(data.curriculum_status);
-                        renderCurriculumProgressWidget(data.curriculum_status);
-                    }
-                    if (data.grades) renderGradesChart(data.grades);
+            // 4. 載入成績
+            fetchSubData('grades', data => {
+                if (data.grades) renderGradesChart(data.grades);
+            });
 
-                    console.log('🚀 Moodle 資料統一載入完成');
-                })
-                .catch(error => {
-                    console.error(`❌ 載入 Moodle 資料失敗:`, error);
-                    // 顯示各區塊錯誤
-                    ['courses', 'announcements', 'curriculum', 'grades'].forEach(type => handlePartialError(type));
-                });
+            console.log('🚀 啟動原子化併行載入...');
         }
 
         // 頁面載入完成後立即開始載入資料

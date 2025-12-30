@@ -66,14 +66,14 @@ try {
         exit;
     }
 
-    // 🚀 關鍵優化：短暫重新開啟 Session 以便寫回最新的快取資料
-    // 因為在 fetch_moodle_data 內部可能更新了資料，我們在回應前確保它們存進 Session
+    /* 🚀 暫時關閉寫入快取以便測試
     if ($type === 'all') {
         session_start();
         $_SESSION['moodle_cache'] = $moodle_data;
         $_SESSION['moodle_cache_time'] = time();
         session_write_close();
     }
+    */
 
     // 回傳成功結果
     echo json_encode([

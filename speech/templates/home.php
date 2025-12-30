@@ -25,6 +25,7 @@ include __DIR__ . '/partials/header.php';
             <?php if (is_logged_in()): ?>
                 <?php if (is_manager()): ?>
                     <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-list-check"></i> 影片管理</a>
+                    <a href="manage_upcoming.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> 預告管理</a>
                     <a href="upload.php" class="btn-admin"><i class="fa-solid fa-cloud-arrow-up"></i> 上傳專區</a>
                 <?php endif; ?>
 
@@ -64,45 +65,92 @@ include __DIR__ . '/partials/header.php';
     <?php endforeach; ?>
 </nav>
 
-<main class="video-grid">
-    <?php if (empty($videos)): ?>
-        <div
-            style="grid-column: 1/-1; text-align: center; padding: 50px; background: var(--glass-bg); border-radius: 20px;">
-            <i class="fa-solid fa-magnifying-glass"
-                style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 20px; display: block;"></i>
-            <p style="font-size: 1.2rem; margin-bottom: 10px;">沒有找到符合的影片。</p>
-            <p style="color: var(--text-secondary);">建議您調整搜尋關鍵字，或 <a href="index.php"
-                    style="color: var(--primary-color); text-decoration: none;">瀏覽全部影片</a>。</p>
-        </div>
-    <?php else: ?>
-        <?php foreach ($videos as $v): ?>
-            <div class="video-card" onclick="checkAuth(<?= $v['id'] ?>)">
-                <div class="thumbnail"
-                    style="background-image: url('<?= htmlspecialchars($v['thumbnail_path'] ?: 'assets/images/placeholder.jpg') ?>')">
+<div class="home-content-layout">
+    <div class="main-column">
+        <main class="video-grid">
+            <?php if (empty($videos)): ?>
+                <div
+                    style="grid-column: 1/-1; text-align: center; padding: 50px; background: var(--glass-bg); border-radius: 20px;">
+                    <i class="fa-solid fa-magnifying-glass"
+                        style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 20px; display: block;"></i>
+                    <p style="font-size: 1.2rem; margin-bottom: 10px;">沒有找到符合的影片。</p>
+                    <p style="color: var(--text-secondary);">建議您調整搜尋關鍵字，或 <a href="index.php"
+                            style="color: var(--primary-color); text-decoration: none;">瀏覽全部影片</a>。</p>
                 </div>
-                <div class="video-info">
-                    <div class="video-title"><?= htmlspecialchars($v['title']) ?></div>
-                    <div class="meta">
-                        <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($v['speaker_name']) ?></span>
-                        <span><i class="fa-solid fa-building"></i> <?= htmlspecialchars($v['affiliation']) ?></span>
-                        <span><i class="fa-solid fa-calendar"></i> <?= htmlspecialchars($v['event_date']) ?></span>
-                        <span><i class="fa-solid fa-eye"></i> <?= number_format($v['views']) ?></span>
+            <?php else: ?>
+                <?php foreach ($videos as $v): ?>
+                    <div class="video-card" onclick="checkAuth(<?= $v['id'] ?>)">
+                        <div class="thumbnail"
+                            style="background-image: url('<?= htmlspecialchars($v['thumbnail_path'] ?: 'assets/images/placeholder.jpg') ?>')">
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title"><?= htmlspecialchars($v['title']) ?></div>
+                            <div class="meta">
+                                <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($v['speaker_name']) ?></span>
+                                <span><i class="fa-solid fa-building"></i> <?= htmlspecialchars($v['affiliation']) ?></span>
+                                <span><i class="fa-solid fa-calendar"></i> <?= htmlspecialchars($v['event_date']) ?></span>
+                                <span><i class="fa-solid fa-eye"></i> <?= number_format($v['views']) ?></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</main>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </main>
 
-<?php if ($total_items > 0): ?>
-    <div class="pagination">
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <a href="?page=<?= $i ?>&campus=<?= $campus_id ?>&q=<?= urlencode($search) ?>"
-                class="page-link <?= $page == $i ? 'active' : '' ?>">
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
+        <?php if ($total_items > 0): ?>
+            <div class="pagination">
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a href="?page=<?= $i ?>&campus=<?= $campus_id ?>&q=<?= urlencode($search) ?>"
+                        class="page-link <?= $page == $i ? 'active' : '' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+            </div>
+        <?php endif; ?>
     </div>
-<?php endif; ?>
+
+    <aside class="sidebar-column">
+        <?php if (!empty($upcoming_grouped)): ?>
+            <section class="upcoming-section sidebar-style">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fa-solid fa-bullhorn"></i> 講座預告</h2>
+                </div>
+
+                <div class="upcoming-container">
+                    <?php foreach ($upcoming_grouped as $month => $campuses_list): ?>
+                        <div class="month-group">
+                            <div class="month-label">
+                                <span class="month-text"><?= date('n', strtotime($month . '-01')) ?>月</span>
+                            </div>
+                            <div class="month-content">
+                                <?php foreach ($campuses_list as $campus_name => $items): ?>
+                                    <div class="campus-subgroup">
+                                        <h4 class="campus-label"><?= htmlspecialchars($campus_name) ?></h4>
+                                        <div class="lecture-list">
+                                            <?php foreach ($items as $item): ?>
+                                                <div class="lecture-item">
+                                                    <div class="lecture-date">
+                                                        <span class="day"><?= date('d', strtotime($item['event_date'])) ?></span>
+                                                    </div>
+                                                    <div class="lecture-main">
+                                                        <h5 class="lecture-title"><?= htmlspecialchars($item['title']) ?></h5>
+                                                        <div class="lecture-meta">
+                                                            <span><i class="fa-solid fa-user"></i>
+                                                                <?= htmlspecialchars($item['speaker_name']) ?></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+    </aside>
+</div>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
