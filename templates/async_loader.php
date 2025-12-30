@@ -114,10 +114,11 @@
                 // 顯示載入動畫（3D 旋轉環）
                 container.innerHTML = loading3dHtml;
 
-                fetch('api/get_moodle_data.php')
+                fetch('api/get_moodle_data.php?type=courses')
                     .then(response => response.json())
-                    .then(data => {
-                        const courses = data.data?.my_courses_raw || data.my_courses_raw || [];
+                    .then(result => {
+                        if (!result.success) throw new Error(result.message || 'Unknown error');
+                        const courses = result.data?.my_courses_raw || [];
                         renderTeacherCourses(courses);
                     })
                     .catch(error => {

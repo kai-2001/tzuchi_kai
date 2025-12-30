@@ -116,6 +116,9 @@ function showHome() {
     if (home) home.classList.add('active');
     if (feats) feats.classList.remove('active');
 
+    // 儲存目前狀態為首頁
+    sessionStorage.setItem('activeTab', 'showHome');
+
     // 更新導覽列高亮
     updateNavHighlight('showHome');
 }
@@ -150,6 +153,9 @@ function showTab(tabId) {
         var target = document.getElementById(tabId);
         if (target) target.classList.add('show', 'active');
     }
+
+    // 儲存目前頁籤到 Session，以便重新整理時預設開啟
+    sessionStorage.setItem('activeTab', tabId);
 
     // 更新導覽列高亮
     updateNavHighlight(tabId);
@@ -230,14 +236,31 @@ function filterCoursesByType(type, btn) {
  * 頁面載入初始化
  */
 window.addEventListener('load', function () {
-    // 處理 URL 參數中的 tab
+    // 1. 處理 URL 參數中的 tab (優先級最高，從 Moodle 跳過來時使用)
     const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab');
-    if (tab) {
-        showTab(tab);
+    const urlTab = urlParams.get('tab');
+
+    // 2. 處理 Session 中的 tab (重新整理時使用)
+    const sessionTab = sessionStorage.getItem('activeTab');
+
+    if (urlTab) {
+        if (urlTab === 'showHome') {
+            showHome();
+        } else {
+            showTab(urlTab);
+        }
+        // 優化：處理完 URL 參數後立刻將其從網址列抹除，避免重新整理時重複觸發
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+    } else if (sessionTab) {
+        if (sessionTab === 'showHome') {
+            showHome();
+        } else {
+            showTab(sessionTab);
+        }
     } else {
-        // 預設顯示首頁，並高亮對應標籤
-        updateNavHighlight('showHome');
+        // 預設顯示首頁
+        showHome();
     }
 
     // 啟用 Bootstrap Tooltip
