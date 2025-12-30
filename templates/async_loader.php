@@ -325,17 +325,17 @@
             container.innerHTML = courses.map(course => {
                 const mainCat = course.parent_category || course.categoryname || '其他';
                 const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
-                
+
                 // 使用父類別名稱的 hash 作為 data-type (篩選器以大類為主)
                 let typeKey = mainCat.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
                 if (!typeKey) typeKey = 'cat-' + Math.abs(mainCat.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
 
                 const moodleUrl = '<?php echo $moodle_url; ?>';
-                
+
                 // 狀態標示邏輯
                 let statusHtml = '';
                 let buttonHtml = '';
-                
+
                 if (course.is_enrolled) {
                     const progress = course.progress || 0;
                     statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
@@ -720,28 +720,44 @@
         function loadMoodleData() {
             showLoading();
 
-            // 平行發送多個小請求
-            const tasks = [
-                fetchSubData('courses', (data) => {
-                    renderAvailableCourses(data.available_courses);
-                    renderMyCourses(data.my_courses_raw);
-                    renderLearningHistory(data.history_by_year);
-                }),
-                fetchSubData('announcements', (data) => {
-                    renderAnnouncements(data.latest_announcements);
-                }),
-                fetchSubData('curriculum', (data) => {
-                    renderCurriculumStatus(data.curriculum_status);
-                    renderCurriculumProgressWidget(data.curriculum_status);
-                }),
-                fetchSubData('grades', (data) => {
-                    renderGradesChart(data.grades);
+            // 🚀 改為發送單一請求取得所有資料，減少連線數與 Session 鎖定競爭
+            fetch(`api/get_moodle_data.php?type=all`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
                 })
-            ];
+                .then(result => {
+                    if (!result.success) throw new Error(result.message || 'Unknown error');
 
-            Promise.allSettled(tasks).then(() => {
-                console.log('🚀 所有分段載入程序已啟動/完成');
-            });
+                    // 處理 Moodle 帳號未建立的情況
+                    if (result.data_not_found) {
+                        handleUserNotFound();
+                        return;
+                    }
+
+                    const data = result.data;
+
+                    // 同步渲染所有區塊
+                    if (data.available_courses) renderAvailableCourses(data.available_courses);
+                    if (data.my_courses_raw) renderMyCourses(data.my_courses_raw);
+                    if (data.history_by_year) renderLearningHistory(data.history_by_year);
+                    if (data.latest_announcements) renderAnnouncements(data.latest_announcements);
+                    if (data.curriculum_status) {
+                        renderCurriculumStatus(data.curriculum_status);
+                        renderCurriculumProgressWidget(data.curriculum_status);
+                    }
+                    if (data.grades) renderGradesChart(data.grades);
+
+                    console.log('🚀 Moodle 資料統一載入完成');
+                })
+                .catch(error => {
+                    console.error(`❌ 載入 Moodle 資料失敗:`, error);
+                    // 顯示各區塊錯誤
+                    ['courses', 'announcements', 'curriculum', 'grades'].forEach(type => handlePartialError(type));
+                });
         }
 
         // 頁面載入完成後立即開始載入資料
