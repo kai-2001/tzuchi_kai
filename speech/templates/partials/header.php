@@ -13,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($page_title ?? APP_NAME) ?> - <?= APP_NAME ?></title>
+    <title><?= htmlspecialchars($page_title ?? '學術演講影片平台') ?> - 學術演講影片平台</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">

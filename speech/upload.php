@@ -174,12 +174,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Save Video with ownership and new metadata
         $user_id = $_SESSION['user_id'];
-        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssissiii", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id);
+        $status = 'pending'; // ALL videos (MP4 and EverCam extracted MP4) go to queue
+
+        // Formerly EverCam was set to 'ready', but user wants compression for them too.
+        // if ($format === 'evercam') { $status = 'ready'; } 
+
+        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssissiiis", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id, $status);
         $stmt->execute();
 
+        $video_id = $conn->insert_id; // Capture ID for potential immediate job trigger
+
         $conn->commit();
-        $msg = "演講上傳成功！";
+
+        if ($status === 'pending') {
+            $msg = "演講上傳成功！影片已排入轉檔佇列，稍後將自動處理。";
+        } else {
+            $msg = "演講上傳成功！";
+        }
     } catch (Exception $e) {
         $conn->rollback();
         $error = $e->getMessage();

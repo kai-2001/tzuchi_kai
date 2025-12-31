@@ -47,8 +47,9 @@ include __DIR__ . '/partials/header.php';
                         <tr>
                             <th>縮圖</th>
                             <th>標題</th>
-                            <th>講者</th>
-                            <th>院區</th>
+                            <th>主講人</th>
+                            <th>狀態</th> <!-- Added column -->
+                            <th>觀看次數</th>
                             <th>日期</th>
                             <th>操作</th>
                         </tr>
@@ -63,7 +64,38 @@ include __DIR__ . '/partials/header.php';
                                 </td>
                                 <td><?= htmlspecialchars($v['title']) ?></td>
                                 <td><?= htmlspecialchars($v['speaker_name']) ?></td>
-                                <td><?= htmlspecialchars($v['campus_name']) ?></td>
+                                <td>
+                                    <?php
+                                    $status = $v['status'] ?? 'ready';
+                                    $badgeClass = 'bg-secondary';
+                                    $statusText = '未知';
+
+                                    switch ($status) {
+                                        case 'pending':
+                                            $badgeClass = 'bg-warning text-dark';
+                                            $statusText = '排隊中';
+                                            break;
+                                        case 'processing':
+                                            $badgeClass = 'bg-info text-dark';
+                                            $statusText = '轉檔中';
+                                            break;
+                                        case 'ready':
+                                            $badgeClass = 'bg-success';
+                                            $statusText = '已完成';
+                                            break;
+                                        case 'error':
+                                            $badgeClass = 'bg-danger';
+                                            $statusText = '錯誤';
+                                            break;
+                                    }
+                                    ?>
+                                    <span class="badge <?php echo $badgeClass; ?>"><?php echo $statusText; ?></span>
+                                    <?php if ($status == 'error' && !empty($v['process_msg'])): ?>
+                                        <i class="fa-solid fa-circle-exclamation text-danger ms-1"
+                                            title="<?= htmlspecialchars($v['process_msg']) ?>"></i>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($v['campus_name']) ?></td> <!-- Restored Campus Name column -->
                                 <td><?= htmlspecialchars($v['event_date']) ?></td>
                                 <td>
                                     <div class="actions-wrapper">

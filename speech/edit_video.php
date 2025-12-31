@@ -84,8 +84,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Handle Video/Content Update
-        $content_path = $video['content_path'];
+        $content_path = $video['content_path']; // Default to old
+        $format = $video['format'];
+        $metadata = $video['metadata'];
+        $duration = $video['duration'];
+        $status_update_sql = ""; // Only update status if file changed
+
         if (isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
+
+            // 1. Cleanup Old File/Directory logic
+            $old_path_rel = $video['content_path'];
+            $old_full_path = __DIR__ . '/' . $old_path_rel; // Absolute path
+
+            if (!empty($old_path_rel) && file_exists($old_full_path)) {
+                // Check if it's a standalone file (MP4 in root of uploads/videos)
+                // or a file inside a subdir (EverCam folder)
+                $path_info = pathinfo($old_full_path);
+                $parent_dir = dirname($old_full_path);
+
+                // If the parent dir is NOT the main videos folder, it implies it's a specific subfolder (EverCam)
+                // UPLOAD_DIR_VIDEOS ends with slash, e.g. .../uploads/videos/
+                // parent_dir would be .../uploads/videos/content_xyz
+                $upload_root_norm = str_replace('\\', '/', realpath(UPLOAD_DIR_VIDEOS));
+                $parent_dir_norm = str_replace('\\', '/', realpath($parent_dir));
+
+                if ($parent_dir_norm !== $upload_root_norm) {
+                    // It's a subfolder (EverCam), delete the whole folder
+                    // Quick recursive delete
+                    $files = glob($parent_dir_norm . '/*');
+                    foreach ($files as $file) {
+                        if (is_file($file))
+                            unlink($file);
+                    }
+                    rmdir($parent_dir_norm);
+                } else {
+                    // It's a single file in root (Standard MP4)
+                    unlink($old_full_path);
+                }
+            }
+
+            // 2. Proceed with New Upload
             $ext = strtolower(pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION));
             $temp_name = $_FILES['video_file']['tmp_name'];
             $file_id = uniqid('content_');
@@ -94,21 +132,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $filename = $file_id . '.mp4';
                 move_uploaded_file($temp_name, UPLOAD_DIR_VIDEOS . $filename);
                 $content_path = 'uploads/videos/' . $filename;
+                $format = 'mp4';
+                $metadata = null; // Clear metadata for plain MP4
+                // Duration? We might keep old or set to 0 to let worker fix it? 
+                // Worker doesn't update duration currently. 
+                // But upload.php sets duration to 0 if not found? 
+                // Let's assume duration update is handled or 0.
             } elseif ($ext === 'zip') {
                 $zip = new ZipArchive;
                 if ($zip->open($temp_name) === TRUE) {
                     $extract_dir = UPLOAD_DIR_VIDEOS . $file_id . '/';
                     mkdir($extract_dir, 0777, true);
-                    $zip->extractTo($extract_dir);
+
+                    // Locate config.js and identify video file
+                    $config_content = '';
+                    $video_filename = '';
+                    $has_config = false;
+
+                    for ($i = 0; $i < $zip->numFiles; $i++) {
+                        $zf = $zip->getNameIndex($i);
+                        if (basename($zf) === 'config.js') {
+                            $config_content = $zip->getFromIndex($i);
+                            $has_config = true;
+                        }
+                    }
+
+                    if (!$has_config) {
+                        $zip->close();
+                        // deleteDir($extract_dir); // Should add helper
+                        throw new Exception("ZIP 檔案中未找到 config.js");
+                    }
+
+                    // Parse config.js (Simplified logic match upload.php)
+                    if (preg_match('/var\s+config\s*=\s*(\{.*\})/s', $config_content, $matches)) {
+                        $json_text = rtrim(trim($matches[1]), ';');
+                        $config_data = json_decode($json_text, true);
+                        if ($config_data) {
+                            if (isset($config_data['src'][0]['src']))
+                                $video_filename = $config_data['src'][0]['src'];
+                            if (isset($config_data['index']))
+                                $metadata = json_encode($config_data['index']);
+                            if (isset($config_data['duration']))
+                                $duration = (int) ($config_data['duration'] / 1000);
+                        }
+                    }
+
+                    if (empty($video_filename)) {
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            if (basename($zip->getNameIndex($i)) === 'media.mp4') {
+                                $video_filename = 'media.mp4';
+                                break;
+                            }
+                        }
+                    }
+
+                    if (empty($video_filename)) {
+                        $zip->close();
+                        throw new Exception("無法從 ZIP 中識別影片檔案。");
+                    }
+
+                    $zip->extractTo($extract_dir, ['config.js', $video_filename]);
                     $zip->close();
-                    $content_path = 'uploads/videos/' . $file_id . '/index.html';
+
+                    $content_path = 'uploads/videos/' . $file_id . '/' . $video_filename;
+                    $format = 'evercam';
                 }
             }
+
+            // If file replaced, triggers pending status
+            $status = 'pending';
+        } else {
+            $status = $video['status']; // Keep old status
         }
 
         // Update Video Record
-        $stmt = $conn->prepare("UPDATE videos SET title = ?, thumbnail_path = ?, content_path = ?, event_date = ?, campus_id = ?, speaker_id = ? WHERE id = ?");
-        $stmt->bind_param("ssssiii", $title, $thumb_path, $content_path, $event_date, $campus_id, $new_speaker_id, $video_id);
+        // We update format, metadata, duration, status as well
+        $stmt = $conn->prepare("UPDATE videos SET title = ?, thumbnail_path = ?, content_path = ?, format = ?, metadata = ?, duration = ?, event_date = ?, campus_id = ?, speaker_id = ?, status = ? WHERE id = ?");
+        $stmt->bind_param("sssssisiisi", $title, $thumb_path, $content_path, $format, $metadata, $duration, $event_date, $campus_id, $new_speaker_id, $status, $video_id);
         $stmt->execute();
 
         $conn->commit();

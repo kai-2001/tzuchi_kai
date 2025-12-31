@@ -53,7 +53,7 @@ $total_pages = ceil($total_items / $limit);
 // ============================================
 // LOGIC: Fetch records for current page
 // ============================================
-$query = "SELECT v.*, s.name as speaker_name, c.name as campus_name 
+$query = "SELECT v.*, s.name as speaker_name, c.name as campus_name, v.status, v.process_msg 
           FROM videos v
           LEFT JOIN speakers s ON v.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id

@@ -86,13 +86,106 @@ include __DIR__ . '/partials/header.php';
                 </div>
 
                 <div class="form-group full-width">
-                    <label>更新影片或 Zip 檔 (留空則保持不變)</label>
+                    <label>更新 mp4 或 evercam zip 檔 (留空則保持不變)</label>
                     <input type="file" name="video_file" accept=".mp4,.zip">
                 </div>
             </div>
-            <button type="submit" class="btn-submit">儲存修改</button>
+            <style>
+                @keyframes progress-stripe {
+                    0% {
+                        background-position: 1rem 0;
+                    }
+
+                    100% {
+                        background-position: 0 0;
+                    }
+                }
+
+                .progress-bar-animated {
+                    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+                    background-size: 1rem 1rem;
+                    animation: progress-stripe 1s linear infinite;
+                }
+            </style>
+            <div id="progress-container" style="display:none; margin-top: 20px;">
+                <div style="background: #e5e7eb; border-radius: 8px; height: 14px; overflow: hidden;">
+                    <div id="progress-bar" class="progress-bar-animated"
+                        style="background-color: var(--primary-color, #008491); width: 0%; height: 100%; transition: width 0.2s;">
+                    </div>
+                </div>
+                <div id="progress-text"
+                    style="text-align: center; margin-top: 5px; font-size: 0.9rem; color: #666; font-weight: 600;">
+                    準備上傳...</div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn-submit">儲存修改</button>
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const btnSubmit = document.getElementById('btn-submit');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        form.addEventListener('submit', function (e) {
+
+            // Only intercept if a file is selected (for Edit page)
+            // If no file, we can submit normally or use same XHR flow. Same XHR flow is fine.
+            e.preventDefault();
+
+            // Disable button
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = '處理中...';
+            progressContainer.style.display = 'block';
+
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', form.action, true);
+
+            // Upload Progress
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percent + '%';
+                    progressText.innerText = percent + '%';
+
+                    if (percent >= 100) {
+                        progressText.innerText = '上傳完成，正在處理資料...';
+                    }
+                }
+            };
+
+            // Complete
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    if (xhr.responseURL && !xhr.responseURL.includes('edit_video.php')) {
+                        // Success: Redirected
+                        window.location.href = xhr.responseURL;
+                    } else {
+                        document.documentElement.innerHTML = xhr.responseText;
+                        window.location.reload();
+                    }
+                } else {
+                    alert('更新失敗: ' + xhr.statusText);
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerText = '儲存修改';
+                }
+            };
+
+            xhr.onerror = function () {
+                alert('網路錯誤，更新失敗。');
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = '儲存修改';
+            };
+
+            xhr.send(formData);
+        });
+    });
+</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
