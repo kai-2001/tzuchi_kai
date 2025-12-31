@@ -125,16 +125,10 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
                                 <?php endif; ?>
 
                                 <div class="hero-btns">
-                                    <?php if (!empty($slide['link_url'])): ?>
-                                        <a href="<?= htmlspecialchars($slide['link_url']) ?>" class="btn-hero-primary">
-                                            前往觀看 <i class="fa-solid fa-play"></i>
-                                        </a>
-                                    <?php else: ?>
-                                        <a href="announcements.php" class="btn-hero-primary"
-                                            style="background: rgba(255,255,255,0.9);">
-                                            查看公告 <i class="fa-solid fa-file-lines"></i>
-                                        </a>
-                                    <?php endif; ?>
+                                    <a href="announcements.php" class="btn-hero-primary"
+                                        style="background: rgba(255,255,255,0.9);">
+                                        查看公告 <i class="fa-solid fa-file-lines"></i>
+                                    </a>
 
                                     <?php if (is_manager()): ?>
                                         <a href="manage_announcements.php" class="btn-hero-glass">

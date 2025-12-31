@@ -74,9 +74,7 @@ header.static-header .user-info span,
 header.scrolled .user-info i,
 header.static-header .user-info i,
 header.scrolled .search-box input::placeholder,
-header.static-header .search-box input::placeholder,
-header.scrolled .search-box i,
-header.static-header .search-box i {
+header.static-header .search-box input::placeholder {
     color: var(--primary-dark) !important;
 }
 

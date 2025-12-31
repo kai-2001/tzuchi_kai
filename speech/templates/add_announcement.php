@@ -83,10 +83,7 @@
                         <input type="file" name="slide_image" accept="image/*">
                     </div>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label>跳轉連結 URL (可選)</label>
-                            <input type="url" name="link_url" placeholder="點擊橫幅後要跳轉的網址">
-                        </div>
+
                         <div class="form-group">
                             <label>排序 (越小越前面)</label>
                             <input type="number" name="sort_order" value="0">

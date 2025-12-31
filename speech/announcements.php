@@ -9,11 +9,11 @@ require_once 'includes/config.php';
 // The prompt said "跟以前近期預告的顯示方式一樣" (Like the old Upcoming Lectures).
 // Let's filter date >= CURDATE() to be safe for "Upcoming".
 
-$query = "SELECT a.*, c.name as campus_name 
+$query = "SELECT a.*, c.name as campus_name, c.id as campus_id_val 
           FROM announcements a 
           LEFT JOIN campuses c ON a.campus_id = c.id 
-          WHERE a.is_active = 1 AND a.event_date >= CURDATE()
-          ORDER BY a.campus_id ASC, a.event_date ASC";
+          WHERE a.is_active = 1 
+          ORDER BY a.event_date DESC, a.campus_id ASC";
 
 $result = $conn->query($query);
 $announcements_flat = $result->fetch_all(MYSQLI_ASSOC);
@@ -37,7 +37,7 @@ foreach ($announcements_flat as $item) {
     $grouped_announcements[$campus][$month_key][] = $item;
 }
 
-$page_title = '近期預告';
+$page_title = '公告';
 $page_css_files = []; // We can add specific CSS if needed, or inline
 
 include 'templates/announcements.php';
