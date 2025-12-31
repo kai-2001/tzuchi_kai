@@ -39,6 +39,20 @@ function call_moodle($url, $token, $func, $params = [])
     curl_setopt($curl, CURLOPT_TIMEOUT, CURL_TIMEOUT);
     curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, CURL_CONNECT_TIMEOUT);
     $resp = curl_exec($curl);
+
+    // 錯誤處理
+    if (curl_errno($curl)) {
+        $error_code = curl_errno($curl);
+        $error_msg = curl_error($curl);
+        curl_close($curl);
+
+        // 連線逾時 (Code 28)
+        if ($error_code === 28) {
+            return ['error' => 'MOODLE_TIMEOUT'];
+        }
+        return ['error' => 'CURL_ERROR', 'message' => $error_msg];
+    }
+
     curl_close($curl);
     return json_decode($resp, true);
 }
@@ -98,8 +112,19 @@ function call_moodle_parallel($url, $token, $requests)
 
     // 收集結果
     foreach ($curl_handles as $key => $curl) {
-        $content = curl_multi_getcontent($curl);
-        $results[$key] = json_decode($content, true);
+        // 檢查是否有錯誤
+        if (curl_errno($curl)) {
+            $error_code = curl_errno($curl);
+            if ($error_code === 28) {
+                $results[$key] = ['error' => 'MOODLE_TIMEOUT'];
+            } else {
+                $results[$key] = ['error' => 'CURL_ERROR', 'message' => curl_error($curl)];
+            }
+        } else {
+            $content = curl_multi_getcontent($curl);
+            $results[$key] = json_decode($content, true);
+        }
+
         curl_multi_remove_handle($multi_handle, $curl);
         curl_close($curl);
     }

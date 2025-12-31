@@ -458,15 +458,38 @@
             }
 
             const moodleUrl = '<?php echo $moodle_url; ?>';
-            container.innerHTML = courses.map(course => `
-                <div class="col-md-3">
-                    <div class="card course-card h-100" style="cursor:pointer;" onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold">${course.fullname}</h6>
+            container.innerHTML = courses.map(course => {
+                const mainCat = course.parent_category || '其他';
+                const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
+                const progress = course.progress || 0;
+
+                // 狀態標示邏輯
+                const statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
+                                        ${progress >= 100 ? '已完成' : '學習中 (' + progress + '%)'}
+                                    </span>`;
+
+                return `
+                <div class="col-md-6">
+                    <div class="card course-card h-100 position-relative">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title fw-bold mb-1">${course.fullname}${statusHtml}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-folder-open me-1"></i>${mainCat}
+                                    ${subCat ? `<i class="fas fa-chevron-right mx-1" style="font-size: 8px; vertical-align: middle; opacity: 0.5;"></i>${subCat}` : ''}
+                                </small>
+                            </div>
+                            <button class="btn btn-sm" 
+                                    style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
+                                    onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
+                                <i class="fas fa-sign-in-alt me-1"></i>進入課程
+                            </button>
                         </div>
+                        <span class="category-label">${mainCat}</span>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             container.classList.add('fade-in');
         }
@@ -679,12 +702,30 @@
                     }
 
                     const data = result.data;
+                    
+                    // 🚀 關鍵優化：檢查是否有連線逾時
+                    // 因為 parallel 可能回傳部分成功部分失敗，這裡簡單檢查主要資料結構
+                    // 如果 result.data 本身包含 error 且為 MOODLE_TIMEOUT
+                    if (data && data.error === 'MOODLE_TIMEOUT') {
+                        throw new Error('MOODLE_TIMEOUT');
+                    }
+                    
+                    // 或者檢查特定 key (例如 my_courses_raw)
+                    if (type === 'courses' && data.my_courses_raw && data.my_courses_raw.error === 'MOODLE_TIMEOUT') {
+                        throw new Error('MOODLE_TIMEOUT');
+                    }
+                    if (type === 'announcements' && data.latest_announcements && data.latest_announcements.error === 'MOODLE_TIMEOUT') {
+                        throw new Error('MOODLE_TIMEOUT');
+                    }
+
                     renderer(data);
                     console.log(`✅ ${type} 載入完成`);
                 })
                 .catch(error => {
                     console.error(`❌ 載入 ${type} 失敗:`, error);
-                    handlePartialError(type);
+                    // 判斷是否為逾時錯誤
+                    const isTimeout = error.message === 'MOODLE_TIMEOUT' || error.message.includes('timeout');
+                    handlePartialError(type, isTimeout);
                 });
         }
 
@@ -702,8 +743,11 @@
             });
         }
 
-        function handlePartialError(type) {
-            const errorHtml = `<div class="text-center p-3 text-danger"><small>載入失敗</small></div>`;
+        function handlePartialError(type, isTimeout = false) {
+            const msg = isTimeout ? '連線逾時，請重新整理頁面' : '載入失敗';
+            const icon = isTimeout ? 'fa-clock' : 'fa-exclamation-triangle';
+            const errorHtml = `<div class="text-center p-3 text-danger"><i class="fas ${icon} me-1"></i><small>${msg}</small></div>`;
+            
             // 根據類型找到對應容器並顯示錯誤
             let selector = '';
             switch (type) {
@@ -722,7 +766,7 @@
 
             // 🚀 極致優化：改為「原子化併行載入 (Atomic Concurrent Loading)」
             // 每個組件各跑各的，快的先顯示，慢的慢慢跑，互不干擾，體感速度最快！
-            
+
             // 1. 載入課程相關 (包含 我的課程、可選修、學習歷程)
             fetchSubData('courses', data => {
                 if (data.my_courses_raw) renderMyCourses(data.my_courses_raw);

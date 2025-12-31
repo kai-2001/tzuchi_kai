@@ -69,17 +69,54 @@ function fetch_moodle_data($type = 'all')
 
         // 建立分類對照表
         $cat_info = [];
-        if (is_array($cat_info_raw)) {
+        // Check if cat_info_raw has error or is valid list
+        if (is_array($cat_info_raw) && !isset($cat_info_raw['error'])) {
             foreach ($cat_info_raw as $cat) {
-                $cat_info[$cat['id']] = $cat;
+                if (is_array($cat) && isset($cat['id'])) {
+                    $cat_info[$cat['id']] = $cat;
+                }
             }
+        }
+
+        // 🚀 關鍵修正: 為 my_courses_raw 注入分類資訊 (為了對齊 "探索課程" 的 UI)
+        if (!empty($data['my_courses_raw']) && !isset($data['my_courses_raw']['error'])) {
+            foreach ($data['my_courses_raw'] as &$course) {
+                if (!is_array($course))
+                    continue;
+
+                $cat_id = $course['category'] ?? null; // API 回傳的是 category (int)
+                $parent_name = '其他';
+                $child_name = '';
+
+                if ($cat_id && isset($cat_info[$cat_id])) {
+                    $curr_cat = $cat_info[$cat_id];
+                    $child_name = $curr_cat['name'];
+                    $temp_cat = $curr_cat;
+                    // 往上找父分類
+                    while (($temp_cat['parent'] ?? 0) > 0 && isset($cat_info[$temp_cat['parent']])) {
+                        $temp_cat = $cat_info[$temp_cat['parent']];
+                    }
+                    $parent_name = $temp_cat['name'];
+                    // 如果本身就是父分類
+                    if ($curr_cat['id'] == $temp_cat['id']) {
+                        $child_name = '';
+                    }
+                }
+
+                $course['parent_category'] = $parent_name;
+                $course['child_category'] = ($child_name && $child_name !== $parent_name) ? $child_name : '';
+                $course['display_category'] = $course['child_category'] ? ($parent_name . ' - ' . $child_name) : $parent_name;
+            }
+            unset($course); // 解除 reference
         }
 
         // 如果只需要課程或學習歷程，可以在此提早結束
         if ($type === 'courses') {
             // 整理學習歷程
-            if (!empty($data['my_courses_raw'])) {
+            if (!empty($data['my_courses_raw']) && !isset($data['my_courses_raw']['error'])) {
                 foreach ($data['my_courses_raw'] as $course) {
+                    if (!is_array($course))
+                        continue;
                     $start_ts = $course['startdate'] ?? 0;
                     $year = ($start_ts > 0) ? date('Y', $start_ts) : '未設定年份';
                     $data['history_by_year'][$year][] = $course;
@@ -89,9 +126,13 @@ function fetch_moodle_data($type = 'all')
 
             // 處理可選修
             $my_courses_by_id = [];
-            foreach ($data['my_courses_raw'] as $c) {
-                $my_courses_by_id[$c['id'] ?? 0] = $c;
+            if (!empty($data['my_courses_raw']) && !isset($data['my_courses_raw']['error'])) {
+                foreach ($data['my_courses_raw'] as $c) {
+                    if (isset($c['id']))
+                        $my_courses_by_id[$c['id']] = $c;
+                }
             }
+
             foreach ($all_search_courses as $course) {
                 if (($course['id'] ?? 0) <= 1)
                     continue;
@@ -191,7 +232,8 @@ function fetch_moodle_data($type = 'all')
                 }
             }
             usort($raw_announcements, function ($a, $b) {
-                return ($b['date'] ?? 0) - ($a['date'] ?? 0); });
+                return ($b['date'] ?? 0) - ($a['date'] ?? 0);
+            });
             $data['latest_announcements'] = array_slice($raw_announcements, 0, 5);
         }
 
