@@ -42,6 +42,44 @@ if (!$video) {
 }
 
 // ============================================
+// LOGIC: Dynamic Chapter Loading (EverCam)
+// ============================================
+// ============================================
+// LOGIC: Dynamic Chapter Loading (EverCam)
+// ============================================
+if ($video['format'] === 'evercam') {
+    // Unified Logic: Replace "filename.mp4" with "config.js"
+    // Works for both local paths (uploads/videos/xyz/media.mp4) and URLs (http://.../media.mp4)
+    // Regex matches the last segment after / or \
+    $config_path = preg_replace('/[\\\\\/][^\\\\\/]+$/', '/config.js', $video['content_path']);
+
+    // Create connection context (Timeout 3s, Ignore SSL errors for compatibility)
+    $ctx = stream_context_create([
+        'http' => ['timeout' => 3, 'ignore_errors' => true],
+        'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
+    ]);
+
+    // Attempt to fetch content (suppress warnings with @)
+    $config_content = @file_get_contents($config_path, false, $ctx);
+
+    if ($config_content) {
+        // Parse config.js: var config = { ... };
+        if (preg_match('/var\s+config\s*=\s*(\{.*\})/s', $config_content, $matches)) {
+            $json_text = trim($matches[1]);
+            // Remove trailing semicolon if present
+            $json_text = rtrim($json_text, ';');
+
+            $config_data = json_decode($json_text, true);
+
+            if ($config_data && isset($config_data['index'])) {
+                // Override database metadata with fresh file data
+                $video['metadata'] = json_encode($config_data['index']);
+            }
+        }
+    }
+}
+
+// ============================================
 // LOGIC: Fetch user progress
 // ============================================
 $user_id = $_SESSION['user_id'];

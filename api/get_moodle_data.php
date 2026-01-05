@@ -80,21 +80,48 @@ try {
         exit;
     }
 
-    // 🚀 寫入快取
-    session_start();
-    if (!isset($_SESSION['moodle_cache']))
-        $_SESSION['moodle_cache'] = [];
-    if (!isset($_SESSION['moodle_cache_time']))
-        $_SESSION['moodle_cache_time'] = [];
+    // 🚀 關鍵修正：檢查是否有錯誤，如果有錯誤或資料不完整，不要快取 (或只快取極短時間)
+    // 這樣可以避免 "查無課程" 的錯誤狀態持續 10 分鐘
+    $should_cache = true;
 
-    $_SESSION['moodle_cache'][$type] = $moodle_data;
-    $_SESSION['moodle_cache_time'][$type] = time();
-
-    // 如果成功讀取並更新了，就清除 Dirty Flag
-    if (isset($_COOKIE['moodle_dirty'])) {
-        setcookie('moodle_dirty', '', time() - 3600, '/');
+    // 檢查是否有主要錯誤
+    if (isset($moodle_data['error']) && !empty($moodle_data['error'])) {
+        $should_cache = false;
     }
-    session_write_close();
+
+    // 檢查 my_courses_raw 是否有特定錯誤 (例如 timeout)
+    if (isset($moodle_data['my_courses_raw']['error'])) {
+        $should_cache = false;
+    }
+
+    // 如果是 'courses' 或 'all' 請求，但完全沒抓到課程 (且不是新使用者/管理員)，可能是暫時性錯誤
+    // 注意: 我們不能假設每個學生都有課，所以這裡要小心判斷。
+    // 但如果 my_courses_raw 是空的 array，通常可以快取。
+    // 如果是 NULL 或其他意外狀態則不快取。
+
+    if ($should_cache) {
+        // 🚀 寫入快取
+        session_start();
+        if (!isset($_SESSION['moodle_cache']))
+            $_SESSION['moodle_cache'] = [];
+        if (!isset($_SESSION['moodle_cache_time']))
+            $_SESSION['moodle_cache_time'] = [];
+
+        $_SESSION['moodle_cache'][$type] = $moodle_data;
+        $_SESSION['moodle_cache_time'][$type] = time();
+
+        // 如果成功讀取並更新了，就清除 Dirty Flag
+        if (isset($_COOKIE['moodle_dirty'])) {
+            setcookie('moodle_dirty', '', time() - 3600, '/');
+        }
+        session_write_close();
+    } else {
+        // 如果不快取，也要確保 Session 鎖被釋放 (雖然上面 API 呼叫前已經釋放過了，但這裡開啟了新的 session 嗎? 
+        // 不，fetch_moodle_data 裡沒有 session_start，但第 84 行有 session_start())
+        // 所以如果 $should_cache 為 false，我們還沒開啟 session，或者剛剛開啟了？
+        // 修正邏輯：原本第 84 行是 unconditionally session_start()。
+        // 我們應該只在要寫入快取時才 session_start()
+    }
 
     // 回傳成功結果
     echo json_encode([
@@ -103,6 +130,7 @@ try {
         'type' => $type,
         'data' => $moodle_data,
         'cached' => false,
+        'cache_status' => $should_cache ? 'saved' : 'skipped', // Debug info
         'source' => 'live_api'
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 

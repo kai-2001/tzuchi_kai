@@ -48,7 +48,14 @@ if (time() - $payload['timestamp'] > $tokenexpire) {
 $username = $payload['username'];
 
 if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) {
-    complete_user_login($user);
+
+    // 檢查是否已經登入且是同一使用者，若是則跳過重新登入流程 (優化速度)
+    if (isloggedin() && !isguestuser() && $USER->username === $username) {
+        // Already logged in as this user, skip complete_user_login
+    } else {
+        complete_user_login($user);
+    }
+
     local_ssologin_log_attempt('success', $user->id, $username);
 
     // Check for wantsurl

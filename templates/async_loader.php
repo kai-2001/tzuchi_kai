@@ -682,9 +682,12 @@
             container.classList.add('fade-in');
         }
 
-        // 階段性載入資料
-        function fetchSubData(type, renderer) {
-            return fetch(`api/get_moodle_data.php?type=${type}`, {
+        // 階段性載入資料 (含 Retry 機制)
+        function fetchSubData(type, renderer, retryCount = 0) {
+            const MAX_RETRIES = 2;
+            const RETRY_DELAY = 1500; // 1.5 seconds
+
+            fetch(`api/get_moodle_data.php?type=${type}`, {
                 method: 'GET',
                 credentials: 'same-origin'
             })
@@ -702,15 +705,11 @@
                     }
 
                     const data = result.data;
-                    
+
                     // 🚀 關鍵優化：檢查是否有連線逾時
-                    // 因為 parallel 可能回傳部分成功部分失敗，這裡簡單檢查主要資料結構
-                    // 如果 result.data 本身包含 error 且為 MOODLE_TIMEOUT
                     if (data && data.error === 'MOODLE_TIMEOUT') {
                         throw new Error('MOODLE_TIMEOUT');
                     }
-                    
-                    // 或者檢查特定 key (例如 my_courses_raw)
                     if (type === 'courses' && data.my_courses_raw && data.my_courses_raw.error === 'MOODLE_TIMEOUT') {
                         throw new Error('MOODLE_TIMEOUT');
                     }
@@ -718,13 +717,31 @@
                         throw new Error('MOODLE_TIMEOUT');
                     }
 
+                    // 驗證關鍵資料是否遺失（例如應該要有課程卻回傳空陣列，可能是暫時性 API 失敗）
+                    // 這裡只針對 known flaky APIs 做檢查
+                    if (type === 'courses' && (!data.my_courses_raw || (Array.isArray(data.my_courses_raw) && data.my_courses_raw.length === 0))) {
+                        // 雖然空課程是合法的，但如果是 API 故障導致的，我們希望能重試
+                        // 這裡可以透過檢查 result.cache_status 來決定要不要重試，或者先假設使用者真的沒課
+                        // 暫時不對 "空課程" 強制重試，避免無限迴圈 (除非我們能區分 "真沒課" vs "API 壞掉")
+                    }
+
                     renderer(data);
                     console.log(`✅ ${type} 載入完成`);
                 })
                 .catch(error => {
                     console.error(`❌ 載入 ${type} 失敗:`, error);
-                    // 判斷是否為逾時錯誤
-                    const isTimeout = error.message === 'MOODLE_TIMEOUT' || error.message.includes('timeout');
+
+                    // 判斷是否值得重試 (逾時或 500 錯誤通常值得重試)
+                    const isTimeout = error.message === 'MOODLE_TIMEOUT' || error.message.includes('timeout') || error.message.includes('500');
+
+                    if (isTimeout && retryCount < MAX_RETRIES) {
+                        console.warn(`⚠️ ${type} 載入逾時，${RETRY_DELAY}ms 後重試 (${retryCount + 1}/${MAX_RETRIES})...`);
+                        setTimeout(() => {
+                            fetchSubData(type, renderer, retryCount + 1);
+                        }, RETRY_DELAY);
+                        return;
+                    }
+
                     handlePartialError(type, isTimeout);
                 });
         }
@@ -747,7 +764,7 @@
             const msg = isTimeout ? '連線逾時，請重新整理頁面' : '載入失敗';
             const icon = isTimeout ? 'fa-clock' : 'fa-exclamation-triangle';
             const errorHtml = `<div class="text-center p-3 text-danger"><i class="fas ${icon} me-1"></i><small>${msg}</small></div>`;
-            
+
             // 根據類型找到對應容器並顯示錯誤
             let selector = '';
             switch (type) {
