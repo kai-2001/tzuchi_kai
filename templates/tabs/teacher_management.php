@@ -12,7 +12,7 @@
                 oninput="filterTeacherCourses(this.value)">
         </div>
         <button onclick="refreshTeacherCourses()" class="btn-refresh-large" title="重新載入">
-            <i class="fas fa-sync-alt"></i> 重新整理
+            <i class="fas fa-sync-alt"></i>
         </button>
     </div>
 

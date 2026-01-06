@@ -234,7 +234,46 @@ function process_login()
 
                 $moodle_result = json_decode($resp, true);
                 if (isset($moodle_result['exception'])) {
-                    error_log("Moodle sync fail: " . $moodle_result['message']);
+                    // 如果錯誤是 "Username already exists" 之類的，其實是可以接受的，代表可能之前建立過了但本地還沒 sync
+                    // 但為了保險起見，我們還是 log 下來
+                    error_log("Moodle sync msg: " . $moodle_result['message']);
+                }
+
+                // --- 2.5 [關鍵修正]：後端同步阻塞驗證 (Blocking Verification) ---
+                // 剛發出建立指令，Moodle 可能還在處理，這裡我們跑一個小迴圈去詢問 "人到底好了沒"
+                // 這樣可以保證當使用者被導向到儀表板時，API 一定抓得到資料，不會有 Race Condition
+
+                $max_retries = 5;
+                $verified = false;
+
+                for ($i = 0; $i < $max_retries; $i++) {
+                    // 休息一下再問 (第一次不休息直接問也行，但通常給 0.5s 緩衝比較好)
+                    if ($i > 0)
+                        usleep(500000); // 0.5 秒
+
+                    $v_params = ['field' => 'username', 'values' => [$input_user]];
+                    $serverurl_v = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_get_users_by_field&moodlewsrestformat=json';
+
+                    $curl_v = curl_init();
+                    curl_setopt($curl_v, CURLOPT_URL, $serverurl_v);
+                    curl_setopt($curl_v, CURLOPT_POST, true);
+                    curl_setopt($curl_v, CURLOPT_POSTFIELDS, http_build_query($v_params));
+                    curl_setopt($curl_v, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($curl_v, CURLOPT_TIMEOUT, 5);
+                    $resp_v = curl_exec($curl_v);
+                    curl_close($curl_v);
+
+                    $users_v = json_decode($resp_v, true);
+                    if (is_array($users_v) && !empty($users_v) && !isset($users_v['exception']) && !isset($users_v['errorCODE'])) {
+                        // 確認有抓到人，跳出迴圈
+                        $verified = true;
+                        break;
+                    }
+                }
+
+                if (!$verified) {
+                    // 如果等了 2.5 秒還是沒人，紀錄錯誤但還是讓程式繼續走 (死馬當活馬醫，或許是 API 延遲極高)
+                    error_log("Warning: Moodle user '$input_user' creation verification timed out.");
                 }
 
                 // --- 3. 自動註冊 (同步本地資料庫) ---

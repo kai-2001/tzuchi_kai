@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雲嘉學習網 | 大林慈濟教學部</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
     <meta name="description" content="雲嘉學習網 - 中南部地區醫院同仁雲端學習平台，提供專業醫療課程與學習資源。">
 
     <!-- Fonts -->
@@ -38,17 +40,19 @@
                 <a href="#contact" class="nav-link">聯絡我們</a>
             </div>
 
-            <div class="nav-actions">
-                <a href="#login-section" class="btn-nav-login">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>登入</span>
-                </a>
-            </div>
+            <div class="nav-right-group">
+                <div class="nav-actions">
+                    <a href="#login-section" class="btn-nav-login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>登入</span>
+                    </a>
+                </div>
 
-            <!-- 手機版漢堡選單 -->
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
+                <!-- 手機版漢堡選單 -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -423,9 +427,19 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navMenu = document.querySelector('.nav-menu');
 
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
+        if (mobileMenuBtn && navMenu) {
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 navMenu.classList.toggle('active');
+            });
+
+            // 點擊空白處關閉選單
+            document.addEventListener('click', (e) => {
+                if (navMenu.classList.contains('active')) {
+                    if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        navMenu.classList.remove('active');
+                    }
+                }
             });
         }
 

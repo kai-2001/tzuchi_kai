@@ -25,7 +25,7 @@ include __DIR__ . '/partials/header.php';
                 編輯影片資料</h2>
         </div>
         <div class="user-nav">
-            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回列表</a>
+            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> <span>返回列表</span></a>
         </div>
     </div>
 </header>

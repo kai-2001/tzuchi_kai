@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>码丽丝构筑与对战技巧</title>
+    <style>
+        /* ===== 整體閱讀區 ===== */
+        .b-read-editor__field {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            font-family:
+                "Noto Sans SC",
+                "PingFang SC",
+                "Microsoft YaHei",
+                "Noto Sans TC",
+                "PingFang TC",
+                "Microsoft JhengHei",
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                sans-serif;
+            color: #2b2b2b;
+            line-height: 1.85;
+            font-size: 16px;
+        }
+
+        /* ===== 標題系統 ===== */
+        .ql-editor h2 {
+            margin: 48px 0 18px;
+            padding-left: 14px;
+            border-left: 5px solid #ff7eb6;
+            font-size: 22px;
+            font-weight: 700;
+            color: #222;
+            line-height: 1.4;
+        }
+
+        .ql-editor h2:first-of-type {
+            margin-top: 16px;
+        }
+
+        /* ===== 一般段落 ===== */
+        .ql-editor p {
+            margin: 12px 0;
+            text-align: justify;
+            word-break: break-word;
+        }
+
+        /* ===== 強調文字 ===== */
+        .ql-editor strong {
+            color: #111;
+            font-weight: 600;
+        }
+
+        /* ===== 清單 ===== */
+        .ql-editor ul,
+        .ql-editor ol {
+            margin: 16px 0 16px 24px;
+            padding: 0;
+        }
+
+        .ql-editor li {
+            margin: 8px 0;
+        }
+
+        /* ===== 目錄美化 ===== */
+        .ql-editor ol li {
+            padding-left: 6px;
+        }
+
+        .ql-editor ol li::marker {
+            font-weight: 600;
+        }
+
+        /* ===== 圖片統一處理 ===== */
+        .ql-editor img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* 一般卡圖 */
+        .normal-img {
+            margin: 28px 0;
+        }
+
+        /* 分隔線圖 */
+        .cut-off {
+            margin: 40px 0;
+            opacity: 0.65;
+        }
+
+        /* ===== 引導感（對戰章節標題） ===== */
+        .ql-editor p strong[style] {
+            font-size: 17px;
+        }
+
+        /* ===== 引用 / 提示感 ===== */
+        .ql-editor blockquote {
+            margin: 24px 0;
+            padding: 14px 18px;
+            background: #fafafa;
+            border-left: 4px solid #ff7eb6;
+            color: #444;
+        }
+
+        /* ===== 行動裝置 ===== */
+        @media (max-width: 768px) {
+            .b-read-editor__field {
+                padding: 16px 14px 60px;
+                font-size: 15px;
+            }
+
+            .ql-editor h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="b-read-editor__field">
+        <div class="rql-editor ql-container ql-bubble">
+            <div class="ql-editor" data-gramm="false" contenteditable="true" data-placeholder="请输入正文">
+                <h2>前言:</h2>
+                <p>大家好，我是波尼，很荣幸使用码丽丝在12月MC天梯获得结算第一。</p>
+                <p>本文会分享表后的码丽丝构筑以及对战技巧，给码丽丝爱好者一些启发与帮助。</p>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2>目录:</h2>
+                <ol>
+                    <li>一月表对环境与码丽丝的影响</li>
+                    <li>一月表后构筑详解</li>
+                    <li>单卡COMBO与进阶小技巧</li>
+                    <li>对战与换备经验</li>
+                    <li>结语</li>
+                </ol>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2 class="ql-align-justify">1. 一月表对环境与码丽丝的影响</h2>
+                <p>与以往的禁卡表不同，这次的禁卡表对环境中常见的泛用卡进行了规制，包括G、灰、指，以及码丽丝会投入的灵王</p>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://article.biliimg.com/bfs/new_dyn/8da0b092972c8f3a510a5fb23ecb24a31424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="72597.504"
+                        data-aigc="false"></p>
+                <p>G的限制让OCG与TCG表更趋同，原先后手方在开完大解牌后中G而输掉是OCG环境中较不常见投入大解牌的原因之一，在G限制后对于大解牌的评价会提升，灰准限与墓指限一让后手抽牌系手坑的通过机率增加，因此卡组对多多迷宝的抗性变得更为重要，码丽丝对常见的雀与水母有不错的抗性也通过了这一关的影响，灵王是码丽丝能放的强力手坑，准限制就当让转码有更多的出场机会吧。
+                </p>
+                <p>除了泛用卡外，码丽丝也迎来了严厉的两刀，红棋与飞溅的禁止。</p>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://article.biliimg.com/bfs/new_dyn/e191041f74ab96521a61e79ea325bd2a1424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="62290.944"
+                        data-aigc="false"></p>
+                <p>红棋禁止让码丽丝调度四种下级必须要把白后覆盖的陷阱在自己回合就使用掉，不容易留有GWC当资源爆发或手坑抗性的一环，且必须要投入TB作为展开组件，飞溅禁止导致吃坑抗性有明显的下降，总体来说单卡COMBO变得无法防陨防灰，幸运的是，两卡以上的COMBO虽然手坑抗性不如以往强大，但一样能做出兼具资源与爆发的场面，且由于这两个大刀让备牌的圣枪投入数量下降，让码丽丝在表后还能有一战之力。
+                </p>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2>2.一月表后构筑详解</h2>
+                <p>码丽丝是一套资源型的展开卡组，系统内的基本阻抗是协码三色挡加上两个非指定除外，不像一般展开卡组有着系统内大量阻抗，取而代之的是柴郡猫与白后的回合内抽3，以及对手回合第二波资源爆发，可以在补充系统外阻抗的同时增加每回合的资源返场，来达到展开完几乎就拿下胜利的方程式，以下是卡组构筑
+                </p>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/985b9b18138b37bd820a5c046a880b1f1424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="1543" data-size="604844.032"
+                        data-aigc="false"></p>
+                <p>接下来对卡组进行详解</p>
+                <p><strong>主卡组与泛用卡</strong></p>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://article.biliimg.com/bfs/new_dyn/8c88229882355af36e45bcc8528733691424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="831" data-size="291579.904"
+                        data-aigc="false"></p>
+                <p>为了提高两卡动的最大概率，将本家的所有下级都满编，锁鸟虽然能作为自锁手段，但会跟灵王自肃冲撞，且红棋与飞溅被禁止的情况下自锁的场面会更小，在G被限制的情况下选择投入两张，一张雀则是在G限制后补上的抽牌系卡位，跟灵王一起上手的情况建议准阶就先丢出，避免对手主阶第一张卡就是要交出灵王的强力动作，例如罗喉星辰。
+                </p>
+                <ul>
+                    <li><strong>渊兽</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://article.biliimg.com/bfs/new_dyn/09ce1e0a1a1629acd51bbeacce1c09cd1424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="78846.976"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    表后其实希望做招都是纯电子界去利用转码的场值，但渊兽除了可以增加两卡开的牌型，还可以保证在合出红心密匿/白棋绑缚后吃到陨石可以在对手回合做资源返场，对上部分对局也能作为阻抗，综合之下还是提高了投入的数量，打绚岚、星辰、KV等对局后手与胜负做替换。
+                </p>
+                <ul>
+                    <li class="ql-align-justify"><strong>禁忌的圣冠</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/e9950cce936acb4a6ee8923c00f1c0a21424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="61203.456"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    先手可以作为滤抽到的系统外强力阻抗，或是对策KV与星辰的T0动，后手也能把最具威胁的阻抗沉默，例如大怒涛，配合彩流体可以点小怪进行斩杀，例如KV的虚像，搭配水晶心还能穿防小怪，也能配合红心密匿的文本外不被效果无效达到无敌红心，投入两张。
+                </p>
+                <ul>
+                    <li class="ql-align-justify"><strong>红色重启</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/82b066972c362ff7e41b3a00487ece811424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="55404.544"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">准备BO1赛制时投入的单卡，发现效果不错就沿用到BO3赛制，有这张卡在手牌允许下能破发星辰的三红盖卡场，或是先手无效灵王泡影。</p>
+                <p class="ql-align-justify"><strong>额外卡组</strong></p>
+                <ul>
+                    <li class="ql-align-justify"><strong>彩流与水晶心</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/18c9652e7c7fe208f99011b9f6e388001424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="64935.936"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    彩流体做为后手的斩杀组件，可以通过效果将额外的连结蜘蛛送墓变成地属性，与发过效果的水晶心互相连结可以达到6100打两下穿防，此外彩流体在场地单卡展开的COMBO中也有帮助。水晶心在飞溅禁止后变得更为重要，纯电子界做展开时善用转码拉起来的小男巫与转码合上去的水晶心攀LINK值做白后与保护码与者，在场值足够的条件下，可以做到协码站右方EX区，中央怪兽区有连结怪兽后跳手牌的男巫，两个值做水晶心拉墓地转码合出互相连接数为2的防火
+                </p>
+                <ul>
+                    <li class="ql-align-justify"><strong>保护码语者</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/85317bfb9a8ae5b483f0913eb1adb0d31424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="56015.872"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">对展开有一定帮助，尤其是单白兔开需要保护码语者才能把除外本家怪的段数打满</p>
+                <ul>
+                    <li class="ql-align-justify"><strong>第二张小解码</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/50aefe9a332db42a2353024888a9bab01424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="64749.568"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    由于我觉得先手打完的强度够赢，因此选择在后手多一个小解码帮助突破，在场地开的COMBO里也能利用第二个小解码增加防火的回收数量，此位置可以替换成给彩流堆的阻抗或是对单白兔展开有提升的药蜥。</p>
+                <ul>
+                    <li class="ql-align-justify"><strong>药蜥</strong></li>
+                </ul>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/1cffc49fe1dbaef2e45d55111f5c62101424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="369" data-size="56135.68"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    在单白兔下对展开提升帮助较大，并且能不吃屋敷的情况下合到本家LINK3，后手降低对手怪兽攻击后配合圣冠彩流体可以无视其他怪兽斩杀，未来可能会尝试将第二个小解码换成药蜥。</p>
+                <p class="ql-align-justify"><strong>副卡组</strong></p>
+                <p class="normal-img" contenteditable="false"><img
+                        src="https://i0.hdslb.com/bfs/new_dyn/77986a7a9e897892b3c1dc4bfa976cfa1424744937.jpg@.webp"
+                        data-status="loaded" alt="read-normal-img" data-w="1080" data-h="523" data-size="158390.272"
+                        data-aigc="false"></p>
+                <p class="ql-align-justify">
+                    由于没有投入泡影、屋敷等小手坑，副卡组采用抽牌系+大解牌的战术，双龙卷跟一滴可以帮助胜负躲掉绚岚的无效，双龙卷在对战KV时也可以在主阶前先把雪风跟强解炸了，先攻则是投入障壁与误捕分别针对星辰与KV绚岚，还有一张提供上限的三战之才。
+                </p>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2 class="ql-align-justify">3.单卡COMBO与进阶小技巧</h2>
+                <p class="ql-align-justify">单卡COMBO秉持小牌大打原则都是以较不CARE手坑的方式做到至少有抽3+协码+本家两个除外+对手回合资源返场</p>
+                <p class="ql-align-justify">单睡鼠(丢一手):协码+防火三弹+白后红心+GWC+抽三</p>
+                <p class="ql-align-justify">
+                    通召睡鼠、睡鼠效果除外白兔、白兔效果特召盖TB、TB除外睡鼠特召柴郡、睡鼠效果特召、合小男巫、合小解码、小男巫效果除外柴郡找备份秘书、柴郡效果特召、备份秘书手牌效果起跳找三月兔丢一手、柴郡除外三月兔抽二、三月兔回收自己、小男巫+小解码合转码、小解码墓地起跳、转码拉小男巫、小男巫+柴郡合白后、白后盖GWC、小解码+白后+备份秘书合红心、红心+转码合水晶心、三月兔手牌效果、除外墓地白后起跳、白后效果特召抽一、白后除外墓地红心+一本家当红心子弹、红心效果特召、水晶心拉墓地转码、三月兔合栗子球、转码+栗子球合防火、水晶心+白后+红心合协码、协码效果拉转码白后。
+                </p>
+                <p class="ql-align-justify">单白兔(丢一手):协码+白后红心+三月兔+抽三</p>
+                <p class="ql-align-justify">
+                    通召白兔盖TB、TB除外白兔特召睡鼠、白兔合栗子球、睡鼠+栗子球合小夜、小夜除外睡鼠、睡鼠效果特召、睡鼠效果除外柴郡、柴郡效果特召、睡鼠+小夜合白后、白后盖MTP、MTP除外白后抓三月兔、白后效果特召抽一、柴郡除外手牌三月兔抽二、三月兔回收自己、柴郡+白后合小男巫、三月兔效果除外墓地MTP特召、小男巫除外柴郡找备份秘书、备份秘书手牌效果起跳找男巫丢一手、三月兔合小解码、小男巫+小解码合保护码语者、小解码墓地起跳、男巫拉墓地睡鼠、男巫+睡鼠+保护合红心、红心+小解码合防火、保护除外红心起跳、红心效果特召到防火箭头端、防火回收三月兔、防火+备份+保护合协码、协码效果拉白后。
+                </p>
+                <p class="ql-align-justify">单场地(丢一手):协码+白后红心+三月兔+抽三</p>
+                <p class="ql-align-justify">
+                    场地除外白兔盖MTP、MTP除外白兔找睡鼠、通召睡鼠、睡鼠效果除外三月兔、三月兔效果回收自己、睡鼠合栗子球、三月兔手牌效果除外睡鼠特召、睡鼠效果特召、栗子球+睡鼠合小男巫、三月兔合小解码、小男巫除外栗子球找备份秘书、备份秘书手牌效果起跳找男巫丢一手、小男巫+小解码合转码、小解码起跳、转码拉墓地小男巫、男巫拉墓地睡鼠、睡鼠+小男巫合白后、白后盖TB、白后+小男巫+小解码合红心、TB除外红心跳柴郡、红心效果特召、转码+柴郡合水晶心在左方EX区、水晶心拉转码、水晶心+备份合保护、保护+红心合防火、保护除外白后起跳、白后效果特召抽一、白后除外墓地柴郡+MTP、柴郡效果特召、防火回收三月兔+睡鼠、柴郡效果除外睡鼠抽二、防火+柴郡+白后合彩流、彩流效果堆卡组白兔供下回合资源返场、转码+彩流+保护合协码、协码效果拉转码白后。
+                </p>
+                <p class="ql-align-justify">飞溅禁止后秘书无法单卡开，因此改为做到防火两弹或是回收资源后协码一挡</p>
+                <p class="ql-align-justify">单秘书(丢一手):</p>
+                <p class="ql-align-justify">
+                    通召备份秘书抓男巫丢一手，备份秘书合栗子球，男巫拉备份秘书，备份秘书+栗子球合小男巫，男巫合小解码，小男巫除外备份秘书抓备份秘书二号，备份秘书手牌效果特召，小解码+小男巫合转码，小解码墓地起跳，转码拉小男巫，小男巫+小解码合保护，保护+备份秘书合防火，保护除外小男巫+栗子球特召，防火回收2，保护+转码+防火合协码，协码效果拉转码。
+                </p>
+                <p class="ql-align-justify">进阶小技巧:</p>
+                <ul>
+                    <li class="ql-align-justify">备份秘书手牌效果跳到小男巫箭头端可以自排连锁防灰</li>
+                    <li class="ql-align-justify">在确保白后被灰有GWC可以拉回来时可以C1备份秘书C2陷阱除外场上白后用白后帮备份秘书挡灰</li>
+                    <li class="ql-align-justify">吃雀妥协时，优先调度柴郡去过牌，滤到锁鸟可以自锁，其余情况基本上是做出红心抽一，场值足够可以把白后甚至协码都刷出来达到抽三打完</li>
+                    <li class="ql-align-justify">在手里有补点+柴郡+多余的码丽丝卡时，可以优先通召柴郡猫发效果去试探手坑而非贪压缩卡组完的柴郡抽二</li>
+                    <li class="ql-align-justify">在大宇宙人适用下一般做到红心+GWC，场值允许可以做防火+红心+GWC，并用防火回收大宇宙人</li>
+                    <li class="ql-align-justify">在起手有两种以上本家下级时，第二种调度的陷阱通常会从MTP改为GWC，场值足够下可以保留GWC作为保底阻抗</li>
+                </ul>
+                <p class="ql-align-justify"><br></p>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2 class="ql-align-justify">4.对战与换备经验</h2>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">1. K9VS</strong></p>
+                <p class="ql-align-justify">
+                    协码康K9边的拉人效果，或是场上的神圣苏拉人，VS边利用两个除外处理场值，先攻展开或是后手突破都可以前置场地防止被后面段数的龙帝给管死，先攻场地开也能比较容易在不发动手牌效果下出第一个红心或白后去与K9的17号交互，后手不想先交出睡鼠，场地的第一除可以跳柴郡猫逼对手给出阻抗，进入拉扯时可以优先处理对手的龙帝，并且注意血量不要被烧死。
+                </p>
+                <p class="ql-align-justify">先攻换备:出1大宇宙人、1雀、1重启，进2误捕、1三战。</p>
+                <p class="ql-align-justify">后攻换备:出2黑龙、1蓝龙、1红龙、1大宇宙人、2柴郡猫、1三月兔、1星改、1墓指，进3水母、2雀、1双龙卷、1三战、3胜负。</p>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">2. 阿不思星辰</strong></p>
+                <p class="ql-align-justify">
+                    协码康融合点，注意LINK3不要被爪龙弹回去即可靠资源碾压，两个除外交给阿不思边的超融合或是盖上来的计都，先手在有秘书与三月兔同时上手的情况下可以优先发动秘书，防止炮手下来把场值处理导致停牌，后手在有灰流的情况下交互的顺序可以先把场地或黄金柜的补点开出来，灰吼炎后守表跳怪，而非先把通召点给对手开裂角，让对手可能为了不想交出最大的炮手阻抗而往后等，帮助突破成功，总体来说星辰在多了刺毒跟阿不思边要突破变得困难许多。
+                </p>
+                <p class="ql-align-justify">先攻换备:出1雀、1重启、1锁鸟，进1三战、2障壁。</p>
+                <p class="ql-align-justify">后攻换备:出2黑龙、1柴郡、2锁鸟、1星改，进2雀、1三战、3胜负。</p>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">3. 绚岚</strong></p>
+                <p class="ql-align-justify">
+                    协码能康对手的6星检索效果就康，有旋风堆墓可以用白后除外，两个除外不论是除外场值还是旋风对手都很难突破，主卡局在后手可以善用渊兽或三月兔卡陷阱无效的时点，进入拉扯优先把陷阱与两个9星给除外，在局势较为优势时要考虑被隐藏的双风神翻盘，可以先进战阶把怪兽清除或是保留陷阱防止红心或白后被弹走。
+                </p>
+                <p class="ql-align-justify">先攻换备:出1雀、1重启、1灵王，进2误捕、1三战。</p>
+                <p class="ql-align-justify">后攻换备:出2黑龙、1蓝龙、1红龙、1雀、2柴郡、1三月兔、1星改，进3水母、1双龙卷、1三战、1一滴、3胜负。</p>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">4. 巳剑</strong></p>
+                <p class="ql-align-justify">协码康仪式魔法，在天丛云发动炸全场后要保有一定的铺怪防斩杀，由于有放渊兽，并不会到太难打。</p>
+                <p class="ql-align-justify">先攻换备:出1宇宙人、1雀、2圣冠，进2误捕、2障壁。</p>
+                <p class="ql-align-justify">后攻换备:出2柴郡、1三月兔，进2雀、1三战。</p>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">5. 烙印</strong></p>
+                <p class="ql-align-justify">要注意尽量不要被吞食圣痕之龙把红心白后洗回卡组，白后能处理墓地资源就顺手处理，后手遇到不拉答辩的高手不好赢，得靠大宇宙人结算，比较看猜拳。</p>
+                <p class="ql-align-justify">先攻换备:出1雀、1圣冠、1重启，进1三战、2障壁。</p>
+                <p class="ql-align-justify">后攻换备:出2柴郡、1三月兔、2锁鸟、1星改，进1水母、2雀、1双龙卷、1三战、1一滴。</p>
+                <p class="ql-align-justify"><strong style="color: rgb(255, 160, 208);">6. 闪刀</strong></p>
+                <p class="ql-align-justify">
+                    先攻做完资源碾压，对手有积累墓地魔法就可以跳白后出来清理，防止0帧交闪，三月兔除外白后记得让白后跟三月兔是连接状态防爪锚，后手有灰流可以视情况交给自己回合的光刀解体防三战系，有圣冠在判断这回合破发不了可以考虑在把对局拉长，在下级吃阻抗后留着怪利用圣冠卡对手一回合而非合小男巫给对手清理资源。
+                </p>
+                <p class="ql-align-justify">先攻换备:出1雀、1重启，进2误捕</p>
+                <p class="ql-align-justify">后攻换备:出2柴郡、1三月兔、1星改、1重啟，进1双龙卷、1三战、3胜负。</p>
+                <p class="cut-off" contenteditable="false" data-type="1"><img
+                        src="https://article.biliimg.com/bfs/article/4aa545dccf7de8d4a93c2b2b8e3265ac0a26d216.png"></p>
+                <h2 class="ql-align-justify">5.结语</h2>
+                <p>总结来说，虽然一月表对码丽丝造成也不小的打击，红棋与飞溅的禁止让单卡展开与手坑抗性明显下降，但只要在构筑与操作上做出取舍，加上环境内减少的圣枪，码丽丝依然是一套能够在现环境中竞争的资源型展开卡组。
+                </p>
+                <p>表后的码丽丝更强调两卡以上的展开、对手回合的第二波资源返场，以及如何在拉扯战中利用白后、红心逐步取得优势。只要多熟悉做招路线，码丽丝依旧能在对局中打出上限。</p>
+                <p>希望这篇构筑与对战心得，能为码丽丝爱好者提供一些新的思路与方向。</p>
+                <p>此外，我想感谢与我讨论码丽丝的灵sama，爬分过程鼓励我的盗龙sf，让我不用在跨年还要水深火热争第一的流年、残影，以及MC全明星赛竞技场的群友，星尘、610、余生、羽炎、小英、甜点、瑞玛、黑暗之星、泪寒、yeuwu、SCV_、shall
+                    be等，水友群的超影、Jeffrey、付笺、Alex、落枫流火、唐子斌、醉梦、萨辛、白敬、星焱、唯一chara、WMG、极羽光、月涟泷纱、载酒客，线下好友洗衣藍、pieee
+                </p>
+                <p><strong>广告时间</strong></p>
+                <p>FA战队考核群340155438。队内拥有30多位国赛选手，打牌氛围良好，欢迎喜欢高强度竞技的牌手。</p>
+                <p>最后，最大的感谢献给大毛及MC相关营运人员，你们辛苦了!</p>
+            </div>
+            <div class="ql-clipboard" contenteditable="true" tabindex="-1"></div>
+            <div class="ql-clipboard" contenteditable="true" tabindex="-1"></div>
+        </div>
+    </div>
+</body>
+
+</html>

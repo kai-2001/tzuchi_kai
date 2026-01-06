@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
     --primary-color: #008491;
-    /* 慈濟青 */
+    /* ????*/
     --primary-light: #e6f3f4;
     --primary-dark: #006b75;
     --accent-color: #ffc107;
@@ -1782,5 +1782,353 @@ select:focus {
         width: 100%;
         max-width: 280px;
         justify-content: center;
+    }
+}
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+    header {
+        height: auto;
+        padding: 10px 0;
+        background: var(--header-bg);
+    }
+
+    header.static-header {
+        background: rgba(255, 255, 255, 0.98) !important;
+    }
+
+    /* Reduced padding and gap for tighter squeeze */
+    .header-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 5px;
+        padding: 0 10px;
+    }
+
+    .header-left {
+        order: 1;
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .user-nav {
+        order: 2;
+        width: auto;
+        flex-shrink: 0;
+        display: flex;
+        gap: 4px;
+    }
+
+    .search-box {
+        order: 3;
+        width: 100%;
+        flex: 0 0 100%;
+        margin: 10px 0 5px 0;
+        max-width: none;
+    }
+
+    /* Smaller logo font */
+    .logo-text {
+        font-size: 1.0rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Hide text in buttons on mobile */
+    .btn-admin span,
+    .user-info span {
+        display: none;
+    }
+
+    /* Smaller buttons (32px) */
+    .btn-admin {
+        padding: 0;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-info {
+        padding: 0;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-info i {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .btn-admin i {
+        font-size: 0.9rem;
+    }
+
+    /* Container Padding */
+    .container,
+    .home-content-layout {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* Fix overlap on pages with fixed header */
+    .container[style*="padding-top"] {
+        padding-top: 170px !important;
+    }
+
+    .home-content-layout[style*="margin-top"] {
+        margin-top: 170px !important;
+    }
+
+    /* Hero Section Tweaks */
+    .hero-main-title {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .hero-slide-content {
+        align-items: center;
+        text-align: center;
+        padding-top: 60px;
+    }
+
+    .hero-meta-top {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .btn-hero-primary,
+    .btn-hero-glass {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Tabs Horizontal Scroll */
+    .tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 10px 12px;
+        margin: 0 -12px 20px -12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+
+/* ==========================================================================
+   Watch Page Styles (Responsive & Desktop "Original" Restore)
+   ========================================================================== */
+
+/* Structure (Global) */
+.player-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.player-layout.single-view {
+    justify-content: center;
+}
+
+.player-layout.single-view .main-player {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.player-layout.dual-view .main-player {
+    flex: 3;
+}
+
+/* Sidebar Container */
+.player-layout.dual-view .chapters-sidebar {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-player video {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: black;
+}
+
+/* Chapter List Items (Shared Basics) */
+.chapter-list {
+    overflow-y: auto;
+    max-height: 500px;
+    background: white;
+}
+
+.chapter-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: #334155;
+}
+
+.chapter-item:hover {
+    background: #f8fafc;
+    color: var(--primary-color);
+}
+
+.chapter-item.active {
+    background: #f0fdf4;
+    color: var(--primary-dark);
+    font-weight: 600;
+    border-left: 3px solid var(--primary-color);
+}
+
+.chap-num {
+    opacity: 0.6;
+    font-size: 0.85rem;
+    width: 24px;
+}
+
+.chap-title {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.chap-time {
+    background: transparent !important;
+    color: #94a3b8 !important;
+    font-size: 0.85rem;
+    padding: 0;
+    border: none;
+    font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   DESKTOP ONLY (min-width: 901px) - "Original" Look & Behavior
+   -------------------------------------------------------------------------- */
+@media (min-width: 901px) {
+
+    /* "Original" Dark Header Look */
+    .sidebar-header {
+        padding: 15px 20px;
+        background: var(--primary-dark, #2c3e50);
+        /* Dark Background */
+        color: white;
+        /* White Text */
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: default !important;
+        pointer-events: none;
+        /* Disable toggle clicks */
+        display: flex;
+        justify-content: flex-start;
+        /* Standard layout */
+    }
+
+    .sidebar-header i {
+        margin-right: 10px;
+    }
+
+    /* Hide the chevron toggle */
+    #chapterChevron {
+        display: none !important;
+    }
+
+    /* Always show list */
+    .chapter-list {
+        display: block !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   MOBILE ONLY (max-width: 900px) - RWD Tweaks (Light Theme & Collapsible)
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .player-layout {
+        flex-direction: column;
+    }
+
+    .player-layout.dual-view .main-player,
+    .player-layout.dual-view .chapters-sidebar {
+        width: 100%;
+        flex: none;
+    }
+
+    .chapters-sidebar {
+        margin-top: 10px;
+    }
+
+    /* Mobile Header: Light Theme (User liked this on mobile) */
+    /* Mobile Header: Dark Theme (Restored) */
+    .sidebar-header {
+        padding: 15px 20px;
+        background: var(--primary-dark, #2c3e50);
+        /* Dark Background */
+        color: white;
+        /* White Text */
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        /* Enable clicking */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px;
+        /* Rounded initially */
+        transition: background 0.2s;
+    }
+
+    .sidebar-header:hover {
+        background: #34495e;
+    }
+
+    /* Slightly lighter dark on hover */
+
+    /* Slightly lighter dark on hover */
+
+    /* Fix border radius when expanded */
+    .chapters-sidebar:has(.chapter-list[style*="block"]) .sidebar-header {
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* Chevron Animation */
+    .sidebar-header i.fa-chevron-down {
+        transition: transform 0.3s;
+    }
+
+    /* Default Hidden List */
+    .chapter-list {
+        display: none;
+        max-height: 300px;
     }
 }

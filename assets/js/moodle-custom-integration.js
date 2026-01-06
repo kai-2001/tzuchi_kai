@@ -69,25 +69,32 @@
         </div>
 
         <!-- 右側區域：切換角色 + 編輯模式開關 + 使用者選單 -->
-        <div id="pg-right-area">
-            <!-- 切換角色按鈕（教師/管理員專用，在課程內才顯示）-->
-            <a href="#" id="switch-role-link" class="pg-link" style="display:none; margin-right:10px;">
-                <i class="fas fa-user-graduate"></i> <span id="switch-role-text">切換為學生檢視</span>
-            </a>
-
-            <!-- 編輯模式開關容器 (將由 JS 填充) -->
-            <div id="custom-edit-mode-container"></div>
-
-            <div class="pg-dropdown" id="portal-user-menu">
-                <div class="pg-link" style="display:flex; align-items:center; gap:12px;">
-                    <span id="custom-user-name">User</span>
-                    <div class="user-avatar-circle" id="custom-user-avatar">U</div>
-                </div>
-                <div class="pg-dropdown-content" style="right:0; left:auto;">
-                    <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
-                    <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+        <!-- 右側區域：切換角色 + 編輯模式開關 + 使用者選單 -->
+        <div class="pg-right-group">
+            <div id="pg-right-area">
+                <!-- 切換角色按鈕（教師/管理員專用，在課程內才顯示）-->
+                <a href="#" id="switch-role-link" class="pg-link" style="display:none; margin-right:10px;">
+                    <i class="fas fa-user-graduate"></i> <span id="switch-role-text">切換為學生檢視</span>
+                </a>
+    
+                <!-- 編輯模式開關容器 (將由 JS 填充) -->
+                <div id="custom-edit-mode-container"></div>
+    
+                <div class="pg-dropdown" id="portal-user-menu">
+                    <div class="pg-link" style="display:flex; align-items:center; gap:12px;">
+                        <span id="custom-user-name">User</span>
+                        <div class="user-avatar-circle" id="custom-user-avatar">U</div>
+                    </div>
+                    <div class="pg-dropdown-content" style="right:0; left:auto;">
+                        <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
+                        <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+                    </div>
                 </div>
             </div>
+
+            <button class="mobile-menu-btn" id="mobile-menu-toggle" style="display:none;">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </nav>
     `;
@@ -250,6 +257,24 @@
                 // 隱藏原本可能存在的分割線 (Moodle 預設帶有的)
                 var divider = editSwitch.querySelector('.divider');
                 if (divider) divider.style.display = 'none';
+
+                // 檢查是否有標籤文字，沒有則補上
+                var label = editSwitch.querySelector('label');
+                if (!label) {
+                    label = document.createElement('label');
+                    label.textContent = '編輯模式';
+                    label.style.marginRight = '8px';
+                    label.style.marginBottom = '0';
+                    label.style.fontWeight = '500';
+                    label.style.color = '#475569';
+                    editSwitch.insertBefore(label, editSwitch.firstChild);
+                } else {
+                    // 確保現有標籤可見
+                    label.style.display = 'block';
+                    if (label.textContent.trim() === '') {
+                        label.textContent = '編輯模式';
+                    }
+                }
             }
         }
 
@@ -378,6 +403,62 @@
             removeStickyFooter();
         });
         observer.observe(document.body, { childList: true, subtree: true });
+
+
+        // ========================================
+        // 9. 手機版選單切換邏輯
+        // ========================================
+        var mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function () {
+                var menu = document.querySelector('.pg-menu');
+                if (menu) {
+                    menu.classList.toggle('active');
+                }
+            });
+
+            // 點擊空白處關閉選單 (Click Outside to Close)
+            document.addEventListener('click', function (event) {
+                var menu = document.querySelector('.pg-menu');
+                var btn = document.getElementById('mobile-menu-toggle');
+                var userMenu = document.getElementById('portal-user-menu');
+
+                // 處理手機選單關閉
+                if (menu && menu.classList.contains('active')) {
+                    if (!menu.contains(event.target) && (!btn || !btn.contains(event.target))) {
+                        menu.classList.remove('active');
+                    }
+                }
+
+                // 處理使用者選單關閉 (如果點擊目標不是使用者選單內部)
+                if (userMenu && userMenu.classList.contains('active')) {
+                    if (!userMenu.contains(event.target)) {
+                        userMenu.classList.remove('active');
+                    }
+                }
+            });
+
+            // 使用者選單點擊切換 (Toggle)
+            var userMenu = document.getElementById('portal-user-menu');
+            if (userMenu) {
+                // 針對選單內的觸發區域 (通常是頭像或名字)
+                var trigger = userMenu.querySelector('.pg-link');
+                if (trigger) {
+                    trigger.addEventListener('click', function (e) {
+                        e.preventDefault(); // 防止連結跳轉
+                        e.stopPropagation(); // 防止冒泡觸發 document click
+
+                        // 開啟使用者選單前，先強制關閉漢堡選單 (互斥)
+                        var mobileMenu = document.querySelector('.pg-menu');
+                        if (mobileMenu && mobileMenu.classList.contains('active')) {
+                            mobileMenu.classList.remove('active');
+                        }
+
+                        userMenu.classList.toggle('active');
+                    });
+                }
+            }
+        }
     }
 
     // ========================================
@@ -396,9 +477,49 @@
         });
     }
 
+    // ========================================
+    // 9. 強制圖層順序 (Z-Index Enforcer)
+    // ========================================
+    function forceLayering() {
+        // 1. 直接移除/隱藏遮罩 (避免圖層堆疊問題)
+        const backdrops = document.querySelectorAll('.modal-backdrop, .drawer-backdrop, .offcanvas-backdrop, div[data-region="modal-backdrop"]');
+        backdrops.forEach(el => {
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('opacity', '0', 'important');
+            el.style.setProperty('pointer-events', 'none', 'important');
+            el.style.setProperty('width', '0', 'important');
+            el.style.setProperty('height', '0', 'important');
+        });
+
+        // 2. 拉高側邊欄層級
+        const drawers = document.querySelectorAll('.drawer, .drawer-content, #theme_boost-drawers-courseindex, div[data-region="drawer"]');
+        drawers.forEach(el => {
+            el.style.setProperty('z-index', '1300', 'important');
+            el.style.setProperty('visibility', 'visible', 'important');
+            el.style.setProperty('pointer-events', 'auto', 'important'); // 強制可點擊
+        });
+
+        // 3. 確保導覽列層級
+        const nav = document.getElementById('portal-global-nav');
+        if (nav) {
+            nav.style.setProperty('z-index', '1200', 'important');
+        }
+    }
+
     // 初始化
     document.addEventListener('DOMContentLoaded', function () {
         initMouseGlow();
+
+        // 啟動強制分層循環 (解決 Moodle JS 動態覆寫問題)
+        // 每 100ms 檢查一次，持續 10 秒
+        const layerInterval = setInterval(forceLayering, 100);
+        setTimeout(() => clearInterval(layerInterval), 10000);
+
+        // 額外綁定點擊事件時也檢查 (針對動態開啟的遮罩)
+        document.addEventListener('click', () => {
+            setTimeout(forceLayering, 50);
+            setTimeout(forceLayering, 300);
+        });
     });
 
 })();

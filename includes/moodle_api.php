@@ -45,8 +45,73 @@ function fetch_moodle_data($type = 'all')
             $moodle_users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
 
             if (!is_array($moodle_users) || empty($moodle_users) || !isset($moodle_users[0]['id'])) {
-                $data['error'] = 'MOODLE_USER_NOT_FOUND';
-                return $data;
+                // [JIT Auto-Repair] 查無 Moodle 帳號，嘗試自動修復
+                global $db_host, $db_user, $db_pass, $db_name;
+
+                // 1. 取得本地使用者資料
+                $local_user = null;
+                $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+                if (!$conn->connect_error) {
+                    $conn->set_charset("utf8mb4");
+                    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+                    $stmt->bind_param("s", $_SESSION['username']);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    if ($row = $res->fetch_assoc()) {
+                        $local_user = $row;
+                    }
+                    $stmt->close();
+                    $conn->close();
+                }
+
+                if ($local_user) {
+                    // 2. 準備建立資料
+                    $fullname = $local_user['fullname'] ?? $_SESSION['username'];
+                    $input_user = $local_user['username'];
+                    $email = $local_user['email'] ?? ($input_user . "@example.com");
+
+                    $last_name = mb_substr($fullname, 0, 1, "utf-8");
+                    $first_name = mb_substr($fullname, 1, null, "utf-8");
+                    if (empty($first_name))
+                        $first_name = $last_name;
+
+                    $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
+
+                    $moodle_user_data = [
+                        'users' => [
+                            [
+                                'username' => $input_user,
+                                'password' => $moodle_password,
+                                'firstname' => $first_name,
+                                'lastname' => $last_name,
+                                'email' => $email,
+                                'auth' => 'manual',
+                            ]
+                        ]
+                    ];
+
+                    // 3. 呼叫 Moodle API 建立
+                    $serverurl = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_create_users&moodlewsrestformat=json';
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_URL, $serverurl);
+                    curl_setopt($curl, CURLOPT_POST, true);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($moodle_user_data));
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+                    $resp = curl_exec($curl);
+                    curl_close($curl);
+
+                    // 4. 等待同步 (Short Delay)
+                    usleep(800000); // 0.8s
+
+                    // 5. 重試查詢 ID
+                    $moodle_users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+                }
+
+                if (!is_array($moodle_users) || empty($moodle_users) || !isset($moodle_users[0]['id'])) {
+                    $data['error'] = 'MOODLE_USER_NOT_FOUND';
+                    return $data;
+                }
             }
             $moodle_uid = $moodle_users[0]['id'];
             $_SESSION['moodle_uid'] = $moodle_uid;

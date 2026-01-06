@@ -683,7 +683,7 @@
         }
 
         // 階段性載入資料 (含 Retry 機制)
-        function fetchSubData(type, renderer, retryCount = 0) {
+        function fetchSubData(type, renderer) {
             const MAX_RETRIES = 2;
             const RETRY_DELAY = 1500; // 1.5 seconds
 
@@ -726,21 +726,10 @@
                     }
 
                     renderer(data);
-                    console.log(`✅ ${type} 載入完成`);
+                    // console.log(`✅ ${type} 載入完成`);
                 })
                 .catch(error => {
                     console.error(`❌ 載入 ${type} 失敗:`, error);
-
-                    // 判斷是否值得重試 (逾時或 500 錯誤通常值得重試)
-                    const isTimeout = error.message === 'MOODLE_TIMEOUT' || error.message.includes('timeout') || error.message.includes('500');
-
-                    if (isTimeout && retryCount < MAX_RETRIES) {
-                        console.warn(`⚠️ ${type} 載入逾時，${RETRY_DELAY}ms 後重試 (${retryCount + 1}/${MAX_RETRIES})...`);
-                        setTimeout(() => {
-                            fetchSubData(type, renderer, retryCount + 1);
-                        }, RETRY_DELAY);
-                        return;
-                    }
 
                     handlePartialError(type, isTimeout);
                 });
@@ -809,7 +798,7 @@
                 if (data.grades) renderGradesChart(data.grades);
             });
 
-            console.log('🚀 啟動原子化併行載入...');
+            // console.log('🚀 啟動原子化併行載入...');
         }
 
         // 頁面載入完成後立即開始載入資料

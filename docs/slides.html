@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雲嘉學習網成果報告</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Base Theme Overrides */
+        :root {
+            --primary-color: #01579b;
+            /* Deep Blue */
+            --secondary-color: #546e7a;
+            /* Blue Grey */
+            --accent-color: #039be5;
+            /* Bright Blue */
+            --bg-gradient: linear-gradient(135deg, #e3f2fd 0%, #fdfbfb 100%);
+            --slide-bg: rgba(255, 255, 255, 0.98);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+        }
+
+        .reveal {
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            color: #333;
+            font-size: 32px;
+            /* Increased base font size */
+        }
+
+        /* Slide Container (The 'Card') */
+        .slide-content {
+            background: var(--slide-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            padding: 40px 60px;
+            height: 100vh;
+            max-height: 680px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Decorative accents - Top Bar */
+        .slide-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #0288d1, #b3e5fc);
+        }
+
+        /* Titles */
+        .reveal h1,
+        .reveal h2,
+        .reveal h3 {
+            font-family: 'Noto Sans TC', sans-serif;
+            text-transform: none;
+            color: var(--primary-color);
+            margin: 0 0 25px 0;
+            line-height: 1.2;
+        }
+
+        .reveal h3 {
+            font-size: 1.5em;
+            /* ~48px */
+            font-weight: 700;
+            border-bottom: 2px solid #f1f1f1;
+            padding-bottom: 15px;
+            text-align: left;
+            position: relative;
+        }
+
+        /* Little accent under the title line */
+        .reveal h3::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: var(--accent-color);
+        }
+
+        /* Text & Lists */
+        .reveal p,
+        .reveal li {
+            font-size: 0.9em;
+            /* ~29px */
+            line-height: 1.6;
+            color: #455a64;
+        }
+
+        .reveal ul {
+            margin-left: 0;
+            padding-left: 10px;
+        }
+
+        .reveal li {
+            margin-bottom: 15px;
+            list-style-type: none;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .reveal li::before {
+            content: '✓';
+            /* Checkmark bullet */
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: -5px;
+        }
+
+        /* Images */
+        .reveal img {
+            max-height: 480px;
+            /* Slightly larger */
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .reveal img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Layout Grids */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 40px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .grid-container.inverse {
+            grid-template-columns: 0.9fr 1.3fr;
+        }
+
+        .col-text {
+            text-align: left;
+        }
+
+        .col-img {
+            text-align: center;
+        }
+
+        /* Fancy Elements */
+        .tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            color: #01579b;
+            border-radius: 20px;
+            font-size: 0.65em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .box-highlight {
+            background: #f1f8e9;
+            border-left: 5px solid #7cb342;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            font-size: 0.85em;
+            margin-top: 20px;
+            color: #33691e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .slide-footer {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 0.45em;
+            color: #cfd8dc;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Title Slide Special */
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #fff;
+        }
+
+        .title-slide h1 {
+            font-size: 3.2em;
+            color: #0d47a1;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .title-decoration {
+            width: 100px;
+            height: 6px;
+            background: linear-gradient(90deg, #29b6f6, #0277bd);
+            margin: 25px auto;
+            border-radius: 10px;
+        }
+
+        /* Reveal Controls Color */
+        .reveal .controls {
+            color: #0277bd;
+        }
+
+        .reveal .progress span {
+            background: #0277bd;
+        }
+
+        /* LIGHTBOX & ZOOM STYLES */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+            animation: fadeIn 0.3s;
+        }
+
+        .lightbox img {
+            width: 100%;
+            height: 100%;
+            max-width: 98%;
+            max-height: 98%;
+            border-radius: 4px;
+            box-shadow: none;
+            object-fit: contain;
+            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Add zoom capability to all images in slides */
+        .slide-content img {
+            cursor: zoom-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: 封面 -->
+            <section>
+                <div class="slide-content title-slide">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Tzu_Chi_logo.svg/1024px-Tzu_Chi_logo.svg.png"
+                        style="height: 100px; box-shadow: none; border: none; margin-bottom: 20px; border-radius: 0;"
+                        onerror="this.style.display='none'">
+
+                    <h1>雲嘉學習網</h1>
+                    <!-- <h2 style="font-size: 1.4em; color: #78909c; font-weight: 300; margin-bottom: 10px;">Cloud-Sea
+                        Learning Portal</h2> -->
+
+                    <div class="title-decoration"></div>
+
+                    <h3 style="border: none; text-align: center; font-size: 1.5em; color: #455a64; margin-top: 20px;">
+                        階段性成果報告
+                    </h3>
+
+                    <div
+                        style="margin-top: 50px; font-size: 0.8em; color: #90a4ae; border-top: 1px solid #f0f0f0; padding-top: 20px; width: 60%;">
+                        <p style="margin: 5px 0;"><strong>報告人</strong>：大林慈濟醫院 教學部 陳楷傑、劉冠銘</p>
+                        <p style="margin: 5px 0;"><strong>日期</strong>：2026-01-13</p>
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    "各位長官、同仁大家好。今天要為各位展示的是我們最新建置的『雲嘉學習網』，這是一個專為醫學教育打造的整合式雲端平台。"
+                </aside>
+            </section>
+
+            <!-- Slide 2: 系統核心價值 -->
+            <section>
+                <div class="slide-content" style="padding: 30px 50px;">
+                    <h3>系統核心價值：一站式學習生態系</h3>
+                    <div style="display: flex; gap: 30px; margin-top: 20px; flex: 1; align-items: stretch;">
+                        <div
+                            style="flex: 1; background: #fafafa; padding: 25px 20px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); text-align: center; border: 1px solid #eee;">
+                            <div style="font-size: 4em; margin-bottom: 10px;">⚡</div>
+                            <h4 style="color: #37474f; font-size: 1.3em; margin-bottom: 10px;">整合性 Integration</h4>
+                            <p style="font-size: 0.9em;">無縫串接「入口網」與「Moodle」，打破系統孤島，提供單一入口體驗。</p>
+                        </div>
+                        <div
+                            style="flex: 1; background: #fafafa; padding: 25px 20px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); text-align: center; border: 1px solid #eee;">
+                            <div style="font-size: 4em; margin-bottom: 10px;">✨</div>
+                            <h4 style="color: #37474f; font-size: 1.3em; margin-bottom: 10px;">易用性 Simplicity</h4>
+                            <p style="font-size: 0.9em;">專為非資訊背景同仁設計，直觀介面，大幅降低學習門檻。</p>
+                        </div>
+                    </div>
+
+                    <div class="box-highlight"
+                        style="margin-top: 15px; background: #fffde7; border-left-color: #fdd835; color: #f57f17; padding: 15px;">
+                        💡 <strong>核心價值</strong>：讓使用者無需在複雜的系統選單中迷路，從乾淨的入口直通學習資源。
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    強調兩點：1. 沒有系統隔閡感 2. 介面簡單到不用教就會用。
+                </aside>
+            </section>
+
+
+
+            <!-- Slide 3: 入口網 (Portal) -->
+            <section>
+                <div class="slide-content">
+                    <h3>入口網 (Portal) - 現代化設計</h3>
+                    <div class="grid-container">
+                        <div class="col-img">
+                            <img src="final_home.png" alt="Portal Home"
+                                style="box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                        </div>
+                        <div class="col-text">
+                            <ul>
+                                <li>
+                                    <span class="tag">Visual</span> <strong style="color: #333;">現代化視覺</strong>
+                                    <p style="margin-top: 0;">採用大量留白設計，擺脫舊式系統的擁擠感，營造專業氛圍。</p>
+                                </li>
+                                <li>
+                                    <span class="tag">Nav</span> <strong style="color: #333;">完整導覽</strong>
+                                    <p style="margin-top: 0;">首頁即包含特色介紹、關於我們與聯絡資訊。</p>
+                                </li>
+                                <li>
+                                    <span class="tag">Access</span> <strong style="color: #333;">直覺登入</strong>
+                                    <p style="margin-top: 0;">顯眼的登入入口，使用者能在 1 秒內找到開始學習的路徑。</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3.5: 登入頁面介紹 (New Position) -->
+            <section>
+                <div class="slide-content">
+                    <h3>登入入口介紹</h3>
+                    <div class="grid-container">
+                        <div class="col-text">
+                            <ul>
+                                <li><strong>顯眼的位置</strong>
+                                    <p style="margin: 5px 0 20px 0;">登入按鈕位於頁面右上角，符合使用者直覺，初次造訪也能立即找到。</p>
+                                </li>
+                                <li><strong>簡潔的介面</strong>
+                                    <p style="margin: 5px 0 20px 0;">點擊後進入專屬登入頁，畫面乾淨無干擾，專注於身分驗證。</p>
+                                </li>
+                                <!-- <li><strong>統一入口</strong>
+                                    <p style="margin: 5px 0 20px 0;">整合院內 AD 帳號，無需額外註冊，使用員工編號即可直接登入。</p>
+                                </li> -->
+                            </ul>
+                            <div class="box-highlight"
+                                style="background: #e3f2fd; border-left-color: #2196f3; color: #0d47a1;">
+                                👆 <strong>快速開始</strong>：右上角一鍵登入，開啟您的學習旅程。
+                            </div>
+                        </div>
+                        <div class="col-img">
+                            <img src="final_login.png" alt="Portal Login Page">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4.1: 學員儀表板 - 個人首頁與進度 -->
+            <section>
+                <div class="slide-content">
+                    <h3>學員儀表板 (1/2) - 個人首頁與進度</h3>
+                    <div class="grid-container">
+                        <div class="col-img">
+                            <img src="final_student_dash_full_1.png" alt="Dashboard Welcome">
+                        </div>
+                        <div class="col-text">
+                            <div
+                                style="background: linear-gradient(to right, #e3f2fd, #fff); color: #1565c0; padding: 15px 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #1565c0; font-weight: 500;">
+                                👋 「歡迎回來，XXX」<br><span
+                                    style="font-size:0.8em; font-weight: normal; color: #546e7a;">個人化橫幅，提升系統溫度與歸屬感。</span>
+                            </div>
+                            <ul>
+                                <li><strong>修課進度總覽</strong>
+                                    <br>圖像化顯示實體與數位課程的完成狀況。
+                                </li>
+                                <li><strong>視覺化指標</strong>
+                                    <br>使用圓環圖與進度條，一眼就能掌握目前的學習進度 (例如: 3/6 門完成)。
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4.2: 學員儀表板 - 成績與公告 -->
+            <section>
+                <div class="slide-content">
+                    <h3>學員儀表板 (2/2) - 成績與公告</h3>
+                    <div class="grid-container">
+                        <div class="col-text">
+                            <ul>
+                                <li><strong>成績總覽 (Grades)</strong>
+                                    <br>以長條圖視覺化呈現考試成績，學生可直觀了解自己的學習表現。
+                                </li>
+                                <li><strong>最新公告 (Announcements)</strong>
+                                    <br>與個人相關的課程通知、系統公告皆彙整於此，訊息不漏接。
+                                </li>
+                            </ul>
+                            <div class="box-highlight"
+                                style="background: #fdf2f2; border-left-color: #e57373; color: #c62828;">
+                                🔔 <strong>一站式資訊</strong>：無需分別進入各門課程查看成績與公告，提升效率。
+                            </div>
+                        </div>
+                        <div class="col-img">
+                            <img src="final_student_dash_full_2.png" alt="Dashboard Grades"
+                                style="object-position: bottom;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: 深度探索與課程管理 -->
+            <section>
+                <div class="slide-content">
+                    <h3>深度探索與課程管理</h3>
+                    <div class="r-stack" style="flex: 1; width: 100%;">
+
+                        <!-- Stack 1: Explore -->
+                        <div class="fragment fade-out" data-fragment-index="0" style="width: 100%; height: 100%;">
+                            <div class="grid-container">
+                                <div class="col-img">
+                                    <img src="final_explore.png" style="max-height: 480px;">
+                                </div>
+                                <div class="col-text">
+                                    <span class="tag" style="background: #e0f2f1; color: #00695c;">Explore Tab</span>
+                                    <h4 style="margin: 10px 0 20px 0; color: #00897b;">強大的檢索功能</h4>
+                                    <ul>
+                                        <li><strong>分類標籤</strong>：直覺切換實體/數位/新進員工專區，篩選更精準。</li>
+                                        <li><strong>關鍵字搜尋</strong>：即時過濾，快速定位感興趣的學習主題。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stack 2: My Courses -->
+                        <div class="fragment current-visible" data-fragment-index="0"
+                            style="width: 100%; height: 100%;">
+                            <div class="grid-container">
+                                <div class="col-img">
+                                    <img src="final_my_courses.png" style="max-height: 480px;">
+                                </div>
+                                <div class="col-text">
+                                    <span class="tag" style="background: #fff3e0; color: #e65100;">My Courses Tab</span>
+                                    <h4 style="margin: 10px 0 20px 0; color: #fb8c00;">專注學習進度</h4>
+                                    <ul>
+                                        <li><strong>獨立分頁</strong>：此頁面僅顯示「已註冊」課程，不受其他資訊干擾。</li>
+                                        <li><strong>狀態追蹤</strong>：每一門課都有獨立進度條，完成度一目瞭然。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: 課程介面 (Moved here) -->
+            <section>
+                <div class="slide-content">
+                    <h3>課程學習介面</h3>
+                    <div class="grid-container">
+                        <div class="col-img" style="flex: 1.6;">
+                            <img src="final_moodle_view.png" alt="Course View" style="max-height: 500px;">
+                        </div>
+                        <div class="col-text" style="flex: 1;">
+                            <ul>
+                                <li><strong>結構清晰</strong>
+                                    <p>課程主題分章節排列，邏輯分明，避免首頁滿滿文字的資訊過載。</p>
+                                </li>
+                                <li><strong>多元資源</strong>
+                                    <p>支援影片串流、外部連結、討論區互動與回饋單。</p>
+                                </li>
+                                <li><strong>即時反饋</strong>
+                                    <p>
+                                        <span
+                                            style="font-size: 0.9em; background: #c8e6c9; color: #256029; padding: 4px 10px; border-radius: 4px; font-weight: bold;">✅
+                                            完成徽章</span>
+                                        <br>活動完成後自動標示，建立學習成就感。
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6.1: 教師儀表板 -->
+            <section>
+                <div class="slide-content">
+                    <h3>教師專屬功能 (1/3) - 教師儀表板</h3>
+                    <div class="grid-container inverse">
+                        <div class="col-text">
+                            <ul>
+                                <li><strong>角色專屬視角</strong>
+                                    <p style="margin: 5px 0 20px 0;">系統會自動識別教師身分，呈現與學生完全不同的功能介面。</p>
+                                </li>
+                                <li><strong>重點資訊總覽</strong>
+                                    <p style="margin: 5px 0 20px 0;">首頁即顯示待辦事項與教學相關通知，讓老師登入後立即進入工作狀態。</p>
+                                </li>
+                            </ul>
+                            <div class="box-highlight">
+                                👨‍🏫 <strong>設計理念</strong>：區隔「教」與「學」的介面，避免功能混淆。
+                            </div>
+                        </div>
+                        <div class="col-img">
+                            <img src="final_teacher_dash.png" style="max-height: 480px;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6.2: 新增課程 -->
+            <section>
+                <div class="slide-content">
+                    <h3>教師專屬功能 (2/3) - 直覺開課</h3>
+                    <div class="grid-container inverse">
+                        <div class="col-text">
+                            <ul>
+                                <li><strong>快速跳轉</strong>
+                                    <p style="margin: 5px 0 20px 0;">點擊導覽列「新增課程」即可直接跳轉至 Moodle 開課介面，快速開始建立課程。</p>
+                                </li>
+                                <li><strong>無需繁瑣設定</strong>
+                                    <p style="margin: 5px 0 20px 0;">系統自動處理身分驗證，老師只需專注於輸入名稱與描述。</p>
+                                </li>
+                            </ul>
+                            <div class="box-highlight"
+                                style="border-left-color: #ff9800; background: #fff3e0; color: #e65100;">
+                                ⚡ <strong>效率提升</strong>：無縫銜接入口網與教學系統，操作體驗不中斷。
+                            </div>
+                        </div>
+                        <div class="col-img">
+                            <img src="final_add_course.png" style="max-height: 480px;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6.3: 課程管理 -->
+            <section>
+                <div class="slide-content">
+                    <h3>教師專屬功能 (3/3) - 課程管理</h3>
+                    <div class="grid-container inverse">
+                        <div class="col-text">
+                            <ul>
+                                <li><strong>清單式管理</strong>
+                                    <p style="margin: 5px 0 20px 0;">條列出老師所教授的所有課程，狀態一目瞭然。</p>
+                                </li>
+                                <li><strong>即時數據</strong>
+                                    <p style="margin: 5px 0 20px 0;">直接在卡片上顯示<strong>學生人數</strong>，點擊編輯按鈕即可快速調整課程內容。</p>
+                                </li>
+                                <li><strong>搜尋過濾</strong>
+                                    <p style="margin: 5px 0 20px 0;">上方提供搜尋與重新整理功能，方便管理大量課程。</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-img"
+                            style="display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center;">
+                            <!-- Stacked images for course management -->
+                            <img src="final_course_list.png"
+                                style="max-height: 210px; width: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee;"
+                                title="課程列表 (Course List)">
+
+                            <img src="final_course_detail.png"
+                                style="max-height: 210px; width: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 1px solid #eee;"
+                                title="課程詳細 (Course Detail)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: SSO 整合 -->
+            <section>
+                <div class="slide-content">
+                    <h3>Moodle 深度整合 (SSO)</h3>
+                    <div
+                        style="display: flex; flex-direction: column; justify-content: center; height: 100%; gap: 40px; padding: 0 40px;">
+
+                        <div style="display: flex; align-items: flex-start; gap: 30px;">
+                            <div
+                                style="background: #e3f2fd; color: #1565c0; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; flex-shrink: 0;">
+                                🚀</div>
+                            <div>
+                                <h4 style="margin: 0 0 10px 0; font-size: 1.3em; color: #1565c0;">單一簽入 (Single Sign-On)
+                                </h4>
+                                <p>從入口網點擊課程，系統自動處理 Moodle 登入驗證。<strong>完全無感切換</strong>，使用者就像在瀏覽同一個網站，無需再次輸入帳號密碼。</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: flex-start; gap: 30px;">
+                            <div
+                                style="background: #f1f8e9; color: #2e7d32; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; flex-shrink: 0;">
+                                🧭</div>
+                            <div>
+                                <h4 style="margin: 0 0 10px 0; font-size: 1.3em; color: #2e7d32;">統一導覽列 (Unified Nav)
+                                </h4>
+                                <p>Portal 導覽列在 Moodle 中<strong>持續存在</strong>，提供一致的使用者體驗。使用者隨時可按「首頁」返回，操作流暢不中斷。</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <aside class="notes">
+                    這是技術與使用者體驗結合最深的地方。
+                </aside>
+            </section>
+
+
+
+            <!-- Slide 9: 結論 -->
+            <section>
+                <div class="slide-content">
+                    <h3>結論與未來展望</h3>
+                    <div style="display: flex; gap: 40px; width: 100%; margin-top: 40px; height: 100%;">
+                        <div
+                            style="flex: 1; background: #e8f5e9; padding: 40px; border-radius: 16px; text-align: left; position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; right: -20px; top: -20px; font-size: 8em; opacity: 0.1; color: #2e7d32;">
+                                ✅</div>
+                            <h4
+                                style="color: #2e7d32; border-bottom: 3px solid #a5d6a7; padding-bottom: 15px; margin-bottom: 25px; font-size: 1.4em;">
+                                目前成果</h4>
+                            <ul style="color: #1b5e20; font-size: 1.1em; line-height: 2;">
+                                <li>建立<strong>穩定</strong>的學習入口</li>
+                                <li><strong>好用</strong>且直觀的操作介面</li>
+                                <li><strong>高整合度</strong>的系統架構</li>
+                            </ul>
+                        </div>
+                        <div
+                            style="flex: 1; background: #fff8e1; padding: 40px; border-radius: 16px; text-align: left; position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; right: -20px; top: -20px; font-size: 8em; opacity: 0.1; color: #f57f17;">
+                                🔭</div>
+                            <h4
+                                style="color: #f57f17; border-bottom: 3px solid #ffe082; padding-bottom: 15px; margin-bottom: 25px; font-size: 1.4em;">
+                                下一步</h4>
+                            <ul style="color: #e65100; font-size: 1.1em; line-height: 2;">
+                                <!-- <li>優化 <strong>Speech 影音模組</strong></li> -->
+                                <li>引入<strong>互動式</strong>多媒體教材</li>
+                                <li>持續收集回饋進行微調</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Q&A -->
+            <section>
+                <div class="slide-content title-slide">
+                    <div
+                        style="width: 150px; height: 150px; background: linear-gradient(135deg, #e1f5fe, #b3e5fc); color: #0277bd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4em; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                        ?</div>
+
+                    <h2 style="font-size: 4em; margin-bottom: 10px; color: #0277bd;">Q & A</h2>
+                    <p style="font-size: 1.5em; color: #546e7a; font-weight: 300;">意見交流</p>
+
+                    <div style="margin-top: 60px; color: #b0bec5; font-size: 0.8em; letter-spacing: 2px;">
+                        THANKS FOR LISTENING
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/notes/notes.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            slideNumber: 'c/t', // Current / Total
+            transition: 'slide',
+            backgroundTransition: 'fade',
+            width: 1280, // High res
+            height: 720, // 16:9 aspect ratio standard
+            margin: 0.08, // Less margin
+            plugins: [RevealNotes]
+        });
+    </script>
+</body>
+
+<!-- Global Lighting/Zoom Feature -->
+<div id="lightbox" class="lightbox">
+    <img id="lightbox-img" src="">
+</div>
+
+<script>
+    // Simple pure JS lightbox implementation
+    document.addEventListener('DOMContentLoaded', () => {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        // Add click listener to all images inside slide-content
+        document.querySelectorAll('.slide-content img').forEach(img => {
+            // Skip small icons/logos if needed, but user asked for "ALL images"
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent reveal.js navigation
+                lightboxImg.src = img.src;
+                lightbox.style.display = 'flex';
+            });
+        });
+
+        // Close lightbox on click
+        lightbox.addEventListener('click', () => {
+            lightbox.style.display = 'none';
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+                lightbox.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+
+</html>

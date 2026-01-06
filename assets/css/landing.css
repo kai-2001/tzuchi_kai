@@ -3,6 +3,21 @@
 /* ==========================================
    淺色??色主?? - CSS 變數覆??
    ========================================== */
+/* 全域重置，防止 padding 撐開寬度 */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 .landing-page {
     /* 主色??- ??色??*/
     --primary: #2563eb;
@@ -197,6 +212,12 @@ html::-webkit-scrollbar-thumb:hover {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3), 0 0 20px rgba(37, 99, 235, 0.2);
+}
+
+.nav-right-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .mobile-menu-btn {
@@ -1238,28 +1259,86 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 @media (max-width: 768px) {
+    .nav-container {
+        padding: 0 15px;
+        justify-content: flex-start;
+        /* 改為靠左對齊，透過 margin-left: auto 推擠 */
+    }
+
+    .nav-brand span {
+        font-size: 20px;
+        /* 恢復您原本的字體大小 */
+    }
+
     .nav-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
+        display: flex;
+        /* 保持 flex 以支援動畫，但預設移出畫面 */
+        position: fixed;
+        top: 70px;
         right: 0;
+        bottom: 0;
+        width: 250px;
+        height: calc(100vh - 70px);
         background: var(--surface-2);
+        backdrop-filter: blur(20px);
         flex-direction: column;
         padding: 20px;
-        border-bottom: 1px solid var(--card-border);
+        margin-left: 0;
+        border-left: 1px solid var(--card-border);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+        /* 左側陰影 */
+        transform: translateX(100%);
+        /* 預設移出畫面 */
+        transition: transform 0.3s ease-in-out;
+        z-index: 9999;
     }
 
     .nav-menu.active {
+        transform: translateX(0);
+        /* 滑入 */
+    }
+
+    .btn-nav-login i {
+        /* 手機版可以選擇隱藏圖示只留文字，或者都保留。這裡都保留但字體調小 */
+        font-size: 13px;
+    }
+
+    /* 新增群組樣式控制 */
+    .nav-right-group {
+        margin-left: auto;
+        /* 整組靠右對齊 */
+        gap: 0;
+        /* 極致緊湊 */
+        align-items: center;
+        /* 垂直置中 */
         display: flex;
+    }
+
+    /* 移除之前個別設定的 margin */
+    .nav-actions {
+        margin-left: 0;
+        margin-right: 0;
+        display: flex;
+        /* 確保顯示 */
     }
 
     .mobile-menu-btn {
         display: block;
+        margin-left: 0;
+        color: #1e293b;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+        font-size: 22px;
+        padding: 5px;
     }
 
-    .nav-actions {
-        display: none;
+    .btn-nav-login {
+        padding: 6px 14px;
+        /* 調整為適中大小 */
+        font-size: 13px;
+        white-space: nowrap;
+        border-radius: 20px;
     }
 
     .landing-hero {

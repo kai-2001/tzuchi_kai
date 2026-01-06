@@ -55,11 +55,13 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
         </div>
 
         <div class="user-nav">
+            <a href="announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> <span>公告</span></a>
             <?php if (is_logged_in()): ?>
                 <?php if (is_manager()): ?>
-                    <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-list-check"></i> 影片</a>
-                    <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> 公告</a>
-                    <a href="upload.php" class="btn-admin"><i class="fa-solid fa-cloud-arrow-up"></i> 上傳</a>
+                    <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-list-check"></i> <span>影片</span></a>
+                    <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i>
+                        <span>公告</span></a>
+                    <a href="upload.php" class="btn-admin"><i class="fa-solid fa-cloud-arrow-up"></i> <span>上傳</span></a>
                 <?php endif; ?>
 
                 <div class="user-dropdown">
@@ -74,7 +76,7 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
                     </div>
                 </div>
             <?php else: ?>
-                <a href="login.php" class="btn-admin"><i class="fa-solid fa-user-lock"></i> 登入</a>
+                <a href="login.php" class="btn-admin"><i class="fa-solid fa-user-lock"></i> <span>登入</span></a>
             <?php endif; ?>
         </div>
     </div>

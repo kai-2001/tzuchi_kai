@@ -91,27 +91,43 @@
     </div>
 
     <!-- 右側區域：切換角色 + 編輯模式開關 + 使用者選單 -->
-    <div id="pg-right-area">
-        <!-- 切換角色按鈕（教師/管理員專用，在課程內才顯示）-->
-        <a href="#" id="switch-role-link" class="pg-link" style="display:none; margin-right:10px;">
-            <i class="fas fa-user-graduate"></i> <span id="switch-role-text">切換為學生檢視</span>
-        </a>
+    <!-- 右側區域：切換角色 + 編輯模式開關 + 使用者選單 -->
+    <div class="pg-right-group">
+        <div id="pg-right-area">
+            <!-- 切換角色按鈕（教師/管理員專用，在課程內才顯示）-->
+            <a href="#" id="switch-role-link" class="pg-link" style="display:none; margin-right:10px;">
+                <i class="fas fa-user-graduate"></i> <span id="switch-role-text">切換為學生檢視</span>
+            </a>
 
-        <!-- 編輯模式開關容器 (將由 JS 填充) -->
-        <div id="custom-edit-mode-container"></div>
+            <!-- 編輯模式開關容器 (將由 JS 填充) -->
+            <div id="custom-edit-mode-container"></div>
 
-        <div class="pg-dropdown" id="portal-user-menu">
-            <div class="pg-link" style="display:flex; align-items:center; gap:12px;">
-                <span id="custom-user-name">User</span>
-                <div class="user-avatar-circle" id="custom-user-avatar">U</div>
-            </div>
-            <div class="pg-dropdown-content" style="right:0; left:auto;">
-                <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
-                <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+            <div class="pg-dropdown" id="portal-user-menu">
+                <div class="pg-link" style="display:flex; align-items:center; gap:12px;">
+                    <span id="custom-user-name">User</span>
+                    <div class="user-avatar-circle" id="custom-user-avatar">U</div>
+                </div>
+                <div class="pg-dropdown-content" style="right:0; left:auto;">
+                    <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
+                    <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+                </div>
             </div>
         </div>
+
+        <button class="mobile-menu-btn" onclick="toggleMoodleMenu()" style="display:none;">
+            <i class="fas fa-bars"></i>
+        </button>
     </div>
 </nav>
+
+<script>
+    function toggleMoodleMenu() {
+        var menu = document.querySelector('.pg-menu');
+        if (menu) {
+            menu.classList.toggle('active');
+        }
+    }
+</script>
 
 <!-- 編輯模式開關容器 (將由 JS 填充) -->
 <!-- <div id="custom-edit-mode-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div> -->

@@ -16,7 +16,7 @@ include __DIR__ . '/partials/header.php';
                 上傳新演講</h2>
         </div>
         <div class="user-nav">
-            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> 返回首頁</a>
+            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> <span>返回首頁</span></a>
         </div>
     </div>
 </header>

@@ -23,7 +23,7 @@ include __DIR__ . '/partials/header.php';
         </div>
         <div class="user-nav">
             <a href="javascript:history.back()" class="btn-admin">
-                <i class="fa-solid fa-rotate-left"></i> 返回上一頁
+                <i class="fa-solid fa-rotate-left"></i> <span>返回上一頁</span>
             </a>
         </div>
     </div>
@@ -60,10 +60,11 @@ include __DIR__ . '/partials/header.php';
             <?php if ($video['format'] === 'evercam' && $video['metadata']): ?>
                 <?php $chapters = json_decode($video['metadata'], true); ?>
                 <div class="chapters-sidebar">
-                    <div class="sidebar-header">
-                        <i class="fa-solid fa-list-ul"></i> 演講章節
+                    <div class="sidebar-header" onclick="toggleChapters()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-list-ul"></i> 演講章節</span>
+                        <i class="fa-solid fa-chevron-down" id="chapterChevron"></i>
                     </div>
-                    <div class="chapter-list">
+                    <div class="chapter-list" id="chapterList">
                         <?php foreach ($chapters as $index => $chapter): ?>
                             <?php
                             $time_sec = (int) ($chapter['time'] / 1000);
@@ -80,6 +81,23 @@ include __DIR__ . '/partials/header.php';
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <script>
+                    function toggleChapters() {
+                        const list = document.getElementById('chapterList');
+                        const chevron = document.getElementById('chapterChevron');
+                        
+                        // Check computed style because it might be hidden by CSS (mobile)
+                        const currentDisplay = window.getComputedStyle(list).display;
+
+                        if (currentDisplay === 'none') {
+                            list.style.display = 'block';
+                            chevron.style.transform = 'rotate(180deg)'; // Point up to indicate "can collapse"
+                        } else {
+                            list.style.display = 'none';
+                            chevron.style.transform = 'rotate(0deg)'; // Point down to indicate "can expand"
+                        }
+                    }
+                </script>
             <?php endif; ?>
         </div>
     </div>
