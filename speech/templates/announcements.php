@@ -11,7 +11,8 @@
                 公告</h2>
         </div>
         <div class="user-nav">
-            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> 返回首頁</a>
+            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> <span
+                    class="nav-text">返回首頁</span></a>
         </div>
     </div>
 </header>
@@ -33,7 +34,7 @@
             $c_name = $item['campus_name'] ?? '全院活動';
             $c_id = $item['campus_id_val'] ?? 0; // Use campus_id_val from updated query
             if ($c_id == 0)
-                continue; 
+                continue;
             $tabs[$c_id] = $c_name;
         }
         ?>
@@ -298,6 +299,12 @@
             flex-direction: row;
             gap: 10px;
             align-items: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .btn-admin .nav-text {
+            display: none;
         }
     }
 </style>

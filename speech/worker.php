@@ -50,58 +50,76 @@ if ($result->num_rows > 0) {
         exit;
     }
 
-    // 3. Prepare FFmpeg command
-    // Target: Re-encode to efficient H.264
-    // We will create a temp output file first
-    $path_info = pathinfo($input_path);
-    $output_filename = $path_info['filename'] . '_processed.mp4';
-    $output_path = $path_info['dirname'] . '/' . $output_filename;
+    // 3. Prepare Transcoding Logic
+    // Define helper to run FFmpeg and capture output
+    $transcode_func = function ($cmd) {
+        echo "Executing: $cmd\n";
+        echo "--------------------------------------------------------\n";
 
-    // Command: Enforce H.264 + AAC + 128k Bitrate + Faststart
-    // Fixes streaming issues and copyright/codec compatibility (Google/Edge)
-    $cmd = sprintf(
+        $descriptorspec = [
+            0 => ["pipe", "r"],  // stdin
+            1 => ["pipe", "w"],  // stdout
+            2 => ["pipe", "w"]   // stderr
+        ];
+
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+        $log_output = "";
+
+        if (is_resource($process)) {
+            fclose($pipes[0]);
+            // Use fread instead of fgets to capture real-time progress (FFmpeg uses \r updates)
+            while (!feof($pipes[1])) {
+                $chunk = fread($pipes[1], 1024);
+                if (strlen($chunk) > 0) {
+                    echo $chunk;
+                    $log_output .= $chunk;
+                    flush();
+                }
+            }
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            $code = proc_close($process);
+            return ['code' => $code, 'log' => $log_output];
+        }
+        return ['code' => -1, 'log' => "Failed to launch process."];
+    };
+
+    // Strategy 1: GPU (NVENC)
+    // Fast, efficient, but requires compatible driver
+    $cmd_gpu = sprintf(
+        '"%s" -i "%s" -c:v h264_nvenc -preset p4 -rc vbr -cq 26 -c:a aac -b:a 128k -movflags +faststart -f mp4 -y "%s" 2>&1',
+        FFMPEG_PATH,
+        $input_path,
+        $output_path
+    );
+
+    // Strategy 2: CPU (libx264)
+    // Slower, uses high CPU, but universal compatibility
+    $cmd_cpu = sprintf(
         '"%s" -i "%s" -c:v libx264 -crf 28 -preset fast -c:a aac -b:a 128k -movflags +faststart -f mp4 -y "%s" 2>&1',
         FFMPEG_PATH,
         $input_path,
         $output_path
     );
 
-    echo "Executing: $cmd\n";
-    echo "--------------------------------------------------------\n";
+    // EXECUTION FLOW
+    echo "Attempting Strategy 1: GPU Transcoding (NVENC)...\n";
+    $result = $transcode_func($cmd_gpu);
 
-    // Execute with real-time output using proc_open
-    $descriptorspec = [
-        0 => ["pipe", "r"],  // stdin
-        1 => ["pipe", "w"],  // stdout
-        2 => ["pipe", "w"]   // stderr
-    ];
+    if ($result['code'] !== 0) {
+        echo "\n[Warn] GPU Transcoding failed (Status: " . $result['code'] . ").\n";
+        echo "Reason: Driver mismatch, outdated API, or hardware busy.\n";
+        echo "Attempting Strategy 2: CPU Fallback (libx264)...\n";
 
-    // Command has 2>&1, so stderr is merged into stdout pipe [1]
-    $process = proc_open($cmd, $descriptorspec, $pipes);
+        // Remove partial file if GPU created one
+        if (file_exists($output_path))
+            @unlink($output_path);
 
-    $full_log = "";
-
-    if (is_resource($process)) {
-        // Close stdin immediately
-        fclose($pipes[0]);
-
-        // Read output
-        while (!feof($pipes[1])) {
-            $chunk = fgets($pipes[1]);
-            if ($chunk) {
-                echo $chunk; // Print to console
-                $full_log .= $chunk; // Capture for DB log
-                flush(); // Force output
-            }
-        }
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-
-        $return_var = proc_close($process);
-    } else {
-        $return_var = -1;
-        echo "Failed to launch process.\n";
+        $result = $transcode_func($cmd_cpu);
     }
+
+    $return_var = $result['code'];
+    $full_log = $result['log'];
 
     echo "\n--------------------------------------------------------\n";
 
@@ -138,7 +156,6 @@ if ($result->num_rows > 0) {
 
     } else {
         echo "Transcoding failed.\n";
-        // $log = implode("\n", array_slice($output, -10)); // Old way
         // New way: Take last 1000 chars of full log
         $log = substr($full_log, -1000);
         $safe_log = $conn->real_escape_string($log);

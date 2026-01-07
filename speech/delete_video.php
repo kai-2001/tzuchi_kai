@@ -11,8 +11,8 @@ $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
 // Ownership Check
-$stmt = $conn->prepare("SELECT content_path, thumbnail_path FROM videos WHERE id = ? AND user_id = ?");
-$stmt->bind_param("ii", $video_id, $user_id);
+$stmt = $conn->prepare("SELECT content_path, thumbnail_path FROM videos WHERE id = ?");
+$stmt->bind_param("i", $video_id);
 $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 

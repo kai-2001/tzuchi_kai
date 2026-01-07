@@ -87,11 +87,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;
 
-        // If SOAP returned an array with a name, store it in session
         if (is_array($auth_result) && isset($auth_result['sn'])) {
-            $_SESSION['display_name'] = $auth_result['sn'];
+            $display_name = $auth_result['sn'];
+            $_SESSION['display_name'] = $display_name;
+
+            // Persist to DB
+            $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+            $up_stmt->bind_param("si", $display_name, $user_id);
+            $up_stmt->execute();
         } elseif (is_object($auth_result) && isset($auth_result->sn)) {
-            $_SESSION['display_name'] = $auth_result->sn;
+            $display_name = $auth_result->sn;
+            $_SESSION['display_name'] = $display_name;
+
+            // Persist to DB
+            $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+            $up_stmt->bind_param("si", $display_name, $user_id);
+            $up_stmt->execute();
+        }
+
+        // --- Remember Me Logic ---
+        if (isset($_POST['remember_me'])) {
+            remember_me($user_id);
         }
 
         header("Location: index.php");
@@ -108,6 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登入 - <?php echo APP_NAME; ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -283,6 +300,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             justify-content: center;
             gap: 8px;
+            gap: 8px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 40px 25px;
+                border-radius: 30px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
         }
 
         .back-link {
@@ -330,6 +365,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fa-solid fa-key"></i>
                         <input type="password" name="password" class="glass-input" placeholder="請輸入密碼" required>
                     </div>
+                </div>
+                <!-- checkbox was inside password form-group before? no, separate. wait, previous code had it inside? -->
+                <!-- The view shows it *inside* the password input-wrapper?! No, wait. lines 343-348 is form-group password. 349 starts NEW div. -->
+                <!-- Wait, lines 349-356 is the target. -->
+
+                <div class="form-group" style="margin-top: 15px; margin-bottom: 20px; margin-left: 5px;">
+                    <label class="checkbox-container"
+                        style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                        <input type="checkbox" name="remember_me"
+                            style="width: 18px; height: 18px; accent-color: var(--primary-color); cursor: pointer;">
+                        <span
+                            style="margin-left: 10px; font-weight: 500; font-size: 0.95rem; color: var(--text-secondary);">保持登入狀態</span>
+                    </label>
                 </div>
                 <button type="submit" class="btn-submit">
                     立即登入 <i class="fa-solid fa-arrow-right-to-bracket" style="margin-left: 8px; font-size: 0.9rem;"></i>

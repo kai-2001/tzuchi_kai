@@ -67,13 +67,12 @@ include __DIR__ . '/partials/header.php';
 
                 <div class="form-group">
                     <label>服務單位</label>
-                    <input type="text" name="affiliation" value="<?= htmlspecialchars($video['affiliation']) ?>"
-                        required>
+                    <input type="text" name="affiliation" value="<?= htmlspecialchars($video['affiliation']) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>職務</label>
-                    <input type="text" name="position" value="<?= htmlspecialchars($video['position']) ?>" required>
+                    <input type="text" name="position" value="<?= htmlspecialchars($video['position']) ?>">
                 </div>
 
                 <div class="form-group">

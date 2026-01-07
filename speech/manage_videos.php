@@ -32,7 +32,7 @@ $offset = ($page - 1) * $limit;
 $count_query = "SELECT COUNT(*) as total 
                FROM videos v
                LEFT JOIN speakers s ON v.speaker_id = s.id
-               WHERE v.user_id = ?";
+               WHERE (v.user_id = ? OR 1=1)";
 $count_params = [$user_id];
 $count_types = "i";
 
@@ -57,7 +57,7 @@ $query = "SELECT v.*, s.name as speaker_name, c.name as campus_name, v.status, v
           FROM videos v
           LEFT JOIN speakers s ON v.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id
-          WHERE v.user_id = ?";
+          WHERE (v.user_id = ? OR 1=1)";
 
 $params = [$user_id];
 $types = "i";

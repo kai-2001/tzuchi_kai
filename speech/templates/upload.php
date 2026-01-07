@@ -58,17 +58,17 @@ include __DIR__ . '/partials/header.php';
 
                 <div class="form-group">
                     <label>服務單位</label>
-                    <input type="text" name="affiliation" required>
+                    <input type="text" name="affiliation">
                 </div>
 
                 <div class="form-group">
                     <label>職務 (如醫師、護理師)</label>
-                    <input type="text" name="position" required>
+                    <input type="text" name="position">
                 </div>
 
                 <div class="form-group">
                     <label>上傳縮圖 (JPG/PNG)</label>
-                    <input type="file" name="thumbnail" accept="image/*" required>
+                    <input type="file" name="thumbnail" accept="image/*">
                 </div>
 
                 <div class="form-group full-width">

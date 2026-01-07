@@ -55,7 +55,9 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
         </div>
 
         <div class="user-nav">
-            <a href="announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> <span>公告</span></a>
+            <?php if (!is_manager()): ?>
+                <a href="announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> <span>公告</span></a>
+            <?php endif; ?>
             <?php if (is_logged_in()): ?>
                 <?php if (is_manager()): ?>
                     <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-list-check"></i> <span>影片</span></a>

@@ -83,8 +83,8 @@ include __DIR__ . '/partials/header.php';
                                     <div class="actions-wrapper">
                                         <a href="edit_upcoming.php?id=<?= $l['id'] ?>" class="btn-edit" title="編輯"><i
                                                 class="fa-solid fa-pen-to-square"></i></a>
-                                        <a href="#" onclick="confirmDelete(<?= $l['id'] ?>)" class="btn-delete" title="刪除"><i
-                                                class="fa-solid fa-trash"></i></a>
+                                        <a href="#" onclick="confirmDeleteUpcoming(<?= $l['id'] ?>)" class="btn-delete"
+                                            title="刪除"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -118,7 +118,7 @@ include __DIR__ . '/partials/header.php';
 </div>
 
 <script>
-    function confirmDelete(id) {
+    function confirmDeleteUpcoming(id) {
         if (confirm('確定要刪除這筆預告嗎？')) {
             window.location.href = 'manage_upcoming.php?action=delete&id=' + id;
         }

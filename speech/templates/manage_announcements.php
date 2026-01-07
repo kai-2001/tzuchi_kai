@@ -88,8 +88,8 @@ include __DIR__ . '/partials/header.php';
                                     <div class="actions-wrapper" style="justify-content: center;">
                                         <a href="edit_announcement.php?id=<?= $a['id'] ?>" class="btn-edit" title="編輯"><i
                                                 class="fa-solid fa-pen-to-square"></i></a>
-                                        <a href="#" onclick="confirmDelete(<?= $a['id'] ?>)" class="btn-delete" title="刪除"><i
-                                                class="fa-solid fa-trash"></i></a>
+                                        <a href="#" onclick="confirmDeleteAnnouncement(<?= $a['id'] ?>)" class="btn-delete"
+                                            title="刪除"><i class="fa-solid fa-trash"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -123,7 +123,7 @@ include __DIR__ . '/partials/header.php';
 </div>
 
 <script>
-    function confirmDelete(id) {
+    function confirmDeleteAnnouncement(id) {
         if (confirm('確定要刪除這個公告嗎？')) {
             window.location.href = 'manage_announcements.php?action=delete&id=' + id;
         }

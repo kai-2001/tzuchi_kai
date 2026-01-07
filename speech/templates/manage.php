@@ -35,6 +35,25 @@ include __DIR__ . '/partials/header.php';
             </a>
         </div>
 
+        <?php if (!empty($_GET['msg'])): ?>
+            <div
+                style="background: rgba(74, 222, 128, 0.1); border: 1px solid #4ade80; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: flex; align-items: center;">
+                <i class="fa-solid fa-circle-check" style="margin-right: 10px; font-size: 1.2rem;"></i>
+                <span>
+                    <?php
+                    if ($_GET['msg'] === 'updated')
+                        echo "影片更新成功！";
+                    elseif ($_GET['msg'] === 'deleted')
+                        echo "影片已刪除。";
+                    elseif ($_GET['msg'] === 'uploaded')
+                        echo "新影片上傳成功！";
+                    else
+                        echo htmlspecialchars($_GET['msg']);
+                    ?>
+                </span>
+            </div>
+        <?php endif; ?>
+
         <?php if (empty($videos)): ?>
             <div style="text-align: center; padding: 40px;">
                 <i class="fa-solid fa-folder-open" style="font-size: 3rem; opacity: 0.2; margin-bottom: 20px;"></i>
