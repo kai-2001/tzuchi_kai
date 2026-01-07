@@ -145,6 +145,27 @@ body::after {
 }
 
 /* ==========================================
+   修正手機版側邊欄被導覽列遮擋問題
+   ========================================== */
+@media (max-width: 768px) {
+
+    /* 針對所有側邊欄 (Drawer) */
+    .drawer,
+    .drawer-content,
+    #theme_boost-drawers-courseindex,
+    div[data-region="drawer"] {
+        top: 70px !important;
+        /* 讓出導覽列高度 */
+        height: calc(100% - 70px) !important;
+    }
+
+    /* 確保其內部標題不再需要額外 padding */
+    .drawer-header {
+        padding-top: 15px !important;
+    }
+}
+
+/* ==========================================
    自訂導覽列樣式
    ========================================== */
 #portal-global-nav {
@@ -723,6 +744,15 @@ input:focus {
 .popover-region-content,
 div[class*="popover"] {
     z-index: 99999 !important;
+}
+
+/* 隱藏左上角煩人的 Tooltip (更加暴力的隱藏) */
+.tooltip,
+div[role="tooltip"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 .drawer,

@@ -478,6 +478,39 @@
     }
 
     // ========================================
+    // 9. 處理 Moodle 側邊欄點擊空白處關閉 (Drawer Auto-Close)
+    // ========================================
+    // 由於 forceLayering 隱藏了 backdrop，這裡需要手動模擬「點擊外部關閉」的行為
+    document.addEventListener('click', function (event) {
+        // 針對課程索引 (Course Index)
+        const drawer = document.getElementById('theme_boost-drawers-courseindex');
+
+        if (drawer && drawer.classList.contains('show')) {
+            // 檢查點擊目標是否在 drawer 以外
+            if (!drawer.contains(event.target)) {
+                // 檢查點擊目標是否為開啟按鈕 (避免剛點開又馬上關閉)
+                // 通常按鈕會有 data-action="toggle-drawer" 或類似屬性，或是位於 .drawer-toggler 內
+                const isToggler = event.target.closest('[data-action="toggle-drawer"], [data-toggle="drawer"], .btn-drawer, .drawer-toggler');
+
+                if (!isToggler) {
+                    // 嘗試找到關閉按鈕並觸發點擊 (這是最符合 Moodle 原生狀態管理的方式)
+                    const closeBtn = drawer.querySelector('[data-action="closedrawer"]');
+                    if (closeBtn) {
+                        closeBtn.click();
+                    } else {
+                        // 如果找不到關閉按鈕，直接移除 class
+                        drawer.classList.remove('show');
+
+                        // 移除 body 的 overflow: hidden (如果有的話)
+                        document.body.classList.remove('drawer-open-left');
+                    }
+                }
+            }
+        }
+    });
+
+
+    // ========================================
     // 9. 強制圖層順序 (Z-Index Enforcer)
     // ========================================
     function forceLayering() {
@@ -506,19 +539,60 @@
         }
     }
 
+    // ========================================
+    // 10. 防止左上角按鈕點擊跳轉 (Prevent Toggler Redirect)
+    // ========================================
+    // 用戶回報點擊「開啟課程索引」按鈕會跳回首頁，這裡強制攔截
+    document.addEventListener('click', function (e) {
+        const toggler = e.target.closest('[data-action="toggle-drawer"], .drawer-toggler, .btn-drawer');
+        if (toggler) {
+            // 只阻止跳轉 (href)，不阻止 Moodle 原生的 toggle 事件
+            if (toggler.tagName === 'A') {
+                e.preventDefault();
+            }
+        }
+    }, true); // 使用捕獲階段確保最先執行
+
+    // ========================================
+    // 11. 強制移除提示文字 (Remove Tooltips)
+    // ========================================
+    function disableTooltips() {
+        const togglers = document.querySelectorAll('[data-action="toggle-drawer"], .drawer-toggler, .btn-drawer');
+        togglers.forEach(btn => {
+            // 移除所有可能觸發 Tooltip 的屬性
+            btn.removeAttribute('title');
+            btn.removeAttribute('data-toggle');
+            btn.removeAttribute('data-original-title');
+            btn.removeAttribute('aria-label'); // 有時候 aria-label 也會被轉為 tooltip
+        });
+
+        // 隱藏所有已經生成的 Tooltip 元素
+        const tooltips = document.querySelectorAll('.tooltip, div[role="tooltip"]');
+        tooltips.forEach(t => {
+            if (t.textContent.includes('課程索引') || t.textContent.includes('Course index')) {
+                t.style.display = 'none';
+                t.style.opacity = '0';
+            }
+        });
+    }
+
     // 初始化
     document.addEventListener('DOMContentLoaded', function () {
         initMouseGlow();
 
         // 啟動強制分層循環 (解決 Moodle JS 動態覆寫問題)
         // 每 100ms 檢查一次，持續 10 秒
-        const layerInterval = setInterval(forceLayering, 100);
+        const layerInterval = setInterval(() => {
+            forceLayering();
+            disableTooltips(); // 加入移除 Tooltips 的檢查
+        }, 100);
         setTimeout(() => clearInterval(layerInterval), 10000);
 
         // 額外綁定點擊事件時也檢查 (針對動態開啟的遮罩)
         document.addEventListener('click', () => {
             setTimeout(forceLayering, 50);
             setTimeout(forceLayering, 300);
+            setTimeout(disableTooltips, 50); // 點擊後再次檢查
         });
     });
 
