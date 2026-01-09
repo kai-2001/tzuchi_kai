@@ -156,11 +156,9 @@ function process_login()
     $input_pass = $_POST['password'];
     $remember_me = isset($_POST['remember']);
 
-    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-    $conn->set_charset("utf8mb4");
-
-    if ($conn->connect_error) {
-        error_log("Database connection failed: " . $conn->connect_error);
+    // 使用共用連線設定
+    require __DIR__ . '/db_connect.php';
+    if (!isset($conn) || $conn->connect_error) {
         return "系統暫時無法連線，請稍後再試。";
     }
 
@@ -172,7 +170,6 @@ function process_login()
         $soap_result = soap_login($input_user, $input_pass);
 
         if ($soap_result === 'error') {
-            $conn->close();
             return "登入服務暫時無法使用，請稍後再試。";
         }
 
@@ -194,87 +191,15 @@ function process_login()
                     $fullname = $soap_result->sn;
                 }
 
-                // --- 1. 準備 Moodle 帳號資料 ---
-                $last_name = mb_substr($fullname, 0, 1, "utf-8"); // 取第一個字當姓
-                $first_name = mb_substr($fullname, 1, null, "utf-8"); // 剩下的字當名
-                if (empty($first_name))
-                    $first_name = $last_name; // 只有一個字的情況
-                $email = $input_user . "@example.com"; // 如果 SOAP 沒給，先用預設
-
-                // --- 2. 呼叫 Moodle API 建立使用者 (同步 Moodle) ---
-                // 一律使用符合 Moodle 規定之強密碼，避免原始密碼過短導致建立失敗。
-                // 反正 SSO 只看帳號，Moodle 內部存什麼密碼不重要。
-                $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
-
-                $moodle_user_data = [
-                    'users' => [
-                        [
-                            'username' => $input_user,
-                            'password' => $moodle_password,
-                            'firstname' => $first_name,
-                            'lastname' => $last_name,
-                            'email' => $email,
-                            'auth' => 'manual',
-                        ]
-                    ]
-                ];
-
-                global $moodle_url, $moodle_token;
-                $serverurl = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_create_users&moodlewsrestformat=json';
-
-                $curl = curl_init();
-                curl_setopt($curl, CURLOPT_URL, $serverurl);
-                curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($moodle_user_data));
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-                curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
-                $resp = curl_exec($curl);
-                curl_close($curl);
-
-                $moodle_result = json_decode($resp, true);
-                if (isset($moodle_result['exception'])) {
-                    // 如果錯誤是 "Username already exists" 之類的，其實是可以接受的，代表可能之前建立過了但本地還沒 sync
-                    // 但為了保險起見，我們還是 log 下來
-                    error_log("Moodle sync msg: " . $moodle_result['message']);
+                // Call centralized Moodle sync logic
+                // 這裡我們需要 include moodle_api.php 才能使用 ensure_moodle_user_exists
+                // 但為了避免重複 include 或路徑問題，我們檢查一下
+                if (!function_exists('ensure_moodle_user_exists')) {
+                    require_once __DIR__ . '/moodle_api.php';
                 }
 
-                // --- 2.5 [關鍵修正]：後端同步阻塞驗證 (Blocking Verification) ---
-                // 剛發出建立指令，Moodle 可能還在處理，這裡我們跑一個小迴圈去詢問 "人到底好了沒"
-                // 這樣可以保證當使用者被導向到儀表板時，API 一定抓得到資料，不會有 Race Condition
-
-                $max_retries = 5;
-                $verified = false;
-
-                for ($i = 0; $i < $max_retries; $i++) {
-                    // 休息一下再問 (第一次不休息直接問也行，但通常給 0.5s 緩衝比較好)
-                    if ($i > 0)
-                        usleep(500000); // 0.5 秒
-
-                    $v_params = ['field' => 'username', 'values' => [$input_user]];
-                    $serverurl_v = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_get_users_by_field&moodlewsrestformat=json';
-
-                    $curl_v = curl_init();
-                    curl_setopt($curl_v, CURLOPT_URL, $serverurl_v);
-                    curl_setopt($curl_v, CURLOPT_POST, true);
-                    curl_setopt($curl_v, CURLOPT_POSTFIELDS, http_build_query($v_params));
-                    curl_setopt($curl_v, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($curl_v, CURLOPT_TIMEOUT, 5);
-                    $resp_v = curl_exec($curl_v);
-                    curl_close($curl_v);
-
-                    $users_v = json_decode($resp_v, true);
-                    if (is_array($users_v) && !empty($users_v) && !isset($users_v['exception']) && !isset($users_v['errorCODE'])) {
-                        // 確認有抓到人，跳出迴圈
-                        $verified = true;
-                        break;
-                    }
-                }
-
-                if (!$verified) {
-                    // 如果等了 2.5 秒還是沒人，紀錄錯誤但還是讓程式繼續走 (死馬當活馬醫，或許是 API 延遲極高)
-                    error_log("Warning: Moodle user '$input_user' creation verification timed out.");
-                }
+                $email = $input_user . "@example.com";
+                ensure_moodle_user_exists($input_user, $fullname, $email);
 
                 // --- 3. 自動註冊 (同步本地資料庫) ---
                 $ins_stmt = $conn->prepare("INSERT INTO users (username, fullname, password, role, email) VALUES (?, ?, ?, 'student', ?)");
@@ -317,14 +242,12 @@ function process_login()
     }
 
     if (!$login_success) {
-        $conn->close();
         return "帳號或密碼錯誤！";
     }
 
     // 登入成功，設定 Session
     $_SESSION['user_id'] = $user_row['username'];
     $_SESSION['username'] = $user_row['username'];
-    $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
     $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
     $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
 
@@ -347,8 +270,6 @@ function process_login()
             $up_stmt->close();
         }
     }
-
-    $conn->close();
 
     header("Location: index.php");
     exit;

@@ -37,6 +37,10 @@ if ($result->num_rows > 0) {
     $video = $result->fetch_assoc();
     $id = $video['id'];
     $input_path = __DIR__ . '/' . $video['content_path'];
+    // FIX: Define output path (was missing)
+    $path_info = pathinfo($input_path);
+    $output_path = $path_info['dirname'] . '/' . $path_info['filename'] . '_processed.' . $path_info['extension'];
+
 
     echo "Processing Video ID: $id (" . $video['title'] . ")\n";
 

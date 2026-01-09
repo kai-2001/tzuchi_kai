@@ -41,8 +41,7 @@ if (isset($_GET['clear_cache']) && $_GET['clear_cache'] == '1') {
     exit;
 }
 
-// 🚀 非同步模式: 不在伺服器端等待資料,改由前端 AJAX 載入
-$async_mode = true; // 啟用非同步載入
+// 非同步模式：改由前端 AJAX 載入資料 (預設行為)
 
 // 準備空資料結構 (將由前端填充)
 $my_courses_raw = [];

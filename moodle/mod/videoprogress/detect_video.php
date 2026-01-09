@@ -12,8 +12,7 @@
 
 // 只有直接執行（作為 API）時才執行主程式碼
 // 被 require_once 時只載入函數定義
-$isDirectCall = isset($_GET['url']) || isset($_POST['url']);
-
+$isDirectCall = false; // isset($_GET['url']) || isset($_POST['url']);
 if ($isDirectCall) {
     require_once(__DIR__ . '/../../config.php');
     require_login();
@@ -153,9 +152,10 @@ if (!$videoUrl) {
     }
 }
 
+
 if ($videoUrl) {
     // 嘗試取得影片時長
-    $duration = getVideoDuration($videoUrl);
+    $duration = videoprogress_get_video_duration($videoUrl);
     
     echo json_encode([
         'success' => true,
@@ -171,6 +171,7 @@ if ($videoUrl) {
 }
 
 } // 結束 if ($isDirectCall)
+
 /**
  * 取得影片時長（秒）
  * 使用 cURL 下載影片的部分資料來解析 MP4 metadata
@@ -178,7 +179,7 @@ if ($videoUrl) {
  * @param string $videoUrl 影片 URL
  * @return int|null 時長（秒），失敗時回傳 null
  */
-function getVideoDuration($videoUrl) {
+function videoprogress_get_video_duration($videoUrl) {
     // 方法 1: 使用 ffprobe（如果有安裝）
     if (function_exists('shell_exec')) {
         $escapedUrl = escapeshellarg($videoUrl);
@@ -206,7 +207,7 @@ function getVideoDuration($videoUrl) {
     curl_close($ch);
     
     if ($data !== false && ($httpCode === 200 || $httpCode === 206)) {
-        $duration = parseMP4Duration($data);
+        $duration = videoprogress_parse_mp4_duration($data);
         if ($duration !== null) {
             return $duration;
         }
@@ -245,7 +246,7 @@ function getVideoDuration($videoUrl) {
         curl_close($ch);
         
         if ($endData !== false && ($httpCode === 200 || $httpCode === 206)) {
-            $duration = parseMP4Duration($endData);
+            $duration = videoprogress_parse_mp4_duration($endData);
             if ($duration !== null) {
                 return $duration;
             }
@@ -262,7 +263,7 @@ function getVideoDuration($videoUrl) {
  * @param string $data MP4 檔案資料
  * @return int|null 時長（秒）
  */
-function parseMP4Duration($data) {
+function videoprogress_parse_mp4_duration($data) {
     $dataLen = strlen($data);
     
     // 直接搜尋 'moov' 字串（不依賴 atom 邊界）
@@ -314,3 +315,4 @@ function parseMP4Duration($data) {
     
     return null;
 }
+

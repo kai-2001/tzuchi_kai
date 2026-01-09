@@ -46,6 +46,9 @@ header {
     right: 0;
     z-index: 1100;
     transition: background 0.3s;
+    /* Hardware acceleration for smoother scroll */
+    transform: translateZ(0);
+    will-change: background;
 }
 
 .header-container {

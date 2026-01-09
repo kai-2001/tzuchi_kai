@@ -57,17 +57,24 @@ if ($usesections) {
     $table->align = array('left', 'center');
 }
 
+// 預先載入所有資料（修復 N+1 問題）
+$videoIds = array_column($videoprogresses, 'id');
+$allProgress = $DB->get_records_list('videoprogress_progress', 'videoprogress', $videoIds, '', 'videoprogress, userid, percentcomplete');
+$allSections = $DB->get_records('course_sections', array('course' => $id), '', 'id, section, name');
+
+// 建立進度對照表（以 videoprogress ID 為 key）
+$progressMap = [];
+foreach ($allProgress as $p) {
+    if ($p->userid == $USER->id) {
+        $progressMap[$p->videoprogress] = $p->percentcomplete;
+    }
+}
+
 foreach ($videoprogresses as $videoprogress) {
     $cm = get_coursemodule_from_instance('videoprogress', $videoprogress->id);
-    $context = context_module::instance($cm->id);
-
-    // 取得使用者進度
-    $progress_records = $DB->get_records('videoprogress_progress', array(
-        'videoprogress' => $videoprogress->id,
-        'userid' => $USER->id
-    ));
-    $progress = $progress_records ? reset($progress_records) : false;
-    $percentcomplete = $progress ? $progress->percentcomplete : 0;
+    
+    // 從預載資料取得進度
+    $percentcomplete = $progressMap[$videoprogress->id] ?? 0;
 
     $class = $videoprogress->visible ? '' : 'class="dimmed"';
     $link = '<a ' . $class . ' href="' . new moodle_url('/mod/videoprogress/view.php', array('id' => $cm->id)) . '">';
@@ -78,8 +85,9 @@ foreach ($videoprogresses as $videoprogress) {
     $progressbar .= $percentcomplete . '%</div></div>';
 
     if ($usesections) {
-        $section = $DB->get_record('course_sections', array('id' => $cm->section));
-        $sectionname = get_section_name($course, $section);
+        // 從預載資料取得 section
+        $section = $allSections[$cm->section] ?? null;
+        $sectionname = $section ? get_section_name($course, $section) : '';
         $table->data[] = array($sectionname, $link, $progressbar);
     } else {
         $table->data[] = array($link, $progressbar);
@@ -88,3 +96,4 @@ foreach ($videoprogresses as $videoprogress) {
 
 echo html_writer::table($table);
 echo $OUTPUT->footer();
+

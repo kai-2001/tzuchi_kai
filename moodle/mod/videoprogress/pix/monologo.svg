@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-  <!-- 白色三角形播放按鈕，縮小並置中 -->
-  <polygon points="7,5 7,19 19,12" fill="white"/>
+  <!-- YouTube 風格：橫向圓角長方形 -->
+  <rect x="1" y="5" width="22" height="14" rx="4" ry="4" fill="#78909c"/>
+  <!-- 白色播放三角形 -->
+  <polygon points="10,8 10,16 16,12" fill="white"/>
 </svg>

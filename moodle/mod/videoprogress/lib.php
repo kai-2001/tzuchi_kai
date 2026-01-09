@@ -16,6 +16,9 @@
 
 /**
  * Video Progress - 核心函式庫
+ * 
+ * 此檔案只包含 Moodle 必要的回調函數。
+ * 業務邏輯已移至 classes/service/ 目錄。
  *
  * @package    mod_videoprogress
  * @copyright  2024 Tzu Chi Medical Foundation
@@ -24,23 +27,26 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+use mod_videoprogress\service\file_service;
+use mod_videoprogress\service\zip_service;
+use mod_videoprogress\service\compression_service;
+
+// =========================================================================
+// Moodle 模組回調（必須）
+// =========================================================================
+
 /**
  * 支援的功能列表
- *
- * @param string $feature 功能常數
- * @return mixed
  */
 function videoprogress_supports($feature) {
     switch ($feature) {
         case FEATURE_MOD_INTRO:
-            return true;
         case FEATURE_SHOW_DESCRIPTION:
+        case FEATURE_BACKUP_MOODLE2:
             return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return false; // 不使用 Moodle 內建的「瀏覽即完成」
+            return false;
         case FEATURE_COMPLETION_HAS_RULES:
-            return true; // 啟用自訂完成規則（觀看百分比）
-        case FEATURE_BACKUP_MOODLE2:
             return true;
         case FEATURE_MOD_PURPOSE:
             return MOD_PURPOSE_CONTENT;
@@ -50,9 +56,7 @@ function videoprogress_supports($feature) {
 }
 
 /**
- * 告訴 Moodle 此模組有自己的品牌圖示，不要套用顏色濾鏡
- *
- * @return bool
+ * 告訴 Moodle 此模組有自己的品牌圖示
  */
 function mod_videoprogress_is_branded(): bool {
     return true;
@@ -60,10 +64,6 @@ function mod_videoprogress_is_branded(): bool {
 
 /**
  * 新增活動實例
- *
- * @param stdClass $data 表單資料
- * @param mod_videoprogress_mod_form $mform 表單物件
- * @return int 新建的活動 ID
  */
 function videoprogress_add_instance($data, $mform = null) {
     global $DB;
@@ -71,22 +71,18 @@ function videoprogress_add_instance($data, $mform = null) {
     $data->timecreated = time();
     $data->timemodified = time();
 
-    // 處理 YouTube URL，提取影片 ID
     if ($data->videotype === 'youtube' && !empty($data->videourl)) {
         $data->videourl = videoprogress_extract_youtube_url($data->videourl);
     }
 
     $data->id = $DB->insert_record('videoprogress', $data);
 
-    // 處理上傳的影片檔案
     if ($data->videotype === 'upload') {
         videoprogress_save_video_file($data, $mform);
     }
 
-    // 自動啟用完成追蹤（確保活動有完成條件）
     if (isset($data->coursemodule)) {
-        $DB->set_field('course_modules', 'completion', 2, 
-            array('id' => $data->coursemodule));
+        $DB->set_field('course_modules', 'completion', 2, ['id' => $data->coursemodule]);
     }
 
     return $data->id;
@@ -94,10 +90,6 @@ function videoprogress_add_instance($data, $mform = null) {
 
 /**
  * 更新活動實例
- *
- * @param stdClass $data 表單資料
- * @param mod_videoprogress_mod_form $mform 表單物件
- * @return bool
  */
 function videoprogress_update_instance($data, $mform = null) {
     global $DB;
@@ -105,14 +97,12 @@ function videoprogress_update_instance($data, $mform = null) {
     $data->timemodified = time();
     $data->id = $data->instance;
 
-    // 處理 YouTube URL
     if ($data->videotype === 'youtube' && !empty($data->videourl)) {
         $data->videourl = videoprogress_extract_youtube_url($data->videourl);
     }
 
     $DB->update_record('videoprogress', $data);
 
-    // 處理上傳的影片檔案
     if ($data->videotype === 'upload') {
         videoprogress_save_video_file($data, $mform);
     }
@@ -122,224 +112,200 @@ function videoprogress_update_instance($data, $mform = null) {
 
 /**
  * 刪除活動實例
- *
- * @param int $id 活動 ID
- * @return bool
  */
 function videoprogress_delete_instance($id) {
     global $DB;
 
-    if (!$videoprogress = $DB->get_record('videoprogress', array('id' => $id))) {
+    if (!$DB->get_record('videoprogress', ['id' => $id])) {
         return false;
     }
 
-    // 刪除相關記錄
-    $DB->delete_records('videoprogress_segments', array('videoprogress' => $id));
-    $DB->delete_records('videoprogress_progress', array('videoprogress' => $id));
-    $DB->delete_records('videoprogress', array('id' => $id));
+    // 刪除所有相關記錄（包含 segments 表）
+    $DB->delete_records('videoprogress_segments', ['videoprogress' => $id]);
+    $DB->delete_records('videoprogress_progress', ['videoprogress' => $id]);
+    $DB->delete_records('videoprogress', ['id' => $id]);
 
     return true;
 }
 
 /**
  * 重設課程使用者資料
- *
- * @param stdClass $data 重設資料
- * @return array 狀態陣列
  */
 function videoprogress_reset_userdata($data) {
     global $DB;
 
-    $status = array();
+    $status = [];
 
     if (!empty($data->reset_videoprogress)) {
         $sql = "DELETE FROM {videoprogress_segments}
                 WHERE videoprogress IN (SELECT id FROM {videoprogress} WHERE course = ?)";
-        $DB->execute($sql, array($data->courseid));
+        $DB->execute($sql, [$data->courseid]);
 
         $sql = "DELETE FROM {videoprogress_progress}
                 WHERE videoprogress IN (SELECT id FROM {videoprogress} WHERE course = ?)";
-        $DB->execute($sql, array($data->courseid));
+        $DB->execute($sql, [$data->courseid]);
 
-        $status[] = array(
+        $status[] = [
             'component' => get_string('modulenameplural', 'videoprogress'),
             'item' => get_string('resetprogress', 'videoprogress'),
             'error' => false
-        );
+        ];
     }
 
     return $status;
 }
 
+// =========================================================================
+// 輔助函數
+// =========================================================================
+
 /**
  * 從 YouTube URL 提取標準化 URL
- *
- * @param string $url 原始 URL
- * @return string 標準化 URL
  */
 function videoprogress_extract_youtube_url($url) {
-    // 支援多種 YouTube URL 格式
-    $patterns = array(
-        '/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/',
-    );
-
-    foreach ($patterns as $pattern) {
-        if (preg_match($pattern, $url, $matches)) {
-            return 'https://www.youtube.com/embed/' . $matches[1];
-        }
+    // 支援多種 YouTube URL 格式，統一轉為 embed 格式
+    if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+        return 'https://www.youtube.com/embed/' . $matches[1];
     }
-
     return $url;
 }
 
 /**
  * 儲存上傳的影片檔案
- *
- * @param stdClass $data 活動資料
- * @param moodleform $mform 表單物件
  */
 function videoprogress_save_video_file($data, $mform) {
-    global $DB;
+    $context = context_module::instance($data->coursemodule);
+    $options = ['subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1, 'accepted_types' => ['video/*', '.zip']];
+    
+    file_save_draft_area_files($data->videofile, $context->id, 'mod_videoprogress', 'video', 0, $options);
 
-    $cmid = $data->coursemodule;
-    $context = context_module::instance($cmid);
-
-    if ($mform) {
-        file_save_draft_area_files(
-            $data->videofile,
-            $context->id,
-            'mod_videoprogress',
-            'video',
-            0,
-            array('subdirs' => 0, 'maxfiles' => 1)
-        );
-        
-        // 檢查是否為 ZIP 檔案
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_videoprogress', 'video', 0, 'sortorder', false);
-        $file = reset($files);
-        
-        if ($file && strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION)) === 'zip') {
-            // 處理 ZIP 套件（包含安全驗證）
-            $result = videoprogress_process_zip_package($context->id, $file);
+    // 檢查 ZIP
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($context->id, 'mod_videoprogress', 'video', 0, 'filename', false);
+    
+    foreach ($files as $file) {
+        if (strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION)) === 'zip') {
+            $result = zip_service::process_package($context->id, $file);
             if ($result !== true) {
-                // 驗證失敗，刪除已上傳的 ZIP 並拋出錯誤
+                \core\notification::error($result);
+            } else {
+                // 刪除原始 ZIP 檔案
                 $fs->delete_area_files($context->id, 'mod_videoprogress', 'video');
-                throw new moodle_exception('zip_validation_failed', 'videoprogress', '', $result);
             }
+            // 排程壓縮
+            videoprogress_queue_compression($context->id, 'package');
+            return;
         }
+    }
+
+    // 排程壓縮
+    if (!empty($files)) {
+        videoprogress_queue_compression($context->id, 'video');
     }
 }
 
 /**
- * 提供檔案服務（包含安全 Headers）
- *
- * @param stdClass $course 課程
- * @param stdClass $cm 課程模組
- * @param context $context 上下文
- * @param string $filearea 檔案區域
- * @param array $args 參數
- * @param bool $forcedownload 強制下載
- * @param array $options 選項
- * @return bool
+ * 排程 FFmpeg 壓縮任務
  */
-function videoprogress_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
-    global $DB;
-
-    if ($context->contextlevel != CONTEXT_MODULE) {
-        return false;
+function videoprogress_queue_compression($contextid, $filearea) {
+    global $DB, $CFG;
+    
+    if (!get_config('mod_videoprogress', 'enablecompression')) {
+        return;
     }
-
-    require_login($course, true, $cm);
-
-    // 支援 video 和 package 兩個 filearea
-    if ($filearea !== 'video' && $filearea !== 'package') {
-        return false;
-    }
-
-    $itemid = array_shift($args);
-    $filename = array_pop($args);
-    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
 
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'mod_videoprogress', $filearea, $itemid, $filepath, $filename);
+    $files = $fs->get_area_files($contextid, 'mod_videoprogress', $filearea, 0, 'filename', false);
 
-    if (!$file) {
-        return false;
-    }
-
-    // 對 package 區域的檔案加入安全檢查
-    if ($filearea === 'package') {
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        
-        // 禁止直接訪問 HTML 檔案（防止執行惡意 JS）
-        if (in_array($ext, ['html', 'htm'])) {
-            return false;  // 拒絕存取
+    foreach ($files as $file) {
+        $ext = strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION));
+        if (!in_array($ext, ['mp4', 'webm', 'mov', 'avi', 'mkv'])) {
+            continue;
         }
-        
-        // 對 JS 檔案加入 CSP（config.js 需要被讀取）
-        if ($ext === 'js') {
-            header("Content-Security-Policy: default-src 'none';");
-        }
-        
-        // 所有檔案都加入這些安全 Headers
-        header("X-Content-Type-Options: nosniff");
-        header("X-Frame-Options: DENY");
-        header("Referrer-Policy: no-referrer");
-    }
 
-    send_stored_file($file, 86400, 0, $forcedownload, $options);
+        // 檢查是否已在佇列
+        $dbman = $DB->get_manager();
+        $queueTable = new xmldb_table('videoprogress_compress_queue');
+        if ($dbman->table_exists($queueTable) && $DB->record_exists('videoprogress_compress_queue', ['fileid' => $file->get_id()])) {
+            continue;
+        }
+
+        // 加入佇列
+        require_once($CFG->dirroot . '/mod/videoprogress/classes/compression_queue.php');
+        videoprogress_queue_add($contextid, $file->get_id(), $file->get_filename());
+
+        // 建立 ad-hoc 任務（true = 避免重複）
+        $task = new \mod_videoprogress\task\compress_video();
+        $task->set_custom_data(['contextid' => $contextid, 'fileid' => $file->get_id(), 'filename' => $file->get_filename()]);
+        \core\task\manager::queue_adhoc_task($task, true);
+    }
+}
+
+/**
+ * 處理壓縮佇列（在頁面載入時觸發）
+ * Windows 環境：同步處理（因為沒有 Cron）
+ * Linux 環境：Scheduled Task 透過 Cron 處理
+ */
+function videoprogress_retry_failed_compressions() {
+    global $CFG;
+    
+    if (!get_config('mod_videoprogress', 'enablecompression')) {
+        return;
+    }
+    
+    // 只在 Windows 環境觸發（Linux 依靠 Cron Scheduled Task）
+    if (PHP_OS_FAMILY !== 'Windows') {
+        return;
+    }
+    
+    require_once($CFG->dirroot . '/mod/videoprogress/classes/compression_queue.php');
+    
+    // Windows 環境：每次訪問處理一個佇列項目
+    videoprogress_process_queue_item();
+}
+
+/**
+ * 提供檔案服務
+ */
+function videoprogress_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    return file_service::serve_file($course, $cm, $context, $filearea, $args, $forcedownload, $options);
 }
 
 /**
  * 取得課程模組資訊
- *
- * @param stdClass $coursemodule 課程模組
- * @return cached_cm_info
  */
 function videoprogress_get_coursemodule_info($coursemodule) {
     global $DB;
 
-    if (!$videoprogress = $DB->get_record('videoprogress', array('id' => $coursemodule->instance))) {
-        return null;
-    }
-
     $info = new cached_cm_info();
-    $info->name = $videoprogress->name;
+    $videoprogress = $DB->get_record('videoprogress', ['id' => $coursemodule->instance]);
 
-    if ($coursemodule->showdescription) {
-        $info->content = format_module_intro('videoprogress', $videoprogress, $coursemodule->id, false);
-    }
+    if ($videoprogress) {
+        $info->name = $videoprogress->name;
+        if ($coursemodule->showdescription) {
+            $info->content = format_module_intro('videoprogress', $videoprogress, $coursemodule->id, false);
+        }
 
     // 自訂完成規則：加入 completionenabled 到 customdata（值永遠是 1）
-    $info->customdata = (object)[
-        'customcompletionrules' => [
-            'completionenabled' => 1  // 永遠是 1，讓 Moodle 知道有設定完成條件
-        ]
-    ];
+        $info->customdata = (object)[
+            'customcompletionrules' => [
+                'completionenabled' => 1
+            ],
+            'completionpercent' => $videoprogress->completionpercent
+        ];
+    }
 
     return $info;
 }
 
 /**
  * 取得完成狀態
- *
- * @param stdClass $course 課程
- * @param cm_info $cm 課程模組
- * @param int $userid 使用者 ID
- * @param bool $type 類型
- * @return bool
  */
 function videoprogress_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
 
-    $videoprogress = $DB->get_record('videoprogress', array('id' => $cm->instance), '*', MUST_EXIST);
-    
-    $records = $DB->get_records('videoprogress_progress', array(
-        'videoprogress' => $videoprogress->id,
-        'userid' => $userid
-    ));
-    $progress = $records ? reset($records) : false;
+    $videoprogress = $DB->get_record('videoprogress', ['id' => $cm->instance], '*', MUST_EXIST);
+    $progress = $DB->get_record('videoprogress_progress', ['videoprogressid' => $videoprogress->id, 'userid' => $userid]);
 
     if (!$progress) {
         return false;
@@ -350,226 +316,70 @@ function videoprogress_get_completion_state($course, $cm, $userid, $type) {
 
 /**
  * 返回活動完成規則的描述
- *
- * @param cm_info|stdClass $cm 課程模組資訊
- * @return array 完成規則描述陣列
  */
 function mod_videoprogress_get_completion_active_rule_descriptions($cm) {
-    if (empty($cm->customdata['customcompletionrules']) || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+    if (empty($cm->customdata->customcompletionrules) || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
         return [];
     }
 
     $descriptions = [];
-    foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
-        if ($key === 'completionpercent') {
-            if ($val == 0) {
-                $descriptions[] = '點開即完成';
-            } else {
-                $descriptions[] = '觀看 ' . $val . '% 以上的影片';
-            }
+    // 檢查是否有啟用完成規則
+    if (!empty($cm->customdata->customcompletionrules['completionenabled'])) {
+        // 從 customdata 讀取百分比 (在 get_coursemodule_info 中存入)
+        $percent = isset($cm->customdata->completionpercent) ? $cm->customdata->completionpercent : 0;
+        
+        if ($percent == 0) {
+            $descriptions[] = get_string('completiondetail:view', 'videoprogress');
+        } else {
+            $descriptions[] = get_string('completiondetail:percent', 'videoprogress', $percent);
         }
     }
+    
     return $descriptions;
 }
 
 /**
  * 標記活動已檢視並觸發事件
- *
- * @param stdClass $videoprogress 活動物件
- * @param stdClass $course 課程
- * @param stdClass $cm 課程模組
- * @param context $context 上下文
  */
 function videoprogress_view($videoprogress, $course, $cm, $context) {
-    global $DB;
-
-    // 觸發課程模組檢視事件
-    $event = \mod_videoprogress\event\course_module_viewed::create(array(
+    $event = \mod_videoprogress\event\course_module_viewed::create([
         'objectid' => $videoprogress->id,
         'context' => $context,
-    ));
+    ]);
+    $event->add_record_snapshot('course_modules', $cm);
     $event->add_record_snapshot('course', $course);
     $event->add_record_snapshot('videoprogress', $videoprogress);
     $event->trigger();
 
-    // 標記活動完成（檢視）
     $completion = new completion_info($course);
-    
-    // 清理重複完成記錄 (防止 Core API 崩潰)
-    $dup_records = $DB->get_records('course_modules_completion', array(
-        'coursemoduleid' => $cm->id,
-        'userid' => $USER->id
-    ), 'timemodified DESC');
-    if (count($dup_records) > 1) {
-        reset($dup_records);
-        array_shift($dup_records);
-        $DB->delete_records_list('course_modules_completion', 'id', array_keys($dup_records));
-    }
-
     $completion->set_module_viewed($cm);
 }
 
-/**
- * 處理 ZIP 套件：安全驗證後解壓縮到 package filearea
- *
- * @param int $contextid 上下文 ID
- * @param stored_file $zipfile ZIP 檔案
- * @return bool|string true 成功，失敗則返回錯誤訊息
- */
-function videoprogress_process_zip_package($contextid, $zipfile) {
-    // 安全設定
-    $allowed_extensions = [
-        'html', 'htm', 'css', 'js', 'json', 'xml', 'txt',
-        'mp4', 'webm', 'ogg', 'm4v', 'mp3', 'wav',
-        'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico',
-        'woff', 'woff2', 'ttf', 'eot', 'otf'
-    ];
-    $blocked_extensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'phar', 
-                           'exe', 'bat', 'sh', 'cmd', 'com', 'dll',
-                           'htaccess', 'htpasswd'];
-    $max_uncompressed_size = 1024 * 1024 * 1024; // 1GB
-    $max_file_count = 1000;
-    
-    // 取得 ZIP 內容列表（不解壓）
-    $packer = get_file_packer('application/zip');
-    $files = $zipfile->list_files($packer);
-    
-    if (!$files) {
-        return 'ZIP 檔案無效或損壞';
-    }
-    
-    // 安全驗證
-    $total_size = 0;
-    $file_count = 0;
-    $has_index = false;
-    
-    foreach ($files as $file) {
-        $filename = $file->pathname;
-        $file_count++;
-        
-        // 檢查檔案數量
-        if ($file_count > $max_file_count) {
-            return "ZIP 包含太多檔案（上限 {$max_file_count} 個）";
-        }
-        
-        // 檢查路徑穿越攻擊
-        if (strpos($filename, '..') !== false) {
-            return "ZIP 包含非法路徑：{$filename}";
-        }
-        
-        // 跳過目錄
-        if (substr($filename, -1) === '/') {
-            continue;
-        }
-        
-        // 取得副檔名
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        
-        // 檢查禁止的副檔名
-        if (in_array($ext, $blocked_extensions)) {
-            return "ZIP 包含禁止的檔案類型：{$filename}";
-        }
-        
-        // 檢查是否在白名單中
-        if (!in_array($ext, $allowed_extensions)) {
-            return "ZIP 包含不允許的檔案類型：{$filename}（.{$ext}）";
-        }
-        
-        // 累計解壓後大小
-        $total_size += $file->size;
-        if ($total_size > $max_uncompressed_size) {
-            return "ZIP 解壓後大小超過限制（上限 1GB）";
-        }
-        
-        // 檢查是否有 index.html
-        if (strtolower(basename($filename)) === 'index.html') {
-            $has_index = true;
-        }
-    }
-    
-    // 必須有 index.html
-    if (!$has_index) {
-        return 'ZIP 必須包含 index.html';
-    }
-    
-    // 驗證通過，開始解壓
-    $fs = get_file_storage();
-    
-    // 先刪除舊的 package 檔案
-    $fs->delete_area_files($contextid, 'mod_videoprogress', 'package');
-    
-    // 解壓縮 ZIP 到 package filearea
-    $result = $zipfile->extract_to_storage(
-        $packer,
-        $contextid,
-        'mod_videoprogress',
-        'package',
-        0,
-        '/'
-    );
-    
-    if (!$result) {
-        return 'ZIP 解壓縮失敗';
-    }
-    
-    // 再次驗證 index.html 存在
-    $indexfile = $fs->get_file($contextid, 'mod_videoprogress', 'package', 0, '/', 'index.html');
-    if (!$indexfile) {
-        return '解壓後找不到 index.html';
-    }
-    
-    return true;
-}
+
+
+// =========================================================================
+// 輔助查詢函數
+// =========================================================================
+
+
 
 /**
- * 檢查活動是否為 ZIP 套件模式
- *
- * @param int $contextid 上下文 ID
- * @return bool
+ * 檢查是否為 ZIP 套件
  */
 function videoprogress_is_zip_package($contextid) {
-    $fs = get_file_storage();
-    $indexfile = $fs->get_file($contextid, 'mod_videoprogress', 'package', 0, '/', 'index.html');
-    return $indexfile && !$indexfile->is_directory();
+    return zip_service::is_package($contextid);
 }
 
 /**
- * 取得 ZIP 套件的 index.html URL
- *
- * @param int $contextid 上下文 ID
- * @return string|null URL 或 null
+ * 取得 ZIP 套件 index URL
  */
 function videoprogress_get_package_index_url($contextid) {
-    $fs = get_file_storage();
-    $indexfile = $fs->get_file($contextid, 'mod_videoprogress', 'package', 0, '/', 'index.html');
-    
-    if (!$indexfile) {
-        return null;
-    }
-    
-    return moodle_url::make_pluginfile_url(
-        $contextid,
-        'mod_videoprogress',
-        'package',
-        0,
-        '/',
-        'index.html'
-    )->out(false);
+    return zip_service::get_index_url($contextid);
 }
 
 /**
- * 取得 ZIP 套件的基礎 URL（用於載入相對資源）
- *
- * @param int $contextid 上下文 ID
- * @return string|null URL 或 null
+ * 取得 ZIP 套件基礎 URL
  */
 function videoprogress_get_package_base_url($contextid) {
-    return moodle_url::make_pluginfile_url(
-        $contextid,
-        'mod_videoprogress',
-        'package',
-        0,
-        '/',
-        ''
-    )->out(false);
+    return zip_service::get_base_url($contextid);
 }

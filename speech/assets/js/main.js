@@ -98,16 +98,27 @@ function initHeaderScroll() {
     const header = document.querySelector('header');
     if (!header || header.classList.contains('static-header')) return;
 
-    const handleScroll = () => {
+    let ticking = false;
+
+    const onScroll = () => {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
+        ticking = false;
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    const handleScroll = () => {
+        if (!ticking) {
+            window.requestAnimationFrame(onScroll);
+            ticking = true;
+        }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Initial check
+    onScroll();
 }
 
 function initScrollAnimations() {

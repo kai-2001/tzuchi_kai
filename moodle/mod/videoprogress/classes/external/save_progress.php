@@ -99,9 +99,6 @@ class save_progress extends external_api {
                 // 正常播放時 timeupdate 每 5 秒儲存一次
                 // 如果超過 30 秒，很可能是異常情況
                 if ($segmentlength > 30) {
-                    // 記錄異常情況（可選）
-                    // debugging("Suspicious segment detected: start={$params['segmentstart']}, end={$params['segmentend']}, length={$segmentlength}", DEBUG_DEVELOPER);
-                    
                     // 限制區段長度為 10 秒（從 start 開始）
                     $params['segmentend'] = $params['segmentstart'] + 10;
                 }

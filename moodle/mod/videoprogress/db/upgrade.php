@@ -89,5 +89,49 @@ function xmldb_videoprogress_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024122302, 'videoprogress');
     }
 
+    // 新增壓縮佇列資料表
+    if ($oldversion < 2026010502) {
+        // 建立 videoprogress_compress_queue 表
+        $table = new xmldb_table('videoprogress_compress_queue');
+        
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('filename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'pending');
+            $table->add_field('attempts', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0);
+            $table->add_field('last_error', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('status_idx', XMLDB_INDEX_NOTUNIQUE, ['status']);
+            $table->add_index('fileid_idx', XMLDB_INDEX_UNIQUE, ['fileid']);
+            
+            $dbman->create_table($table);
+        }
+
+        // 建立 videoprogress_compression_log 表
+        $logtable = new xmldb_table('videoprogress_compression_log');
+        
+        if (!$dbman->table_exists($logtable)) {
+            $logtable->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $logtable->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('filename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('original_size', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('compressed_size', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('saved_size', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('saved_percent', XMLDB_TYPE_NUMBER, '5', 2, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('crf', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $logtable->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            
+            $dbman->create_table($logtable);
+        }
+
+        upgrade_mod_savepoint(true, 2026010502, 'videoprogress');
+    }
+
     return true;
 }

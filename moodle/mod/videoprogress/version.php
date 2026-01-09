@@ -24,8 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025122407;        // 版本號 (YYYYMMDDXX)
+$plugin->version   = 2026010900;        // 版本號 (YYYYMMDDXX) - 優化進度儲存、修復 F5 恢復位置、統一按鈕 UI
 $plugin->requires  = 2022041900;        // 需要 Moodle 4.0+
 $plugin->component = 'mod_videoprogress'; // 完整插件名稱
-$plugin->maturity  = MATURITY_ALPHA;    // 開發階段
-$plugin->release   = '1.5.0';           // 人類可讀版本
+$plugin->maturity  = MATURITY_STABLE;   // 穩定版本
+$plugin->release   = '2.1.0';           // 重大更新：進度即時保存與 UI 優化
+

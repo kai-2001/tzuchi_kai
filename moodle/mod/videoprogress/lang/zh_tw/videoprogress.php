@@ -15,12 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Video Progress 繁體中文語言檔
+ * 繁體中文語言字串
  *
  * @package    mod_videoprogress
  * @copyright  2024 Tzu Chi Medical Foundation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = '影片進度追蹤';
 $string['modulenameplural'] = '影片進度追蹤';
@@ -50,6 +52,8 @@ $string['detectduration'] = '偵測長度';
 $string['completionpercent'] = '完成門檻（%）';
 $string['completionpercent_help'] = '學生必須觀看的影片百分比，達到後才會標記活動完成。';
 $string['completionusepercent'] = '要求達到完成分數';
+$string['completiondetail:percent'] = '觀看 {$a}% 以上的影片';
+$string['completiondetail:view'] = '點開即完成';
 
 // 觀看頁面
 $string['watchvideo'] = '觀看影片';
@@ -66,6 +70,7 @@ $string['requirefocus_help'] = '啟用後，當學生切換到其他分頁或視
 $string['clicktostart'] = '請點擊影片開始播放，計時將自動開始';
 $string['timerstarted'] = '計時已開始';
 $string['timerpaused'] = '計時已暫停，請點擊影片繼續';
+$string['clickvideoplay'] = '請點擊影片播放按鈕繼續';
 
 // 進度報告
 $string['progressreport'] = '進度報告';
@@ -92,3 +97,46 @@ $string['completiondetail:percent'] = '觀看至少 {$a}% 的影片';
 
 // ZIP 安全驗證
 $string['zip_validation_failed'] = 'ZIP 驗證失敗：{$a}';
+
+// FFmpeg 壓縮設定
+$string['ffmpeg_settings'] = '影片壓縮設定';
+$string['ffmpeg_settings_desc'] = '設定 FFmpeg 自動壓縮上傳的影片，節省硬碟空間。';
+$string['enablecompression'] = '啟用影片壓縮';
+$string['enablecompression_desc'] = '上傳影片後自動在背景使用 FFmpeg 壓縮。';
+$string['ffmpegpath'] = 'FFmpeg 路徑';
+$string['ffmpegpath_desc'] = 'FFmpeg 執行檔的完整路徑。例如：C:\\ffmpeg\\bin\\ffmpeg.exe (Windows) 或 /usr/bin/ffmpeg (Linux)';
+$string['compressioncrf'] = '壓縮品質 (CRF)';
+$string['compressioncrf_desc'] = '固定速率因子：數值越低品質越好但檔案越大。建議值：23';
+$string['crf_high'] = '高品質 (CRF 18) - 檔案較大';
+$string['crf_medium'] = '中品質 (CRF 23) - 建議';
+$string['crf_low'] = '低品質 (CRF 28) - 檔案最小';
+
+// 壓縮任務
+$string['task_compress_video'] = '壓縮影片檔案';
+$string['compression_started'] = '影片壓縮已開始';
+$string['compression_completed'] = '影片壓縮已完成';
+$string['compression_failed'] = '影片壓縮失敗';
+$string['compression_skipped'] = '影片壓縮已跳過（FFmpeg 未設定）';
+
+// FFmpeg 偵測狀態
+$string['ffmpeg_detected'] = '✅ <strong>已偵測到 FFmpeg</strong>：{$a}<br>您可以啟用影片壓縮功能來節省硬碟空間。';
+$string['ffmpeg_not_detected'] = '⚠️ <strong>未偵測到 FFmpeg</strong><br>此功能為選用功能。如果您不需要自動壓縮影片，可以忽略此區塊。<br>如需使用，請先安裝 <a href="https://ffmpeg.org/download.html" target="_blank">FFmpeg</a>，然後在下方填入路徑。';
+
+// 定時任務
+$string['task_process_compression'] = '處理影片壓縮佇列';
+
+// 離峰時段設定
+$string['offpeakhours'] = '啟用離峰時段';
+$string['offpeakhours_desc'] = '只在離峰時段執行壓縮，避免影響系統效能';
+$string['offpeakstart'] = '離峰時段開始';
+$string['offpeakstart_desc'] = '壓縮任務可執行的起始時間';
+$string['offpeakend'] = '離峰時段結束';
+$string['offpeakend_desc'] = '壓縮任務可執行的結束時間';
+
+// 壓縮管理頁面
+$string['compression_management'] = '影片壓縮管理';
+
+// 表單靜態說明
+$string['upload_zip_note'] = '<i class="fa fa-info-circle"></i> <strong>支援 Evercam ZIP 套件</strong><br><small>• 如上傳 <strong>ZIP 檔案</strong>，需包含：<code>index.html</code>（必要）、影片檔案、<code>config.js</code>（可選，用於章節目錄）<br>• 如為<strong>單純影片檔</strong>（MP4、MOV 等），請直接上傳影片檔案即可</small>';
+$string['completionpercent_note'] = '設為 0% 表示點開即完成';
+$string['external_detection_note'] = '<strong>外部網址自動偵測：</strong><br>系統會嘗試自動偵測網頁中的影片。如果偵測成功，將使用「觀看百分比」作為完成條件；如果無法偵測，則使用「最少停留秒數」作為完成條件。';

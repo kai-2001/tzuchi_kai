@@ -41,8 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_type = "danger";
         } else {
             // 連線資料庫
-            $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-            $conn->set_charset("utf8mb4");
+            require_once 'includes/db_connect.php';
 
             // 2. 檢查帳號是否已經存在 (外層)
             $check = $conn->prepare("SELECT id FROM users WHERE username = ?");

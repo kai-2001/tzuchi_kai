@@ -57,107 +57,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!preg_match('/[^a-zA-Z0-9]/', $new_password)) {
                 $password_errors[] = "至少要有 1 個特殊符號 (!@#$%^&* 等)";
             }
-            
+
             if (!empty($password_errors)) {
                 $msg = "密碼不符合規則：<br>• " . implode("<br>• ", $password_errors);
                 $msg_type = "danger";
             } else {
-            // 連線資料庫驗證當前密碼
-            $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-            $conn->set_charset("utf8mb4");
+                // 連線資料庫驗證當前密碼
+                require 'includes/db_connect.php';
+                // db_connect.php 會自動處理連線錯誤並中止程式，或建立 $conn 變數
 
-            if ($conn->connect_error) {
-                $msg = "系統暫時無法連線，請稍後再試。";
-                $msg_type = "danger";
-            } else {
-                // 取得使用者資料
-                $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
-                $stmt->bind_param("s", $_SESSION['username']);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $user = $result->fetch_assoc();
-                $stmt->close();
-
-                if (!$user) {
-                    $msg = "使用者不存在！";
+                if (!isset($conn) || $conn->connect_error) {
+                    $msg = "系統暫時無法連線，請稍後再試。";
                     $msg_type = "danger";
                 } else {
-                    // 驗證當前密碼
-                    $password_valid = false;
-                    if (password_verify($current_password, $user['password'])) {
-                        $password_valid = true;
-                    } elseif ($user['password'] === $current_password) {
-                        // 舊的明碼密碼
-                        $password_valid = true;
-                    }
+                    // 取得使用者資料
+                    $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+                    $stmt->bind_param("s", $_SESSION['username']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $user = $result->fetch_assoc();
+                    $stmt->close();
 
-                    if (!$password_valid) {
-                        $msg = "當前密碼錯誤！";
+                    if (!$user) {
+                        $msg = "使用者不存在！";
                         $msg_type = "danger";
                     } else {
-                        // ===== 開始更新密碼 =====
+                        // 驗證當前密碼
+                        $password_valid = false;
+                        if (password_verify($current_password, $user['password'])) {
+                            $password_valid = true;
+                        } elseif ($user['password'] === $current_password) {
+                            // 舊的明碼密碼
+                            $password_valid = true;
+                        }
 
-                        // 1. 更新 portal_db
-                        $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
-                        $update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
-                        $update_stmt->bind_param("si", $new_hash, $user['id']);
-                        $portal_success = $update_stmt->execute();
-                        $update_stmt->close();
-
-                        if (!$portal_success) {
-                            $msg = "更新密碼失敗，請稍後再試。";
+                        if (!$password_valid) {
+                            $msg = "當前密碼錯誤！";
                             $msg_type = "danger";
                         } else {
-                            // 2. 取得 Moodle 使用者 ID
-                            $moodle_user = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', [
-                                'field' => 'username',
-                                'values' => [$user['username']]
-                            ]);
+                            // ===== 開始更新密碼 =====
 
-                            $moodle_success = false;
-                            $moodle_error = '';
+                            // 1. 更新 portal_db
+                            $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
+                            $update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+                            $update_stmt->bind_param("si", $new_hash, $user['id']);
+                            $portal_success = $update_stmt->execute();
+                            $update_stmt->close();
 
-                            if (!empty($moodle_user) && isset($moodle_user[0]['id'])) {
-                                $moodle_user_id = $moodle_user[0]['id'];
-
-                                // 3. 呼叫 Moodle API 更新密碼
-                                $update_result = call_moodle($moodle_url, $moodle_token, 'core_user_update_users', [
-                                    'users' => [
-                                        [
-                                            'id' => $moodle_user_id,
-                                            'password' => $new_password
-                                        ]
-                                    ]
-                                ]);
-
-                                if (isset($update_result['exception'])) {
-                                    $moodle_error = $update_result['message'] ?? '未知錯誤';
-                                } else {
-                                    $moodle_success = true;
-                                }
+                            if (!$portal_success) {
+                                $msg = "更新密碼失敗，請稍後再試。";
+                                $msg_type = "danger";
                             } else {
-                                $moodle_error = '找不到 Moodle 使用者';
-                            }
+                                // 2. 也是這裡，原本會同步去改 Moodle 密碼，現在不需要了。
+                                // 因為使用者走 SSO 登入，且 Moodle 端採用亂數密碼即可。
+                                // $moodle_user = call_moodle(...); 
+                                // ... (移除同步邏輯)
 
-                            // 4. 更新 Session 中的 moodle_token
-                            $_SESSION['moodle_token'] = base64_encode(
-                                openssl_encrypt($new_password, 'AES-256-CBC', $db_pass, 0, substr(md5($db_pass), 0, 16))
-                            );
-
-                            if ($moodle_success) {
                                 $msg = "密碼修改成功！";
                                 $msg_type = "success";
                                 // 2秒後跳轉回首頁
                                 header("refresh:2;url=index.php");
-                            } else {
-                                $msg = "入口網密碼已更新，但 Moodle 同步失敗：" . $moodle_error;
-                                $msg_type = "warning";
                             }
                         }
                     }
+                    $conn->close();
                 }
-                $conn->close();
-            }
             }
         }
     }
@@ -176,147 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --accent: #06b6d4;
-            --body-bg: #f0f4f8;
-        }
-
-        body {
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0f4f8 50%, #ede9fe 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', sans-serif;
-            padding: 20px;
-        }
-
-        /* 浮游粒子 */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 600px 400px at 15% 20%, rgba(99, 179, 237, 0.25) 0%, transparent 70%),
-                radial-gradient(ellipse 500px 350px at 85% 25%, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
-        }
-
-        .password-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 4px 24px rgba(99, 179, 237, 0.12), 0 12px 48px rgba(167, 139, 250, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            max-width: 450px;
-            width: 100%;
-            padding: 50px 40px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .password-card h3 {
-            color: #1e293b;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .password-card .subtitle {
-            color: #64748b;
-            margin-bottom: 30px;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #475569;
-        }
-
-        .form-control {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px 16px;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border: none;
-            border-radius: 30px;
-            padding: 14px 28px;
-            font-weight: 600;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.45);
-        }
-
-        .back-link {
-            color: #64748b;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        .icon-header {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .icon-header i {
-            font-size: 24px;
-            color: white;
-        }
-
-        .password-rules {
-            background: #f1f5f9;
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-top: 10px;
-            font-size: 13px;
-        }
-
-        .password-rules .rules-title {
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 8px;
-        }
-
-        .password-rules ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #64748b;
-        }
-
-        .password-rules li {
-            margin-bottom: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/auth.css">
 </head>
 
 <body>

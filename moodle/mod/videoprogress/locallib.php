@@ -357,7 +357,7 @@ function videoprogress_detect_external_video($externalurl) {
     
     // 由於 detect_video.php 是為 AJAX 設計的，我們需要直接呼叫其中的函數
     // 先檢查函數是否存在
-    if (!function_exists('getVideoDuration')) {
+    if (!function_exists('videoprogress_get_video_duration')) {
         return null;
     }
     
@@ -457,7 +457,7 @@ function videoprogress_detect_external_video($externalurl) {
     
     // 取得影片時長
     $debug = [];
-    $duration = getVideoDuration($videoUrl, $debug);
+    $duration = videoprogress_get_video_duration($videoUrl, $debug);
     
     return [
         'videourl' => $videoUrl,

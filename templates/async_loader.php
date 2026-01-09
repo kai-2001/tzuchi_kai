@@ -3,16 +3,13 @@
     (function () {
         'use strict';
 
-        // 檢查是否為非同步模式
-        const asyncMode = <?php echo isset($async_mode) && $async_mode ? 'true' : 'false'; ?>;
         const isAdmin = <?php echo $is_admin ? 'true' : 'false'; ?>;
         const isTeacherPlus = <?php echo (isset($_SESSION['is_teacherplus']) && $_SESSION['is_teacherplus']) ? 'true' : 'false'; ?>;
 
-        if (!asyncMode || isAdmin) {
-            return; // 非非同步模式或管理員,不執行
+        if (isAdmin) {
+            return; // 管理員不執行
         }
 
-        // 3D Loading Animation HTML (Enhanced Original Neon Portal with Energy Core)
         const loading3dHtml = `
             <div class="loader-3d-portal">
                 <div class="portal-ring ring-outer"></div>
@@ -22,87 +19,65 @@
             </div>
         `;
 
-        // 3D Loading CSS
-        const loader3dStyle = document.createElement('style');
-        loader3dStyle.textContent = `
-            .loader-3d-portal {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                perspective: 1000px;
-                height: 200px;
-                width: 100%;
-                position: relative;
-                transform-style: preserve-3d;
+        // 3D Loading CSS has been moved to assets/css/style.css
+
+        /**
+         * 建立課程卡片 HTML (共用函式)
+         * @param {Object} course 課程物件
+         * @param {string} moodleUrl Moodle 基礎網址
+         * @param {string} type 'my_courses'(學習中/已完成) 或 'available'(選課)
+         */
+        function createCourseCard(course, moodleUrl, type) {
+            const mainCat = course.parent_category || course.categoryname || '其他';
+            const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
+            const progress = course.progress || 0;
+
+            // 處理分類 key (用於篩選)
+            let typeKey = mainCat.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
+            if (!typeKey) typeKey = 'cat-' + Math.abs(mainCat.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+
+            // 狀態與按鈕邏輯
+            let statusHtml = '';
+            let buttonHtml = '';
+
+            if (type === 'my_courses' || course.is_enrolled) {
+                // 已選修/我的課程
+                statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
+                                ${progress >= 100 ? '已完成' : '學習中 (' + progress.toFixed(2) + '%)'}
+                              </span>`;
+                buttonHtml = `<button class="btn btn-sm" 
+                                      style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
+                                      onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
+                                  <i class="fas fa-sign-in-alt me-1"></i>進入課程
+                              </button>`;
+            } else {
+                // 可選修課程
+                statusHtml = `<span class="badge bg-secondary ms-2" style="font-size: 10px; opacity: 0.7;">未選課</span>`;
+                buttonHtml = `<button class="btn btn-sm" 
+                                      style="background: var(--primary); color: white; border-radius: 20px; padding: 8px 20px;"
+                                      onclick="goToMoodle('${moodleUrl}/enrol/index.php?id=${course.id}')">
+                                  <i class="fas fa-plus me-1"></i>選課
+                              </button>`;
             }
-            .portal-ring {
-                position: absolute;
-                border-radius: 50%;
-                border: 4px solid transparent;
-                transform-style: preserve-3d;
-            }
-            .ring-outer {
-                width: 100px;
-                height: 100px;
-                border-top-color: #2563eb;
-                border-bottom-color: #2563eb;
-                box-shadow: 0 0 25px rgba(37, 99, 235, 0.5);
-                animation: portalRotateX 2s linear infinite;
-            }
-            .ring-inner {
-                width: 70px;
-                height: 70px;
-                border-left-color: #06b6d4;
-                border-right-color: #06b6d4;
-                box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
-                animation: portalRotateY 1.5s linear infinite;
-            }
-            .portal-core {
-                position: absolute;
-                width: 45px;
-                height: 45px;
-                background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(37, 99, 235, 0.3) 60%, transparent 100%);
-                border-radius: 50%;
-                box-shadow: 0 0 30px rgba(37, 99, 235, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.8);
-                filter: blur(2px);
-                animation: corePulse 1.5s ease-in-out infinite;
-                z-index: -1;
-            }
-            .portal-text {
-                position: absolute;
-                font-family: inherit;
-                font-weight: 700;
-                font-size: 13px;
-                color: #1e3a8a;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-                letter-spacing: 1px;
-                animation: portalPulse 1.5s ease-in-out infinite;
-            }
-            @keyframes portalRotateX {
-                0% { transform: rotateX(0deg) rotateY(30deg) rotateZ(0deg); }
-                100% { transform: rotateX(360deg) rotateY(30deg) rotateZ(360deg); }
-            }
-            @keyframes portalRotateY {
-                0% { transform: rotateX(60deg) rotateY(0deg) rotateZ(0deg); }
-                100% { transform: rotateX(60deg) rotateY(360deg) rotateZ(360deg); }
-            }
-            @keyframes corePulse {
-                0%, 100% { transform: scale(1); opacity: 0.7; }
-                50% { transform: scale(1.2); opacity: 1; filter: blur(4px); }
-            }
-            @keyframes portalPulse {
-                0%, 100% { opacity: 0.6; transform: scale(0.95); }
-                50% { opacity: 1; transform: scale(1.05); }
-            }
-            .fade-in {
-                animation: fadeIn 0.5s;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-        `;
-        document.head.appendChild(loader3dStyle);
+
+            return `
+                <div class="col-md-6 course-item" data-type="${typeKey}" data-name="${course.fullname.toLowerCase()}">
+                    <div class="card course-card h-100 position-relative">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title fw-bold mb-1">${course.fullname}${statusHtml}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-folder-open me-1"></i>${mainCat}
+                                    ${subCat ? `<i class="fas fa-chevron-right mx-1" style="font-size: 8px; vertical-align: middle; opacity: 0.5;"></i>${subCat}` : ''}
+                                </small>
+                            </div>
+                            ${buttonHtml}
+                        </div>
+                        <span class="category-label">${mainCat}</span>
+                    </div>
+                </div>
+            `;
+        }
 
         if (isTeacherPlus) {
             const moodleUrl = '<?php echo $moodle_url; ?>';
@@ -322,57 +297,7 @@
                 });
             }
 
-            container.innerHTML = courses.map(course => {
-                const mainCat = course.parent_category || course.categoryname || '其他';
-                const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
-
-                // 使用父類別名稱的 hash 作為 data-type (篩選器以大類為主)
-                let typeKey = mainCat.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '');
-                if (!typeKey) typeKey = 'cat-' + Math.abs(mainCat.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
-
-                const moodleUrl = '<?php echo $moodle_url; ?>';
-
-                // 狀態標示邏輯
-                let statusHtml = '';
-                let buttonHtml = '';
-
-                if (course.is_enrolled) {
-                    const progress = course.progress || 0;
-                    statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
-                                    ${progress >= 100 ? '已完成' : '學習中 (' + progress.toFixed(2) + '%)'}
-                                  </span>`;
-                    buttonHtml = `<button class="btn btn-sm" 
-                                          style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
-                                          onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
-                                      <i class="fas fa-sign-in-alt me-1"></i>進入課程
-                                  </button>`;
-                } else {
-                    statusHtml = `<span class="badge bg-secondary ms-2" style="font-size: 10px; opacity: 0.7;">未選課</span>`;
-                    buttonHtml = `<button class="btn btn-sm" 
-                                          style="background: var(--primary); color: white; border-radius: 20px; padding: 8px 20px;"
-                                          onclick="goToMoodle('${moodleUrl}/enrol/index.php?id=${course.id}')">
-                                      <i class="fas fa-plus me-1"></i>選課
-                                  </button>`;
-                }
-
-                return `
-                <div class="col-md-6 course-item" data-type="${typeKey}" data-name="${course.fullname.toLowerCase()}">
-                    <div class="card course-card h-100 position-relative">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title fw-bold mb-1">${course.fullname}${statusHtml}</h6>
-                                <small class="text-muted">
-                                    <i class="fas fa-folder-open me-1"></i>${mainCat}
-                                    ${subCat ? `<i class="fas fa-chevron-right mx-1" style="font-size: 8px; vertical-align: middle; opacity: 0.5;"></i>${subCat}` : ''}
-                                </small>
-                            </div>
-                            ${buttonHtml}
-                        </div>
-                        <span class="category-label">${mainCat}</span>
-                    </div>
-                </div>
-            `;
-            }).join('');
+            container.innerHTML = courses.map(course => createCourseCard(course, moodleUrl, 'available')).join('');
 
             container.classList.add('fade-in');
         }
@@ -458,38 +383,7 @@
             }
 
             const moodleUrl = '<?php echo $moodle_url; ?>';
-            container.innerHTML = courses.map(course => {
-                const mainCat = course.parent_category || '其他';
-                const subCat = (course.child_category && course.child_category !== mainCat) ? course.child_category : '';
-                const progress = course.progress || 0;
-
-                // 狀態標示邏輯
-                const statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
-                                        ${progress >= 100 ? '已完成' : '學習中 (' + progress.toFixed(2) + '%)'}
-                                    </span>`;
-
-                return `
-                <div class="col-md-6">
-                    <div class="card course-card h-100 position-relative">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title fw-bold mb-1">${course.fullname}${statusHtml}</h6>
-                                <small class="text-muted">
-                                    <i class="fas fa-folder-open me-1"></i>${mainCat}
-                                    ${subCat ? `<i class="fas fa-chevron-right mx-1" style="font-size: 8px; vertical-align: middle; opacity: 0.5;"></i>${subCat}` : ''}
-                                </small>
-                            </div>
-                            <button class="btn btn-sm" 
-                                    style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
-                                    onclick="goToMoodle('${moodleUrl}/course/view.php?id=${course.id}')">
-                                <i class="fas fa-sign-in-alt me-1"></i>進入課程
-                            </button>
-                        </div>
-                        <span class="category-label">${mainCat}</span>
-                    </div>
-                </div>
-            `;
-            }).join('');
+            container.innerHTML = courses.map(course => createCourseCard(course, moodleUrl, 'my_courses')).join('');
 
             container.classList.add('fade-in');
         }
@@ -682,10 +576,8 @@
             container.classList.add('fade-in');
         }
 
-        // 階段性載入資料 (含 Retry 機制)
+        // 階段性載入資料 (含 Retry 機制 - 保留函式名但移除未使用的常數)
         function fetchSubData(type, renderer) {
-            const MAX_RETRIES = 2;
-            const RETRY_DELAY = 1500; // 1.5 seconds
 
             fetch(`api/get_moodle_data.php?type=${type}`, {
                 method: 'GET',

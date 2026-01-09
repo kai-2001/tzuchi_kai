@@ -23,37 +23,6 @@ setcookie('portal_is_admin', $is_admin ? '1' : '0', 0, '/');
 
 <body>
     <?php if (isset($_SESSION['username'])): ?>
-        <?php
-        // SSO Login 外掛：產生加密的 SSO URL
-        function generate_sso_url($username, $target_url)
-        {
-            global $moodle_url, $moodle_sso_secret;
-
-            // 建立 payload
-            $payload = json_encode([
-                'username' => $username,
-                'timestamp' => time()
-            ]);
-
-            // AES-256-CBC 加密
-            $iv = openssl_random_pseudo_bytes(16);
-            $ciphertext = openssl_encrypt($payload, 'aes-256-cbc', $moodle_sso_secret, 0, $iv);
-            $encrypted = base64_encode($ciphertext . '::' . $iv);
-
-            // HMAC 簽名
-            $sig = hash_hmac('sha256', $payload, $moodle_sso_secret);
-
-            // 建立 SSO URL
-            $sso_url = $moodle_url . '/local/ssologin/login.php?data=' . urlencode($encrypted) . '&sig=' . $sig;
-
-            // 如果有目標 URL，加入 wantsurl 參數
-            if (!empty($target_url)) {
-                $sso_url .= '&wantsurl=' . urlencode($target_url);
-            }
-
-            return $sso_url;
-        }
-        ?>
 
         <nav id="portal-global-nav">
             <div style="display:flex; align-items:center;">

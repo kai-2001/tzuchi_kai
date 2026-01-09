@@ -91,11 +91,7 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         // Evercam ZIP 套件說明
         $mform->addElement('static', 'upload_zip_note', '', 
             '<div class="alert alert-info mt-2" style="padding: 10px 15px;">' .
-            '<i class="fa fa-info-circle"></i> <strong>支援 Evercam ZIP 套件</strong><br>' .
-            '<small>' .
-            '• 如上傳 <strong>ZIP 檔案</strong>，需包含：<code>index.html</code>（必要）、影片檔案、<code>config.js</code>（可選，用於章節目錄）<br>' .
-            '• 如為<strong>單純影片檔</strong>（MP4、MOV 等），請直接上傳影片檔案即可' .
-            '</small>' .
+            get_string('upload_zip_note', 'videoprogress') .
             '</div>'
         );
         $mform->hideIf('upload_zip_note', 'videotype', 'neq', 'upload');
@@ -120,7 +116,7 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         
         // 完成門檻說明
         $mform->addElement('static', 'completionpercent_note', '', 
-            '<small style="color: #000;">設為 0% 表示點開即完成</small>'
+            '<small style="color: #000;">' . get_string('completionpercent_note', 'videoprogress') . '</small>'
         );
 
         // 外部網址專用：最少停留秒數
@@ -133,9 +129,7 @@ class mod_videoprogress_mod_form extends moodleform_mod {
         // 外部網址偵測說明
         $mform->addElement('static', 'external_detection_note', '', 
             '<div class="alert alert-info">' .
-            '<strong>外部網址自動偵測：</strong><br>' .
-            '系統會嘗試自動偵測網頁中的影片。如果偵測成功，將使用「觀看百分比」作為完成條件；' .
-            '如果無法偵測，則使用「最少停留秒數」作為完成條件。' .
+            get_string('external_detection_note', 'videoprogress') .
             '</div>'
         );
         $mform->hideIf('external_detection_note', 'videotype', 'neq', 'external');
@@ -203,7 +197,11 @@ class mod_videoprogress_mod_form extends moodleform_mod {
                 $hasIndexHtml = false;
                 if ($zipcontents) {
                     foreach ($zipcontents as $file) {
-                        if (isset($file->pathname) && basename($file->pathname) === 'index.html') {
+                        $pathname = $file->pathname ?? '';
+                        // 用 explode 取代 basename()，避免 Windows 下 / 分隔符問題
+                        $parts = explode('/', rtrim($pathname, '/'));
+                        $filename = end($parts);
+                        if (strtolower($filename) === 'index.html') {
                             $hasIndexHtml = true;
                             break;
                         }

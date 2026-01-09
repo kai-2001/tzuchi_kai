@@ -96,9 +96,9 @@ class custom_completion extends activity_custom_completion {
         $completionpercent = $videoprogress ? ($videoprogress->completionpercent ?? 0) : 0;
 
         if ($completionpercent == 0) {
-            $description = '點開即完成';
+            $description = get_string('completiondetail:view', 'videoprogress');
         } else {
-            $description = '觀看 ' . $completionpercent . '% 以上的影片';
+            $description = get_string('completiondetail:percent', 'videoprogress', $completionpercent);
         }
 
         return [

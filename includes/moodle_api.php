@@ -2,6 +2,70 @@
 // includes/moodle_api.php - Moodle 資料抓取
 
 /**
+ * 確保 Moodle 使用者存在 (若不存在則建立)
+ * @param string $username 帳號
+ * @param string $fullname 全名
+ * @param string $email Email
+ * @return array|null 成功回傳使用者資料陣列(含id)，失敗回傳 null
+ */
+function ensure_moodle_user_exists($username, $fullname, $email)
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 準備建立資料
+    $last_name = mb_substr($fullname, 0, 1, "utf-8");
+    $first_name = mb_substr($fullname, 1, null, "utf-8");
+    if (empty($first_name))
+        $first_name = $last_name;
+
+    // 一律使用符合 Moodle 規定之強密碼
+    $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
+
+    $moodle_user_data = [
+        'users' => [
+            [
+                'username' => $username,
+                'password' => $moodle_password,
+                'firstname' => $first_name,
+                'lastname' => $last_name,
+                'email' => $email,
+                'auth' => 'manual',
+            ]
+        ]
+    ];
+
+    // 2. 呼叫 Moodle API 建立
+    $serverurl = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_create_users&moodlewsrestformat=json';
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $serverurl);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($moodle_user_data));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+    $resp = curl_exec($curl);
+    curl_close($curl);
+
+    // 3. 阻塞驗證 (Blocking Verification) - 確保帳號建立完成
+    // 剛發出建立指令，Moodle 可能還在處理，這裡我們跑一個小迴圈去詢問
+    $max_retries = 5;
+
+    for ($i = 0; $i < $max_retries; $i++) {
+        if ($i > 0)
+            usleep(500000); // 0.5s
+
+        $u_params = ['field' => 'username', 'values' => [$username]];
+        $check_result = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+        if (is_array($check_result) && !empty($check_result) && isset($check_result[0]['id'])) {
+            return $check_result; // 驗證成功，回傳包含 ID 的使用者資料
+        }
+    }
+
+    error_log("Warning: ensure_moodle_user_exists verification timed out for '$username'");
+    return null;
+}
+
+/**
  * 取得使用者的 Moodle 資料（含快取機制與分段載入支援）
  * @param string $type 抓取類型: 'all', 'courses', 'grades', 'announcements', 'curriculum'
  * @return array 包含課程、公告、進度等資料
@@ -28,24 +92,43 @@ function fetch_moodle_data($type = 'all')
         return $data;
     }
 
-    /* 🚀 暫時關閉快取功能以測試平行化效能
-    if ($type === 'all' && isset($_SESSION['moodle_cache']) && isset($_SESSION['moodle_cache_time'])) {
-        if (time() - $_SESSION['moodle_cache_time'] < CACHE_DURATION) {
-            return $_SESSION['moodle_cache'];
-        }
-    }
-    */
-
     try {
         // 步驟 1: 取得 Moodle 使用者 ID (通常已在 Session 中)
         if (isset($_SESSION['moodle_uid'])) {
             $moodle_uid = $_SESSION['moodle_uid'];
         } else {
+            // 🚀 關鍵優化：增加 ID 查詢重試機制，區分「逾時」與「不存在」
+            $moodle_users = null;
+            $max_id_retries = 3;
             $u_params = ['field' => 'username', 'values' => [$_SESSION['username']]];
-            $moodle_users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+            for ($retry = 0; $retry < $max_id_retries; $retry++) {
+                if ($retry > 0)
+                    usleep(500000); // 0.5s
+                $moodle_users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+                // 如果成功抓到資料且沒有錯誤，直接跳出
+                if (is_array($moodle_users) && isset($moodle_users[0]['id'])) {
+                    break;
+                }
+
+                // 如果是逾時，繼續重試一次
+                if (isset($moodle_users['error']) && $moodle_users['error'] === 'MOODLE_TIMEOUT') {
+                    continue;
+                }
+
+                // 如果不是逾時也不是成功，可能是真的查無此人，進修復邏輯
+                break;
+            }
 
             if (!is_array($moodle_users) || empty($moodle_users) || !isset($moodle_users[0]['id'])) {
-                // [JIT Auto-Repair] 查無 Moodle 帳號，嘗試自動修復
+                // 如果最後結果還是逾時，直接拋出逾時錯誤，不要進修復（避免 Race Condition）
+                if (isset($moodle_users['error']) && $moodle_users['error'] === 'MOODLE_TIMEOUT') {
+                    $data['error'] = 'MOODLE_TIMEOUT';
+                    return $data;
+                }
+
+                // [JIT Auto-Repair] 確定查無 Moodle 帳號，嘗試自動修復
                 global $db_host, $db_user, $db_pass, $db_name;
 
                 // 1. 取得本地使用者資料
@@ -65,47 +148,12 @@ function fetch_moodle_data($type = 'all')
                 }
 
                 if ($local_user) {
-                    // 2. 準備建立資料
+                    // 使用共用的確保存在函式
                     $fullname = $local_user['fullname'] ?? $_SESSION['username'];
                     $input_user = $local_user['username'];
                     $email = $local_user['email'] ?? ($input_user . "@example.com");
 
-                    $last_name = mb_substr($fullname, 0, 1, "utf-8");
-                    $first_name = mb_substr($fullname, 1, null, "utf-8");
-                    if (empty($first_name))
-                        $first_name = $last_name;
-
-                    $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
-
-                    $moodle_user_data = [
-                        'users' => [
-                            [
-                                'username' => $input_user,
-                                'password' => $moodle_password,
-                                'firstname' => $first_name,
-                                'lastname' => $last_name,
-                                'email' => $email,
-                                'auth' => 'manual',
-                            ]
-                        ]
-                    ];
-
-                    // 3. 呼叫 Moodle API 建立
-                    $serverurl = $moodle_url . '/webservice/rest/server.php' . '?wstoken=' . $moodle_token . '&wsfunction=core_user_create_users&moodlewsrestformat=json';
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $serverurl);
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($moodle_user_data));
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-                    $resp = curl_exec($curl);
-                    curl_close($curl);
-
-                    // 4. 等待同步 (Short Delay)
-                    usleep(800000); // 0.8s
-
-                    // 5. 重試查詢 ID
-                    $moodle_users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+                    $moodle_users = ensure_moodle_user_exists($input_user, $fullname, $email);
                 }
 
                 if (!is_array($moodle_users) || empty($moodle_users) || !isset($moodle_users[0]['id'])) {
@@ -439,25 +487,4 @@ function process_curriculum_locally($all_courses, $my_courses_raw, $cat_info)
     return $curriculum_status;
 }
 
-/**
- * 以下為舊函式 (保留相容性，但 fetch_moodle_data(all) 已經不再依賴它們)
- */
-function fetch_curriculum_status($my_courses_raw)
-{
-    global $moodle_url, $moodle_token;
-    // ... 原有邏輯 ...
-    return process_curriculum_locally([], $my_courses_raw, []); // 簡化回傳
-}
-
-function fetch_announcements($my_courses_raw)
-{
-    // ... 原有邏輯 ...
-    return [];
-}
-
-function fetch_user_grades($moodle_uid, $my_courses)
-{
-    // ... 原有邏輯 ...
-    return [];
-}
 ?>
