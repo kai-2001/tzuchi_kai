@@ -339,7 +339,7 @@
                 if (course.is_enrolled) {
                     const progress = course.progress || 0;
                     statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
-                                    ${progress >= 100 ? '已完成' : '學習中 (' + progress + '%)'}
+                                    ${progress >= 100 ? '已完成' : '學習中 (' + progress.toFixed(2) + '%)'}
                                   </span>`;
                     buttonHtml = `<button class="btn btn-sm" 
                                           style="background: #f1f5f9; color: var(--primary); border: 1px solid var(--primary); border-radius: 20px; padding: 8px 20px;"
@@ -465,7 +465,7 @@
 
                 // 狀態標示邏輯
                 const statusHtml = `<span class="badge ${progress >= 100 ? 'bg-success' : 'bg-warning'} ms-2" style="font-size: 10px;">
-                                        ${progress >= 100 ? '已完成' : '學習中 (' + progress + '%)'}
+                                        ${progress >= 100 ? '已完成' : '學習中 (' + progress.toFixed(2) + '%)'}
                                     </span>`;
 
                 return `
@@ -730,7 +730,7 @@
                 })
                 .catch(error => {
                     console.error(`❌ 載入 ${type} 失敗:`, error);
-
+                    const isTimeout = error.message.includes('TIMEOUT') || error.message.includes('逾時');
                     handlePartialError(type, isTimeout);
                 });
         }
