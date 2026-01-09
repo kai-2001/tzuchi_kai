@@ -157,6 +157,7 @@ function process_login()
     $remember_me = isset($_POST['remember']);
 
     // 使用共用連線設定
+    /** @var mysqli $conn */
     require __DIR__ . '/db_connect.php';
     if (!isset($conn) || $conn->connect_error) {
         return "系統暫時無法連線，請稍後再試。";
