@@ -26,9 +26,13 @@ include __DIR__ . '/partials/header.php';
         <div class="search-bar">
             <form action="manage_videos.php" method="GET" style="display:flex; width:100%; gap:10px;">
                 <input type="text" name="q" placeholder="搜尋影片標題或講者..." value="<?= htmlspecialchars($search) ?>">
-                <button type="submit" class="btn-admin" style="width: auto; padding: 0 20px;"><i
-                        class="fa-solid fa-magnifying-glass"></i></button>
+                <button type="submit" class="btn-search"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
+
+            <a href="process_queue.php" class="btn-queue" title="轉檔排程管理">
+                <i class="fa-solid fa-list-check"></i> <span>轉檔排程</span>
+            </a>
+
             <a href="upload.php" class="btn-admin btn-primary-gradient"
                 style="white-space: nowrap; width: auto; padding: 0 25px; text-decoration: none; display: flex; align-items: center; border-radius: 12px;">
                 <i class="fa-solid fa-plus me-2"></i> 新增影片
@@ -94,6 +98,10 @@ include __DIR__ . '/partials/header.php';
                                             $badgeClass = 'bg-warning text-dark';
                                             $statusText = '排隊中';
                                             break;
+                                        case 'waiting':
+                                            $badgeClass = 'bg-secondary';
+                                            $statusText = '待處理';
+                                            break;
                                         case 'processing':
                                             $badgeClass = 'bg-info text-dark';
                                             $statusText = '轉檔中';
@@ -109,6 +117,7 @@ include __DIR__ . '/partials/header.php';
                                     }
                                     ?>
                                     <span class="badge <?php echo $badgeClass; ?>"><?php echo $statusText; ?></span>
+
                                     <?php if ($status == 'error' && !empty($v['process_msg'])): ?>
                                         <i class="fa-solid fa-circle-exclamation text-danger ms-1"
                                             title="<?= htmlspecialchars($v['process_msg']) ?>"></i>
@@ -160,6 +169,25 @@ include __DIR__ . '/partials/header.php';
             window.location.href = 'delete_video.php?id=' + id;
         }
     }
+</script>
+
+<script>
+    // Auto-refresh logic: If there are any "Pending" or "Processing" badges, refresh every 10 seconds
+    (function () {
+        const activeBadges = document.querySelectorAll('.badge.bg-warning, .badge.bg-info');
+        if (activeBadges.length > 0) {
+            console.log("Active jobs detected, starting auto-refresh interval...");
+            setInterval(() => {
+                // If the user isn't currently typing in the search box, refresh
+                if (document.activeElement.tagName !== 'INPUT') {
+                    window.location.reload();
+                } else {
+                    console.log("User is typing, skipping refresh this cycle.");
+                }
+            }, 10000); // Check every 10 seconds
+        }
+    })();
+
 </script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

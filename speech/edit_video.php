@@ -7,6 +7,7 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
+require_once 'includes/worker_trigger.php';
 
 // ============================================
 // LOGIC: Access Control
@@ -257,10 +258,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // If file replaced, triggers pending status
-            $status = 'pending';
+            // Check auto_compression setting to determine initial status
+            $auto_compression = '0';
+            $res = $conn->query("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression'");
+            if ($res && $row = $res->fetch_assoc()) {
+                $auto_compression = $row['setting_value'];
+            }
+
+            // Set status and trigger flag based on auto-compression setting
+            if ($auto_compression === '1') {
+                $status = 'pending';
+                $should_trigger = true;
+            } else {
+                $status = 'waiting';
+                $should_trigger = false;
+            }
         } else {
             $status = $video['status']; // Keep old status
+            $should_trigger = false;
         }
 
         // Update Video Record
@@ -270,6 +285,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
 
         $conn->commit();
+
+        // Trigger Worker AFTER commit if file was replaced and auto mode enabled
+        if (isset($should_trigger) && $should_trigger) {
+            trigger_remote_worker();
+        }
+
         header("Location: manage_videos.php?msg=updated");
         exit;
     } catch (Exception $e) {

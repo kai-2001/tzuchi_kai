@@ -7,6 +7,7 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
+require_once 'includes/worker_trigger.php';
 
 // ============================================
 // LOGIC: Access Control
@@ -224,35 +225,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Check Auto-Compression Setting
+        $auto_compression = '0';
+        $res = $conn->query("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression'");
+        if ($res && $row = $res->fetch_assoc()) {
+            $auto_compression = $row['setting_value'];
+        }
+
         // Save Video with ownership and new metadata
         $user_id = $_SESSION['user_id'];
-        $status = 'pending'; // ALL videos (MP4 and EverCam extracted MP4) go to queue
 
-        // Formerly EverCam was set to 'ready', but user wants compression for them too.
-        // if ($format === 'evercam') { $status = 'ready'; } 
+        // Determine status based on auto-compression setting
+        if ($auto_compression === '1') {
+            $status = 'pending';
+            $msg = "演講上傳成功！系統設為「自動壓縮」，已通知轉檔主機開始作業。";
+            $should_trigger = true;
+        } else {
+            $status = 'waiting';
+            $msg = "演講上傳成功！已加入「待處理清單」。請前往佇列管理頁面手動啟動壓縮。";
+            $should_trigger = false;
+        }
 
         $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssissiiis", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id, $status);
         $stmt->execute();
 
-        $video_id = $conn->insert_id; // Capture ID for potential immediate job trigger
+        // Capture ID
+        $video_id = $conn->insert_id;
 
         $conn->commit();
 
-        if ($status === 'pending') {
-            $msg = "演講上傳成功！影片已排入轉檔佇列，稍後將自動處理。";
-        } else {
-            $msg = "演講上傳成功！";
+        // Trigger Worker AFTER commit to avoid transaction race condition
+        if (isset($should_trigger) && $should_trigger) {
+            trigger_remote_worker();
         }
 
         // Redirect to manage page to avoid re-submission and provide clear feedback
         header("Location: manage_videos.php?msg=" . urlencode($msg));
         exit;
     } catch (Exception $e) {
-        $conn->rollback();
+        if (isset($conn))
+            $conn->rollback();
         $error = $e->getMessage();
     }
 }
+
+// (Trigger function now in includes/worker_trigger.php)
 
 // ============================================
 // LOGIC: Get campuses for form

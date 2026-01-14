@@ -27,3 +27,52 @@
     display: block;
     border: 1px solid var(--glass-border);
 }
+
+/* New Buttons */
+.btn-search {
+    /* Shape & Layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    /* Explicit height matches inputs usually */
+    padding: 0 20px;
+    border-radius: 50px;
+
+    /* Visuals */
+    background: #e2e8f0;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    font-size: 1rem;
+
+    /* Transition */
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: #cbd5e1;
+}
+
+.btn-queue {
+    /* Shape & Layout */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    white-space: nowrap;
+    text-decoration: none;
+
+    /* Visuals */
+    background: #64748b;
+    color: white;
+    border: none;
+
+    /* Transition */
+    transition: all 0.3s ease;
+}
+
+.btn-queue:hover {
+    background: #475569;
+}

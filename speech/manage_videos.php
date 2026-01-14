@@ -7,12 +7,22 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
+require_once 'includes/worker_trigger.php';
 
 // ============================================
 // LOGIC: Access Control
 // ============================================
 if (!is_manager()) {
     die("未授權：僅管理員可進入此頁面。");
+}
+
+// ============================================
+// LOGIC: Auto-Trigger Check
+// ============================================
+// If any videos are pending, make sure worker is notified
+$res_trigger = $conn->query("SELECT id FROM videos WHERE status = 'pending' LIMIT 1");
+if ($res_trigger && $res_trigger->num_rows > 0) {
+    trigger_remote_worker();
 }
 
 // ============================================
@@ -32,9 +42,9 @@ $offset = ($page - 1) * $limit;
 $count_query = "SELECT COUNT(*) as total 
                FROM videos v
                LEFT JOIN speakers s ON v.speaker_id = s.id
-               WHERE (v.user_id = ? OR 1=1)";
-$count_params = [$user_id];
-$count_types = "i";
+               WHERE (1=1)"; // Show all to admin
+$count_params = [];
+$count_types = "";
 
 if (!empty($search)) {
     $count_query .= " AND (v.title LIKE ? OR s.name LIKE ?)";
@@ -45,7 +55,9 @@ if (!empty($search)) {
 }
 
 $stmt_count = $conn->prepare($count_query);
-$stmt_count->bind_param($count_types, ...$count_params);
+if (!empty($count_params)) {
+    $stmt_count->bind_param($count_types, ...$count_params);
+}
 $stmt_count->execute();
 $total_items = $stmt_count->get_result()->fetch_assoc()['total'];
 $total_pages = ceil($total_items / $limit);
@@ -57,10 +69,10 @@ $query = "SELECT v.*, s.name as speaker_name, c.name as campus_name, v.status, v
           FROM videos v
           LEFT JOIN speakers s ON v.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id
-          WHERE (v.user_id = ? OR 1=1)";
+          WHERE (1=1)";
 
-$params = [$user_id];
-$types = "i";
+$params = [];
+$types = "";
 
 if (!empty($search)) {
     $query .= " AND (v.title LIKE ? OR s.name LIKE ?)";
@@ -87,3 +99,4 @@ $page_title = '影片管理';
 $page_css_files = ['manage.css'];
 
 include 'templates/manage.php';
+?>

@@ -28,7 +28,7 @@ $query = "SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_na
           FROM videos v
           LEFT JOIN speakers s ON v.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id
-          WHERE 1=1";
+          WHERE v.status = 'ready'";
 $params = [];
 $types = "";
 

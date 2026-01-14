@@ -11,29 +11,33 @@ $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
 // Ownership Check
-$stmt = $conn->prepare("SELECT content_path, thumbnail_path FROM videos WHERE id = ?");
+$stmt = $conn->prepare("SELECT content_path, thumbnail_path, format FROM videos WHERE id = ?");
 $stmt->bind_param("i", $video_id);
 $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 
 if ($video) {
     // Delete files if they exist
-    if (!empty($video['content_path']) && file_exists(__DIR__ . '/' . $video['content_path'])) {
-        // If it's a directory (ZIP extracted), delete directory
-        if (is_dir(__DIR__ . '/' . $video['content_path'])) {
-            // Simple recursive delete would be better, but for now just the file
-            // Actually content_path points to index.html if ZIP
-            $path = __DIR__ . '/' . $video['content_path'];
-            if (strpos($path, 'index.html') !== false) {
-                $dir = dirname($path);
-                // Basic cleanup of dir
-                array_map('unlink', glob("$dir/*.*"));
-                rmdir($dir);
-            } else {
-                unlink($path);
+    if (!empty($video['content_path'])) {
+        $full_path = __DIR__ . '/' . $video['content_path'];
+
+        // Handle Evercam Directory
+        if ($video['format'] === 'evercam') {
+            // For Evercam, content_path points to the MP4 file INSIDE the folder. 
+            // We want to delete the CONTAINER folder.
+            $dir_path = dirname($full_path);
+
+            // Safety check: ensure we are inside uploads directory and not deleting system root
+            // This prevents deleting outside of 'uploads'
+            if (strpos(realpath($dir_path), realpath(__DIR__ . '/uploads')) === 0 && is_dir($dir_path)) {
+                deleteDirectory($dir_path);
             }
-        } else {
-            unlink(__DIR__ . '/' . $video['content_path']);
+        }
+        // Handle Single File (MP4) or other formats
+        else {
+            if (file_exists($full_path) && is_file($full_path)) {
+                unlink($full_path);
+            }
         }
     }
 
@@ -49,5 +53,25 @@ if ($video) {
     header("Location: manage_videos.php?msg=deleted");
 } else {
     die("找不到影片或權限不足。");
+}
+
+// Helper function for recursive delete
+function deleteDirectory($dir)
+{
+    if (!file_exists($dir)) {
+        return true;
+    }
+    if (!is_dir($dir)) {
+        return unlink($dir);
+    }
+    foreach (scandir($dir) as $item) {
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+        if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+            return false;
+        }
+    }
+    return rmdir($dir);
 }
 ?>
