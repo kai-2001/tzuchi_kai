@@ -1,0 +1,25 @@
+[2026-01-16 02:43:51] [PORTAL] get_sso_url.php took: 0.002s
+[2026-01-16 10:43:51] [SSO_LOGIN] Validation took: 0.2407s | User: admin
+[2026-01-16 10:43:53] [SEARCH] admin_get_root() took: 0.4813s
+[2026-01-16 10:43:54] [GLOBAL] Duration: 2.5902s | Mem: 69.32MB | URL: /moodle/admin/search.php
+[2026-01-16 03:24:58] [PORTAL] get_sso_url.php took: 0.0434s
+[2026-01-16 11:25:01] [SSO_LOGIN] Validation took: 2.4284s | User: admin
+[2026-01-16 11:25:01] [GLOBAL] Duration: 2.2056s | Mem: 15.14MB | URL: /moodle/local/ssologin/login.php?data=cmVDZEUyREd4S09QWkc3M0UyUStuY3RyL01weHlCWnVqTyt4TlhNQVhyclpuVHFtYkZsTnV6TWRIL0xneUhaTjo6GV8KcQCZKRRIzdXOfVtBmg%3D%3D&sig=ed8326b897fd1f870b80fd614d2534a1b91f27237c156cdf056d478efd9227d2&wantsurl=http%3A%2F%2Fkai%2Fmoodle%2Fadmin%2Fsearch.php
+  -> [END] Shutdown process (+2.2057s)
+[2026-01-16 11:25:56] [SEARCH] admin_get_root() took: 4.6043s
+[2026-01-16 11:26:03] [GLOBAL] Duration: 61.3041s | Mem: 69.34MB | URL: /moodle/admin/search.php
+  -> [END] Shutdown process (+61.3041s)
+[2026-01-16 03:31:45] [PORTAL] get_sso_url.php took: 0.0023s
+[2026-01-16 11:31:45] [SSO_LOGIN] Validation took: 0.2033s | User: admin
+[2026-01-16 11:31:47] [SEARCH] admin_get_root() took: 0.4494s
+[2026-01-16 11:31:47] [GLOBAL] Duration: 2.2711s | Mem: 69.35MB | URL: /moodle/admin/search.php
+  -> [2.2702s] Shutdown: Custom Callbacks Start (+2.2702s)
+  -> [2.2702s] Shutdown: Custom Callbacks End (+0s)
+  -> [2.2702s] Shutdown: Session Close Start (+0s)
+  -> [2.271s] Shutdown: Session Close End (+0.0008s)
+  -> [2.271s] Shutdown: Other Cleanup Start (+0s)
+  -> [END] Shutdown process (+0.0001s)
+[2026-01-16 03:31:49] [GLOBAL] Duration: 1.4988s | Mem: 2.35MB | URL: /moodle/theme/yui_combo.php?rollup/3.18.1/yui-moodlesimple-min.js
+  -> [END] Shutdown process (+1.4988s)
+[2026-01-16 03:31:50] [GLOBAL] Duration: 0.6726s | Mem: 13.92MB | URL: /moodle/lib/requirejs.php/1768525125/core/first.js
+  -> [END] Shutdown process (+0.6727s)

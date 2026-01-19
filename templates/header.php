@@ -2,7 +2,12 @@
 <?php
 // 設定 cookie 傳遞 admin 狀態給 Moodle JavaScript
 $is_admin = isset($_SESSION['is_admin']) ? $_SESSION['is_admin'] : false;
+$is_hospital_admin = isset($_SESSION['is_hospital_admin']) ? $_SESSION['is_hospital_admin'] : false;
 setcookie('portal_is_admin', $is_admin ? '1' : '0', 0, '/');
+setcookie('portal_is_coursecreator', (isset($_SESSION['is_coursecreator']) && $_SESSION['is_coursecreator']) ? '1' : '0', 0, '/');
+if (isset($_SESSION['management_category_id'])) {
+    setcookie('portal_manage_cat_id', $_SESSION['management_category_id'], 0, '/');
+}
 ?>
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -37,27 +42,53 @@ setcookie('portal_is_admin', $is_admin ? '1' : '0', 0, '/');
                         <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/course/index.php')" class="pg-link">
                             <i class="fas fa-list"></i> 課程列表
                         </a>
-                        <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/course/edit.php?category=2')"
-                            class="pg-link">
-                            <i class="fas fa-plus-circle"></i> 新增課程
-                        </a>
-                        <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/admin/user.php')" class="pg-link">
-                            <i class="fas fa-users"></i> 使用者
-                        </a>
-                        <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/admin/search.php')" class="pg-link">
-                            <i class="fas fa-cogs"></i> 網站管理
-                        </a>
+
+                        <?php if ($is_hospital_admin): ?>
+                            <!-- 院區管理員專屬連結 -->
+                            <a onclick="showTab('member-management')" class="pg-link">
+                                <i class="fas fa-users-cog"></i> 成員管理
+                            </a>
+                            <a onclick="showTab('category-management')" class="pg-link">
+                                <i class="fas fa-folder-tree"></i> 類別管理
+                            </a>
+                            <a onclick="showTab('course-management')" class="pg-link">
+                                <i class="fas fa-chalkboard"></i> 課程管理
+                            </a>
+                            <a onclick="showTab('cohort-management')" class="pg-link">
+                                <i class="fas fa-users-class"></i> 群組管理
+                            </a>
+                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/report/log/index.php')" class="pg-link">
+                                <i class="fas fa-chart-line"></i> 報表
+                            </a>
+                        <?php else: ?>
+                            <!-- 系統管理員連結 -->
+                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/course/edit.php?category=2')"
+                                class="pg-link">
+                                <i class="fas fa-plus-circle"></i> 新增課程
+                            </a>
+                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/admin/user.php')" class="pg-link">
+                                <i class="fas fa-users"></i> 使用者
+                            </a>
+                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/admin/search.php')" class="pg-link">
+                                <i class="fas fa-cogs"></i> 網站管理
+                            </a>
+                        <?php endif; ?>
                     <?php else: ?>
                         <!-- 學生導覽列 -->
                         <?php
-                        $is_teacherplus = isset($_SESSION['is_teacherplus']) ? $_SESSION['is_teacherplus'] : false;
-                        if ($is_teacherplus):
+                        $is_coursecreator = isset($_SESSION['is_coursecreator']) ? $_SESSION['is_coursecreator'] : false;
+                        $mgmt_cat_id = isset($_SESSION['management_category_id']) ? $_SESSION['management_category_id'] : 0;
+                        if ($is_coursecreator):
+                            $add_course_url = $moodle_url . '/course/edit.php';
+                            if ($mgmt_cat_id > 0) {
+                                $add_course_url .= '?category=' . $mgmt_cat_id;
+                            }
                             ?>
                             <!-- 開課教師導覽列 -->
                             <a onclick="showHome()" class="pg-link">
                                 <i class="fas fa-home"></i> 個人主頁
                             </a>
-                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/course/edit.php')" class="pg-link">
+                            <a href="#" onclick="goToMoodle('<?php echo $add_course_url; ?>')" class="pg-link">
                                 <i class="fas fa-plus-circle"></i> 新增課程
                             </a>
                             <a onclick="showTab('course-management')" class="pg-link">

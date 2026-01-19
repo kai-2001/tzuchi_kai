@@ -1,0 +1,6 @@
+Array
+(
+    [username] => student7
+    [fullname] => 王大明
+    [institution] => 台北
+)

@@ -9,10 +9,12 @@
     4. 登出連結重定向至 /logout.php
     5. 強制移除 Sticky Footer
     6. 角色切換功能
+    7. 自動將 /my/ 頁面重定向回入口網
     ============================================
 */
 
 (function () {
+
     // 定義導覽列 HTML
     const navHtml = `
     <nav id="portal-global-nav">
@@ -173,7 +175,7 @@
         }
 
         var isAdmin = getCookie('portal_is_admin') === '1';
-        var isTeacherPlus = getCookie('portal_is_teacherplus') === '1';
+        var isCourseCreator = getCookie('portal_is_coursecreator') === '1';
         var studentLinks = document.getElementById('pg-student-links');
         var teacherLinks = document.getElementById('pg-teacher-links');
         var adminLinks = document.getElementById('pg-admin-links');
@@ -185,8 +187,17 @@
 
         if (isAdmin) {
             if (adminLinks) adminLinks.style.display = 'flex';
-        } else if (isTeacherPlus) {
-            if (teacherLinks) teacherLinks.style.display = 'flex';
+        } else if (isCourseCreator) {
+            if (teacherLinks) {
+                teacherLinks.style.display = 'flex';
+
+                // 動態更新新增課程連結，加入 category 參數
+                var manageCatId = getCookie('portal_manage_cat_id');
+                var addCourseLink = document.querySelector('#pg-teacher-links a[href*="/course/edit.php"]');
+                if (addCourseLink && manageCatId && manageCatId !== '0') {
+                    addCourseLink.href = '/moodle/course/edit.php?category=' + manageCatId;
+                }
+            }
 
             // 教師在新增課程頁面時，隱藏麵包屑連結（避免進入課程分類管理）
             if (window.location.pathname.includes('/course/edit.php')) {
@@ -223,7 +234,7 @@
                     if (el) el.classList.add('pg-link-active');
                 }
             } catch (e) { }
-        } else if (isTeacherPlus) {
+        } else if (isCourseCreator) {
             try {
                 if (path.indexOf('/course/edit.php') !== -1) {
                     var el = document.querySelector('#pg-teacher-links a[href*="/course/edit.php"]');
@@ -281,7 +292,7 @@
         // ========================================
         // 6. 切換角色功能 (教師專用)
         // ========================================
-        if (isTeacherPlus || isAdmin) {
+        if (isCourseCreator || isAdmin) {
             var switchRoleLink = document.getElementById('switch-role-link');
 
             if (switchRoleLink) {

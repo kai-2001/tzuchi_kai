@@ -1,4 +1,23 @@
 <!-- 
+    ============================================
+    雲嘉學習網 - Moodle HEAD 注入腳本
+    貼到：「網站管理」→「外觀」→「額外的HTML」→「在HEAD區段內」
+    ============================================
+-->
+
+<!-- 立即重定向 /my/ 頁面到入口網 (必須放在最前面) -->
+<script>
+    (function () {
+        var path = window.location.pathname;
+        if (path === '/my/' || path === '/my' ||
+            path === '/moodle/my/' || path === '/moodle/my' ||
+            path === '/moodle/my/index.php' || path === '/my/index.php') {
+            window.location.replace('/');
+        }
+    })();
+</script>
+
+<!-- 
     雲嘉學習網 - Moodle 自訂主題樣式 v2.0
     將此內容貼到 Moodle 後台的「額外的HTML」→「在HEAD區段內」欄位
 -->

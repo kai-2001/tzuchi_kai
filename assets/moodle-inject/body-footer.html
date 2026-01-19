@@ -18,6 +18,23 @@
     document.addEventListener('DOMContentLoaded', function () {
 
         // ========================================
+        // 0. 自動重定向 /my/ 頁面到入口網
+        // ========================================
+        // 當 Moodle 操作完成後（如刪除課程）會導向 /my/，這裡自動跳回入口網
+        (function () {
+            var path = window.location.pathname;
+            // 檢查是否在 /my/ 或 /moodle/my/ 頁面
+            if (path === '/my/' || path === '/my' ||
+                path === '/moodle/my/' || path === '/moodle/my' ||
+                path.match(/^\/moodle\/my\/index\.php/) ||
+                path.match(/^\/my\/index\.php/)) {
+                // 導向入口網首頁
+                window.location.replace('/');
+                return; // 停止執行其他腳本
+            }
+        })();
+
+        // ========================================
         // 1. 取得與填充使用者資訊
         // ========================================
         var userMenuText = document.querySelector('.usermenu .dropdown-toggle');
@@ -62,7 +79,7 @@
         }
 
         var isAdmin = getCookie('portal_is_admin') === '1';
-        var isTeacherPlus = getCookie('portal_is_teacherplus') === '1';
+        var isCourseCreator = getCookie('portal_is_coursecreator') === '1';
         var studentLinks = document.getElementById('pg-student-links');
         var teacherLinks = document.getElementById('pg-teacher-links');
         var adminLinks = document.getElementById('pg-admin-links');
@@ -74,8 +91,17 @@
 
         if (isAdmin) {
             if (adminLinks) adminLinks.style.display = 'flex';
-        } else if (isTeacherPlus) {
-            if (teacherLinks) teacherLinks.style.display = 'flex';
+        } else if (isCourseCreator) {
+            if (teacherLinks) {
+                teacherLinks.style.display = 'flex';
+
+                // 動態更新新增課程連結，加入 category 參數
+                var manageCatId = getCookie('portal_manage_cat_id');
+                var addCourseLink = document.querySelector('#pg-teacher-links a[href*="/course/edit.php"]');
+                if (addCourseLink && manageCatId && manageCatId !== '0') {
+                    addCourseLink.href = '/moodle/course/edit.php?category=' + manageCatId;
+                }
+            }
 
             // 教師在新增課程頁面時，隱藏麵包屑連結（避免進入課程分類管理）
             if (window.location.pathname.includes('/course/edit.php')) {
@@ -113,7 +139,7 @@
                     if (el) el.classList.add('pg-link-active');
                 }
             } catch (e) { }
-        } else if (isTeacherPlus) {
+        } else if (isCourseCreator) {
             // 開課教師的高亮邏輯
             try {
                 if (path.indexOf('/course/edit.php') !== -1) {
@@ -169,7 +195,7 @@
         // ========================================
         // 6. 切換角色功能 (教師專用)
         // ========================================
-        if (isTeacherPlus || isAdmin) {
+        if (isCourseCreator || isAdmin) {
             var switchRoleLink = document.getElementById('switch-role-link');
 
             if (switchRoleLink) {

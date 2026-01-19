@@ -8,7 +8,15 @@
  * @param string $email Email
  * @return array|null 成功回傳使用者資料陣列(含id)，失敗回傳 null
  */
-function ensure_moodle_user_exists($username, $fullname, $email)
+/**
+ * 確保 Moodle 使用者存在 (若不存在則建立)
+ * @param string $username 帳號
+ * @param string $fullname 全名
+ * @param string $email Email
+ * @param string $institution 機構 (選填)
+ * @return array|null 成功回傳使用者資料陣列(含id)，失敗回傳 null
+ */
+function ensure_moodle_user_exists($username, $fullname, $email, $institution = '')
 {
     global $moodle_url, $moodle_token;
 
@@ -21,17 +29,21 @@ function ensure_moodle_user_exists($username, $fullname, $email)
     // 一律使用符合 Moodle 規定之強密碼
     $moodle_password = "Tzuchi!" . bin2hex(random_bytes(4)) . "2025";
 
+    $user_payload = [
+        'username' => $username,
+        'password' => $moodle_password,
+        'firstname' => $first_name,
+        'lastname' => $last_name,
+        'email' => $email,
+        'auth' => 'manual',
+    ];
+
+    if (!empty($institution)) {
+        $user_payload['institution'] = $institution;
+    }
+
     $moodle_user_data = [
-        'users' => [
-            [
-                'username' => $username,
-                'password' => $moodle_password,
-                'firstname' => $first_name,
-                'lastname' => $last_name,
-                'email' => $email,
-                'auth' => 'manual',
-            ]
-        ]
+        'users' => [$user_payload]
     ];
 
     // 2. 呼叫 Moodle API 建立
@@ -43,6 +55,14 @@ function ensure_moodle_user_exists($username, $fullname, $email)
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_TIMEOUT, 10);
     $resp = curl_exec($curl);
+
+    // Debug logging
+    if ($resp === false) {
+        error_log("ensure_moodle_user_exists curl error: " . curl_error($curl));
+    } else {
+        error_log("ensure_moodle_user_exists resp: " . substr($resp, 0, 500));
+    }
+
     curl_close($curl);
 
     // 3. 阻塞驗證 (Blocking Verification) - 確保帳號建立完成
@@ -64,6 +84,8 @@ function ensure_moodle_user_exists($username, $fullname, $email)
     error_log("Warning: ensure_moodle_user_exists verification timed out for '$username'");
     return null;
 }
+
+
 
 /**
  * 取得使用者的 Moodle 資料（含快取機制與分段載入支援）
@@ -152,8 +174,9 @@ function fetch_moodle_data($type = 'all')
                     $fullname = $local_user['fullname'] ?? $_SESSION['username'];
                     $input_user = $local_user['username'];
                     $email = $local_user['email'] ?? ($input_user . "@example.com");
+                    $institution = $local_user['institution'] ?? '';
 
-                    $moodle_users = ensure_moodle_user_exists($input_user, $fullname, $email);
+                    $moodle_users = ensure_moodle_user_exists($input_user, $fullname, $email, $institution);
                 }
 
                 if (!is_array($moodle_users) || empty($moodle_users) || !isset($moodle_users[0]['id'])) {
@@ -487,4 +510,368 @@ function process_curriculum_locally($all_courses, $my_courses_raw, $cat_info)
     return $curriculum_status;
 }
 
-?>
+
+/**
+ * 將使用者加入 Moodle 群組 (Cohort)
+ * @param string $username 使用者帳號 (Portal username)
+ * @param string $cohort_idnumber 群組 ID Number
+ * @return array success or error
+ */
+function moodle_add_cohort_member($username, $cohort_idnumber)
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 取得使用者的 Moodle ID
+    // 這裡我們假設使用者已經存在，因為通常是在 ensure_moodle_user_exists 之後呼叫
+    // 但為了保險，我們可以再查一次，或者把 ensure 的結果存起來傳進來
+    // 為了簡化介面，我們這裡快速查一次
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+    if (isset($users['error']))
+        return $users;
+    if (empty($users) || !isset($users[0]['id']))
+        return ['error' => 'User not found in Moodle'];
+
+    $userid = $users[0]['id'];
+
+    // 2. 呼叫 API 加入 Cohort
+    $members = [
+        [
+            'cohorttype' => ['type' => 'idnumber', 'value' => $cohort_idnumber],
+            'usertype' => ['type' => 'id', 'value' => $userid]
+        ]
+    ];
+
+    $result = call_moodle($moodle_url, $moodle_token, 'core_cohort_add_cohort_members', ['members' => $members]);
+
+    // API 回傳 null 表示成功 (void)，有錯通常會回傳 exception array 或是我們 call_moodle 的 error
+    if ($result === null || (is_array($result) && empty($result)) || (is_array($result) && isset($result['warnings']) && empty($result['warnings']))) {
+        return ['success' => true];
+    }
+
+    return $result;
+}
+
+/**
+ * 分配 Moodle 角色 (Course Creator)
+ * @param string $username 使用者 Moodle 帳號
+ * @param int $category_id 類別 ID
+ * @param string $role_shortname 角色名稱 (預設 coursecreator)
+ */
+function moodle_assign_role($username, $category_id, $role_shortname = 'coursecreator')
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 取得使用者 ID
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+    if (empty($users) || !isset($users[0]['id']))
+        return ['error' => 'User not found'];
+    $userid = $users[0]['id'];
+
+    // 2. 取得角色 ID
+    // 改用 Direct SQL 查詢，因為 core_role_get_roles 可能無法使用
+    global $db_host, $db_user, $db_pass;
+    $moodle_db_name = 'moodle';
+    $moodle_prefix = 'mdl_';
+
+    $roleid = 0;
+
+    try {
+        $mconn = new mysqli($db_host, $db_user, $db_pass, $moodle_db_name);
+        if (!$mconn->connect_error) {
+            $mconn->set_charset('utf8mb4');
+            $stmt = $mconn->prepare("SELECT id FROM {$moodle_prefix}role WHERE shortname = ?");
+            $stmt->bind_param("s", $role_shortname);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $roleid = $row['id'];
+            }
+            $stmt->close();
+            $mconn->close();
+        }
+    } catch (Exception $e) {
+        error_log("moodle_assign_role DB lookup error: " . $e->getMessage());
+    }
+    if ($roleid === 0)
+        return ['error' => "Role '$role_shortname' not found"];
+
+    // 3. 取得 Context ID (Category Context)
+    // Moodle API core_role_assign_roles 支援直接使用 contextlevel 和 instanceid
+    // contextlevel: 'coursecat' (或 'block', 'course', 'module', 'user', 'system')
+    // instanceid: category_id
+
+    $assignments = [
+        [
+            'roleid' => $roleid,
+            'userid' => $userid,
+            'contextlevel' => 'coursecat',
+            'instanceid' => $category_id
+        ]
+    ];
+
+    $result = call_moodle($moodle_url, $moodle_token, 'core_role_assign_roles', ['assignments' => $assignments]);
+
+    // void return on success
+    if ($result === null || empty($result))
+        return ['success' => true];
+    return $result;
+}
+
+/**
+ * 移除 Moodle 角色
+ */
+function moodle_unassign_role($username, $category_id, $role_shortname = 'coursecreator')
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 取得使用者 ID
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+    if (empty($users) || !isset($users[0]['id']))
+        return ['error' => 'User not found'];
+    $userid = $users[0]['id'];
+
+    // 2. 取得角色 ID
+    global $db_host, $db_user, $db_pass;
+    $moodle_db_name = 'moodle';
+    $moodle_prefix = 'mdl_';
+
+    $roleid = 0;
+
+    try {
+        $mconn = new mysqli($db_host, $db_user, $db_pass, $moodle_db_name);
+        if (!$mconn->connect_error) {
+            $mconn->set_charset('utf8mb4');
+            $stmt = $mconn->prepare("SELECT id FROM {$moodle_prefix}role WHERE shortname = ?");
+            $stmt->bind_param("s", $role_shortname);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $roleid = $row['id'];
+            }
+            $stmt->close();
+            $mconn->close();
+        }
+    } catch (Exception $e) {
+        error_log("moodle_unassign_role DB lookup error: " . $e->getMessage());
+    }
+    if ($roleid === 0)
+        return ['error' => "Role '$role_shortname' not found"];
+
+    // 3. 執行 Unassign
+    $unassignments = [
+        [
+            'roleid' => $roleid,
+            'userid' => $userid,
+            'contextlevel' => 'coursecat',
+            'instanceid' => $category_id
+        ]
+    ];
+
+    $result = call_moodle($moodle_url, $moodle_token, 'core_role_unassign_roles', ['unassignments' => $unassignments]);
+
+    if ($result === null || empty($result))
+        return ['success' => true];
+    return $result;
+}
+
+/**
+ * 刪除 Moodle 使用者
+ * @param string $username 使用者帳號
+ * @return array success or error
+ */
+function moodle_delete_user($username)
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 取得使用者 ID
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+    if (empty($users) || !isset($users[0]['id'])) {
+        // 使用者不存在，視為已刪除成功
+        return ['success' => true, 'message' => 'User not found, skipped'];
+    }
+    $userid = $users[0]['id'];
+
+    // 2. 呼叫 API 刪除
+    $result = call_moodle($moodle_url, $moodle_token, 'core_user_delete_users', ['userids' => [$userid]]);
+
+    // core_user_delete_users returns null on success
+    if ($result === null || empty($result)) {
+        return ['success' => true];
+    }
+    return $result;
+}
+
+/**
+ * 更新 Moodle 使用者資料
+ * @param string $username 使用者帳號
+ * @param array $data 欲更新的資料 (firstname, lastname, email)
+ * @return array success or error
+ */
+function moodle_update_user($username, $data = [])
+{
+    global $moodle_url, $moodle_token;
+
+    // 1. 取得使用者 ID
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+
+    if (empty($users) || !isset($users[0]['id'])) {
+        return ['error' => 'User not found in Moodle'];
+    }
+    $userid = $users[0]['id'];
+
+    // 2. 準備更新資資料
+    $update_payload = ['id' => $userid];
+
+    if (isset($data['fullname'])) {
+        $fullname = $data['fullname'];
+        $last_name = mb_substr($fullname, 0, 1, "utf-8");
+        $first_name = mb_substr($fullname, 1, null, "utf-8");
+        if (empty($first_name))
+            $first_name = $last_name;
+
+        $update_payload['firstname'] = $first_name;
+        $update_payload['lastname'] = $last_name;
+    }
+
+    if (isset($data['email'])) {
+        $update_payload['email'] = $data['email'];
+    }
+
+    // 3. 呼叫 API 更新
+    $result = call_moodle($moodle_url, $moodle_token, 'core_user_update_users', ['users' => [$update_payload]]);
+
+    if ($result === null || empty($result)) {
+        return ['success' => true];
+    }
+    return $result;
+}
+
+/**
+ * 取得使用者在 Moodle 的角色與對應的 Category ID
+ * (取代原本 scripts/get_user_category.php 的 CLI 邏輯)
+ * 
+ * @param string $username
+ * @return array ['category_id' => int, 'portal_role' => string]
+ */
+function moodle_get_user_role_context($username)
+{
+    global $moodle_url, $moodle_token;
+
+    $result = [
+        'category_id' => 0,
+        'portal_role' => 'student'
+    ];
+
+    // 1. 取得使用者 ID
+    $u_params = ['field' => 'username', 'values' => [$username]];
+    $users = call_moodle($moodle_url, $moodle_token, 'core_user_get_users_by_field', $u_params);
+    if (empty($users) || !isset($users[0]['id']))
+        return $result;
+    $userid = $users[0]['id'];
+
+    global $db_host, $db_user, $db_pass; // From includes/config.php
+    $moodle_db_name = 'moodle';
+    $moodle_prefix = 'mdl_';
+
+    try {
+        $conn = new mysqli($db_host, $db_user, $db_pass, $moodle_db_name);
+        if ($conn->connect_error) {
+            error_log("Connect Moodle DB failed: " . $conn->connect_error);
+            return $result;
+        }
+        $conn->set_charset('utf8mb4');
+
+        // 1. Get User ID
+        $stmt = $conn->prepare("SELECT id FROM {$moodle_prefix}user WHERE username = ? AND deleted = 0");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $user_row = $res->fetch_assoc();
+        $stmt->close();
+
+        if (!$user_row) {
+            $conn->close();
+            return $result;
+        }
+        $userid = $user_row['id'];
+
+        // 2. Get Roles
+        // Context Levels: 40=Category, 10=System
+        // We accept hospitaladmin or manager roles at these levels.
+
+        $sql = "
+            SELECT ra.id, r.shortname, c.contextlevel, c.instanceid
+            FROM {$moodle_prefix}role_assignments ra
+            JOIN {$moodle_prefix}role r ON r.id = ra.roleid
+            JOIN {$moodle_prefix}context c ON c.id = ra.contextid
+            WHERE ra.userid = ? 
+              AND (c.contextlevel = 40 OR c.contextlevel = 10)
+            ORDER BY r.sortorder ASC
+        ";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $userid);
+        $stmt->execute();
+        $assignments_res = $stmt->get_result();
+
+        $found_teacher = false;
+        $target_cat = 0;
+
+        while ($ra = $assignments_res->fetch_assoc()) {
+            // 1. Hospital Admin / Manager (Specific Category or System)
+            if (($ra['shortname'] === 'hospitaladmin' || $ra['shortname'] === 'manager')) {
+                if ($ra['contextlevel'] == 40) {
+                    $result['portal_role'] = 'hospital_admin';
+                    $result['category_id'] = (int) $ra['instanceid'];
+                    break; // Found highest priority (Category Manager), stop.
+                } else if ($ra['contextlevel'] == 10) {
+                    // System Manager -> Treat as Admin or Hospital Admin 0?
+                    // Usually System Admin -> Admin. But 'manager' role at system level might just be a super-manager.
+                    // Let's treat as hospital_admin with cat 0 (Global) -> logic in auth.php maps cat 0 to... something?
+                    // Previous logic: if ($current_role === 'admin') ... 
+                    // Let's map System Manager to 'hospital_admin' with cat 0 or keep searching.
+                    // Actually, if they are System Manager, let's map to hospital_admin cat=0 (if that's handled)
+                    // Or prioritize Category Manager if found?
+                    // Let's hold this "System Manager" as a last resort if no Category Manager found.
+                    if ($result['portal_role'] !== 'hospital_admin') {
+                        $result['portal_role'] = 'hospital_admin'; // Or admin?
+                        $result['category_id'] = 0;
+                    }
+                }
+            }
+
+            // 2. Course Creator
+            if ($ra['shortname'] === 'coursecreator') {
+                if (!$found_teacher) {
+                    $found_teacher = true;
+                    // System (10) -> Cat 0, Category (40) -> Cat ID
+                    $target_cat = ($ra['contextlevel'] == 10) ? 0 : (int) $ra['instanceid'];
+                } else {
+                    if ($ra['contextlevel'] == 10) {
+                        $target_cat = 0;
+                    }
+                }
+            }
+        }
+        $stmt->close();
+        $conn->close();
+
+        // If not specific admin but found teacher
+        if ($result['portal_role'] !== 'hospital_admin' && $found_teacher) {
+            $result['portal_role'] = 'coursecreator';
+            $result['category_id'] = $target_cat;
+        }
+
+    } catch (Exception $e) {
+        error_log("moodle_get_user_role_context error: " . $e->getMessage());
+    }
+
+    return $result;
+}

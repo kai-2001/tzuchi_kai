@@ -142,4 +142,35 @@ function h($str)
 {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
+/**
+ * 取得院區對應的 Moodle Cohort ID
+ * @param string $institution_name 院區名稱 (如 '台北')
+ * @return string|null Cohort ID (如 'cohort_taipei') 或 null
+ */
+function get_institution_cohort($institution_name)
+{
+    global $db_host, $db_user, $db_pass, $db_name;
+
+    if (empty($institution_name))
+        return null;
+
+    $cohort_id = null;
+    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
+    if ($conn->connect_error) {
+        error_log("get_institution_cohort DB connect error: " . $conn->connect_error);
+        return null;
+    }
+    $conn->set_charset('utf8mb4');
+
+    $stmt = $conn->prepare("SELECT cohort_idnumber FROM institutions WHERE name = ?");
+    $stmt->bind_param("s", $institution_name);
+    $stmt->execute();
+    $stmt->bind_result($cohort_id);
+    $stmt->fetch();
+    $stmt->close();
+    $conn->close();
+
+    return $cohort_id;
+}
 ?>

@@ -1,0 +1,17 @@
+Start update_member.php [2026-01-19 08:42:36]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北學生33
+    [email] => taipei@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+

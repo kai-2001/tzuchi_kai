@@ -36,7 +36,7 @@ function showGlobalLoading(text) {
         loader.className = 'global-nav-loader-overlay';
         loader.innerHTML = `
             <div class="loader-content">
-                <img src="assets/img/tenor.gif" alt="Loading..." style="width: 120px; height: auto; margin-bottom: 20px;">
+                <img src="assets/img/Image_1768032378449.gif" alt="Loading..." style="width: 120px; height: auto; margin-bottom: 20px;">
                 <div class="loader-text">${text || '正在處理中...'}</div>
             </div>
         `;

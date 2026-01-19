@@ -4,7 +4,7 @@
         'use strict';
 
         const isAdmin = <?php echo $is_admin ? 'true' : 'false'; ?>;
-        const isTeacherPlus = <?php echo (isset($_SESSION['is_teacherplus']) && $_SESSION['is_teacherplus']) ? 'true' : 'false'; ?>;
+        const isCourseCreator = <?php echo (isset($_SESSION['is_coursecreator']) && $_SESSION['is_coursecreator']) ? 'true' : 'false'; ?>;
 
         if (isAdmin) {
             return; // 管理員不執行
@@ -79,8 +79,10 @@
             `;
         }
 
-        if (isTeacherPlus) {
+        if (isCourseCreator) {
             const moodleUrl = '<?php echo $moodle_url; ?>';
+            const teacherMgmtCatId = <?php echo (isset($_SESSION['management_category_id']) && $_SESSION['management_category_id'] > 0) ? $_SESSION['management_category_id'] : 0; ?>;
+            const addCourseUrl = moodleUrl + '/course/edit.php' + (teacherMgmtCatId > 0 ? '?category=' + teacherMgmtCatId : '');
 
             function loadTeacherCourses() {
                 const container = document.getElementById('teacher-courses-list');
@@ -116,7 +118,7 @@
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-chalkboard fa-4x mb-3" style="opacity:0.3;"></i>
                             <p>您目前沒有教授任何課程</p>
-                            <a href="#" onclick="goToMoodle('${moodleUrl}/course/edit.php')" class="btn btn-primary mt-3">
+                            <a href="#" onclick="goToMoodle('${addCourseUrl}')" class="btn btn-primary mt-3">
                                 <i class="fas fa-plus-circle me-2"></i>建立第一門課程
                             </a>
                         </div>

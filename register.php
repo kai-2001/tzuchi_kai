@@ -20,9 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = trim($_POST['password']);
         $fullname = trim($_POST['fullname']);
         $email = trim($_POST['email']);
+        $institution = trim($_POST['institution']);
 
         // 1. 基本檢查
-        if (empty($username) || empty($password) || empty($fullname) || empty($email)) {
+        if (empty($username) || empty($password) || empty($fullname) || empty($email) || empty($institution)) {
             $msg = "所有欄位都是必填的！";
             $msg_type = "danger";
         } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
@@ -56,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // ★★★ 關鍵修改：加密密碼存入本地 DB ★★★
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // 3. 寫入外層資料庫 (portal_db) - 存入加密後的亂碼
-                $stmt = $conn->prepare("INSERT INTO users (username, password, fullname, email) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("ssss", $username, $hashed_password, $fullname, $email);
+                // 3. 寫入外層資料庫 (portal_db) - 存入加密後的亂碼 + 機構
+                $stmt = $conn->prepare("INSERT INTO users (username, password, fullname, email, institution) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssss", $username, $hashed_password, $fullname, $email, $institution);
 
                 if ($stmt->execute()) {
                     // 外層建立成功，接著同步到 Moodle
@@ -74,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 'firstname' => $first_name,
                                 'lastname' => $last_name,
                                 'email' => $email,
+                                'institution' => $institution, // 🚀 新增機構欄位同步
                                 'auth' => 'manual',
                             ]
                         ]
@@ -99,6 +101,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $msg = "外層註冊成功，但同步 Moodle 失敗：" . $moodle_result['message'];
                         $msg_type = "warning";
                     } else {
+                        // 🚀 關鍵新增: 自動將使用者加入對應院區的群組 (Cohort)
+                        $cohort_map = [
+                            '台北' => 'cohort_taipei',
+                            '嘉義' => 'cohort_chiayi',
+                            '大林' => 'cohort_dalin',
+                            '花蓮' => 'cohort_hualien'
+                        ];
+
+                        if (array_key_exists($institution, $cohort_map)) {
+                            $cohort_id = $cohort_map[$institution];
+                            $script_path = __DIR__ . '/scripts/sync_cohort.php';
+                            // 呼叫 CLI 指令: php scripts/sync_cohort.php [username] [cohort_id]
+                            $cmd = "php " . escapeshellarg($script_path) . " " . escapeshellarg($username) . " " . escapeshellarg($cohort_id);
+                            // 背景執行或同步執行皆可，這裡同步執行以確保狀態
+                            exec($cmd);
+                        }
+
                         $msg = "註冊成功！請使用新帳號登入。";
                         $msg_type = "success";
                         // 2秒後跳轉回登入頁
@@ -309,6 +328,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label class="form-label">真實姓名</label>
                 <input type="text" name="fullname" class="form-control" required placeholder="例如：王小明">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">所屬院區</label>
+                <select name="institution" class="form-select" required>
+                    <option value="" disabled selected>請選擇院區</option>
+                    <option value="台北">台北院區</option>
+                    <option value="嘉義">嘉義院區</option>
+                    <option value="大林">大林院區</option>
+                    <option value="花蓮">花蓮院區</option>
+                    <option value="其他">其他</option>
+                </select>
             </div>
 
             <div class="mb-4">
