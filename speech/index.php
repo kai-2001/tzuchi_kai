@@ -104,7 +104,10 @@ foreach ($upcoming_raw as $lecture) {
 // ============================================
 $hero_query = "SELECT s.*, c.name as campus_name FROM announcements s 
                LEFT JOIN campuses c ON s.campus_id = c.id 
-               WHERE s.is_active = 1 AND s.is_hero = 1
+               WHERE s.is_active = 1 
+               AND s.is_hero = 1
+               AND (s.hero_start_date IS NULL OR s.hero_start_date <= CURDATE())
+               AND (s.hero_end_date IS NULL OR s.hero_end_date > CURDATE())
                ORDER BY s.sort_order ASC, s.created_at DESC LIMIT 5";
 $hero_slides = $conn->query($hero_query)->fetch_all(MYSQLI_ASSOC);
 

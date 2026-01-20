@@ -99,6 +99,18 @@
                                 <?php endif; ?>
                             </td>
                             <td>
+                                <?php
+                                $today_ts = strtotime(date('Y-m-d'));
+                                $event_ts = strtotime($item['event_date']);
+                                $is_future_or_today = ($today_ts <= $event_ts);
+
+                                if ($item['description'] && $is_future_or_today):
+                                    ?>
+                                    <div class="table-description"
+                                        style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px; text-align: left; line-height: 1.6;">
+                                        <?= nl2br(htmlspecialchars($item['description'])) ?>
+                                    </div>
+                                <?php endif; ?>
                                 <?php if ($item['link_url']): ?>
                                     <a href="<?= htmlspecialchars($item['link_url']) ?>" target="_blank" class="btn-table-action">
                                         前往 <i class="fa-solid fa-arrow-up-right-from-square"></i>

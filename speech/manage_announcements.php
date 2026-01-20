@@ -29,6 +29,22 @@ if (isset($_GET['action'])) {
         header("Location: manage_announcements.php?msg=updated");
         exit;
     }
+
+    // Update Sort Order (AJAX)
+    if ($_GET['action'] === 'update_order' && isset($_GET['id']) && isset($_GET['order'])) {
+        $id = (int) $_GET['id'];
+        $order = (int) $_GET['order'];
+        $stmt = $conn->prepare("UPDATE announcements SET sort_order = ? WHERE id = ?");
+        $stmt->bind_param("ii", $order, $id);
+        if ($stmt->execute()) {
+            http_response_code(200);
+            echo 'OK';
+        } else {
+            http_response_code(500);
+            echo 'Error';
+        }
+        exit;
+    }
 }
 
 // ============================================

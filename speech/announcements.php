@@ -13,6 +13,7 @@ $query = "SELECT a.*, c.name as campus_name, c.id as campus_id_val
           FROM announcements a 
           LEFT JOIN campuses c ON a.campus_id = c.id 
           WHERE a.is_active = 1 
+          AND a.event_date >= CURDATE()
           ORDER BY a.event_date DESC, a.campus_id ASC";
 
 $result = $conn->query($query);

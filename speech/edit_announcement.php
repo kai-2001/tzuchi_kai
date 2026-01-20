@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event_date = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
     $campus_id = (int) $_POST['campus_id'];
     $link_url = $_POST['link_url'] ?? '';
-    $is_hero = isset($_POST['is_hero']) ? 1 : 0;
+    $is_hero = (int) ($_POST['is_hero'] ?? 0);
+    $hero_start_date = !empty($_POST['hero_start_date']) ? $_POST['hero_start_date'] : null;
+    $hero_end_date = !empty($_POST['hero_end_date']) ? $_POST['hero_end_date'] : null;
     $sort_order = (int) ($_POST['sort_order'] ?? 0);
     $location = $_POST['location'] ?? '';
     $affiliation = $_POST['affiliation'] ?? '';
@@ -62,10 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $sql = "UPDATE announcements SET 
                 title=?, speaker_name=?, event_date=?, campus_id=?, link_url=?, 
-                image_url=?, is_hero=?, sort_order=?, location=?, affiliation=?, description=? 
+                image_url=?, is_hero=?, hero_start_date=?, hero_end_date=?, sort_order=?, location=?, affiliation=?, description=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssisssssssi", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $sort_order, $location, $affiliation, $description, $id);
+        $stmt->bind_param("sssisssssssssi", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $description, $id);
 
         if ($stmt->execute()) {
             header("Location: manage_announcements.php?msg=updated");

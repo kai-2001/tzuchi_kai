@@ -45,7 +45,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label>活動日期</label>
-                    <input type="date" name="event_date">
+                    <input type="date" name="event_date" id="event_date">
                 </div>
                 <div class="form-group">
                     <label>地點</label>
@@ -71,13 +71,30 @@
 
             <div
                 style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0;">
-                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <input type="checkbox" name="is_hero" id="is_hero" style="width: 20px; height: 20px;">
-                    <label for="is_hero" style="margin: 0; cursor: pointer; font-weight: 600; color: #0ea5e9;">顯示在首頁橫幅
-                        (Hero Carousel)</label>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label
+                        style="font-weight: 600; color: #0ea5e9; display: block; margin-bottom: 10px;">顯示在首頁橫幅</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="is_hero" value="1" id="hero_show"> 顯示
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="is_hero" value="0" id="hero_hide" checked> 不顯示
+                        </label>
+                    </div>
                 </div>
 
-                <div id="hero-fields" style="display: none;">
+                <div id="hero-fields">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>上架日期</label>
+                            <input type="date" name="hero_start_date" id="hero_start_date">
+                        </div>
+                        <div class="form-group">
+                            <label>下架日期</label>
+                            <input type="date" name="hero_end_date" id="hero_end_date">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>橫幅背景圖片 (推薦尺寸 1920x800)</label>
                         <input type="file" name="slide_image" accept="image/*">
@@ -102,9 +119,42 @@
 </div>
 
 <script>
-    document.getElementById('is_hero').addEventListener('change', function () {
-        document.getElementById('hero-fields').style.display = this.checked ? 'block' : 'none';
+    const heroFields = document.getElementById('hero-fields');
+    const radioShow = document.getElementById('hero_show');
+    const radioHide = document.getElementById('hero_hide');
+    const inputs = heroFields.querySelectorAll('input, select, textarea');
+    const eventDateInput = document.getElementById('event_date');
+    const heroStartDateInput = document.getElementById('hero_start_date');
+    const heroEndDateInput = document.getElementById('hero_end_date');
+
+    function updateState() {
+        const isShow = radioShow.checked;
+        inputs.forEach(el => el.disabled = !isShow);
+        heroFields.style.opacity = isShow ? '1' : '0.5';
+    }
+
+    // Auto-fill dates logic
+    eventDateInput.addEventListener('change', function () {
+        if (!this.value) return;
+
+        const eventDate = new Date(this.value);
+
+        // Start date: 7 days before
+        const startDate = new Date(eventDate);
+        startDate.setDate(eventDate.getDate() - 7);
+        heroStartDateInput.value = startDate.toISOString().split('T')[0];
+
+        // End date: 1 day after
+        const endDate = new Date(eventDate);
+        endDate.setDate(eventDate.getDate() + 1);
+        heroEndDateInput.value = endDate.toISOString().split('T')[0];
     });
+
+    radioShow.addEventListener('change', updateState);
+    radioHide.addEventListener('change', updateState);
+
+    // Init
+    updateState();
 </script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

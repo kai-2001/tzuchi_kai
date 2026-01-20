@@ -17,23 +17,8 @@ include __DIR__ . '/partials/header.php';
 $display_slides = [];
 if (!empty($hero_slides)) {
     $display_slides = $hero_slides;
-} elseif ($campus_id == 0 && empty($search) && !empty($upcoming_grouped)) {
-    foreach ($upcoming_grouped as $month => $campuses_list) {
-        foreach ($campuses_list as $campus_name => $items) {
-            foreach ($items as $item) {
-                $display_slides[] = [
-                    'title' => $item['title'],
-                    'speaker_name' => $item['speaker_name'],
-                    'event_date' => $item['event_date'],
-                    'campus_name' => $campus_name,
-                    'link_url' => '#'
-                ];
-                if (count($display_slides) >= 5)
-                    break 3;
-            }
-        }
-    }
 }
+// Removed fallback logic ensuring if no hero slides are explicitly set, nothing is shown.
 $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slides));
 ?>
 
@@ -168,14 +153,7 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
         <?php else: ?>
             <!-- Hero shown. -->
         <?php endif; ?>
-        <?php if (empty($display_slides) && $campus_id == 0 && empty($search)): ?>
-            <div class="hero-minimal">
-                <div class="hero-minimal-content">
-                    <h1>精彩演講，盡在眼底</h1>
-                    <p>探索來自各院區的最佳學術分享與演講紀錄</p>
-                </div>
-            </div>
-        <?php endif; ?>
+        <?php // Hero minimal removed as requested ?>
 
         <!-- Campus Tabs -->
         <nav class="tabs" style="background: transparent; border: none; margin-bottom: 25px; padding: 0;">
