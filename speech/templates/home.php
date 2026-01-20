@@ -140,7 +140,7 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
     </div>
 <?php endif; ?>
 
-<div class="home-content-layout" style="<?= !$show_hero ? 'margin-top: 120px;' : '' ?>">
+<div class="home-content-layout" style="<?= !$show_hero ? 'margin-top: 100px;' : '' ?>">
     <div class="main-column">
         <!-- Minimal Hero (Fallback when no slides) - Adjust logic to hide if searching/filtering too? -->
         <?php if (!$show_hero): ?>
@@ -169,9 +169,7 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
 
         <!-- Video Grid -->
         <section class="horizontal-section">
-            <div class="section-head">
-                <h2><i class="fa-solid fa-clapperboard"></i> <?= $search ? '搜尋結果' : '精選演講影片' ?></h2>
-            </div>
+            <!-- Header removed as requested -->
             <main class="video-grid">
                 <?php if (empty($videos)): ?>
                     <div

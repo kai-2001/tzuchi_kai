@@ -1111,14 +1111,7 @@ select:focus {
 }
 
 /* Hero Swiper */
-.hero-swiper {
-    width: 100%;
-    height: 450px;
-    border-radius: 24px;
-    overflow: hidden;
-    margin-bottom: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
+/* Duplicate rule removed */
 
 .hero-slide {
     position: relative;
@@ -1332,16 +1325,7 @@ select:focus {
 }
 
 /* Compact Immersive Hero Slider */
-.hero-swiper {
-    position: relative;
-    /* CRITICAL for absolute positioning of buttons */
-    width: 100%;
-    height: 480px;
-    overflow: hidden;
-    margin-bottom: 30px;
-    box-shadow: none;
-    border-radius: 0;
-}
+/* Duplicate rule removed */
 
 .hero-full-slide {
     position: relative;
@@ -1587,6 +1571,7 @@ select:focus {
    ========================================= */
 
 /* Main Container: Ensure vertical center but respect header offset */
+/* Main Container: Ensure vertical center but respect header offset */
 .hero-slide-container {
     max-width: 1800px;
     margin: 0 auto;
@@ -1602,9 +1587,38 @@ select:focus {
     /* Center text */
     position: relative;
     z-index: 2;
-    padding: 100px 40px 40px 40px;
-    /* Reduced top padding slightly */
+    padding: 60px 40px 40px 40px;
+    /* Reduced top padding */
     box-sizing: border-box;
+}
+
+/* Force hero height constraint */
+/* Force hero height constraint and consolidated styles */
+.hero-swiper {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    min-height: 300px;
+    max-height: 450px;
+    border-radius: 0;
+    box-shadow: none;
+    /* Removing shadow for a cleaner right-angle look */
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: transparent;
+    /* Ensure no background color shows */
+}
+
+/* Fix inner height to fill container */
+.hero-swiper .swiper-wrapper,
+.hero-swiper .swiper-slide {
+    height: 100% !important;
+}
+
+.hero-full-slide {
+    height: 100% !important;
+    border-radius: 0 !important;
+    /* Ensure inner content is not rounded, let container clip */
 }
 
 /* Content Wrapper */
@@ -1676,7 +1690,6 @@ select:focus {
     /* Reduced */
     color: rgba(255, 255, 255, 0.95);
     font-weight: 500;
-    margin-bottom: 10px;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
@@ -1692,7 +1705,6 @@ select:focus {
 
 /* Buttons */
 .hero-btns {
-    margin-top: 15px;
     display: flex;
     gap: 15px;
     justify-content: center;

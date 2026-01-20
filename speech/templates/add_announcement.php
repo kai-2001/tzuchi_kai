@@ -96,7 +96,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>橫幅背景圖片 (推薦尺寸 1920x800)</label>
+                        <label>橫幅背景圖片 (推薦尺寸 1920x450)</label>
                         <input type="file" name="slide_image" accept="image/*">
                     </div>
                     <div class="form-grid">

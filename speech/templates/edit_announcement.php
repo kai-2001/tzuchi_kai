@@ -103,7 +103,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>橫幅背景圖片 (推薦尺寸 1920x800)</label>
+                        <label>橫幅背景圖片 (推薦尺寸 1920x450)</label>
                         <?php if ($announcement['image_url']): ?>
                             <div style="margin-bottom: 15px;">
                                 <img src="<?= $announcement['image_url'] ?>"

@@ -30,21 +30,23 @@ include __DIR__ . '/partials/header.php';
 </header>
 
 <div class="watch-container" style="padding-top: 120px;">
-    <?php if ($last_position > 0): ?>
-        <?php
-        $m = floor($last_position / 60);
-        $s = $last_position % 60;
-        $time_fmt = sprintf('%02d:%02d', $m, $s);
-        ?>
-        <div id="resumePrompt" class="resume-prompt-overlay" style="display: none;">
-            <div class="prompt-content">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
-                <button id="btnResume" class="btn-resume-action">繼續觀看</button>
-                <button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        </div>
-    <?php endif; ?>
+    <?php /* [BACKUP] Resume Prompt Logic
+<?php if ($last_position > 0): ?>
+   <?php
+   $m = floor($last_position / 60);
+   $s = $last_position % 60;
+   $time_fmt = sprintf('%02d:%02d', $m, $s);
+   ?>
+   <div id="resumePrompt" class="resume-prompt-overlay" style="display: none;">
+       <div class="prompt-content">
+           <i class="fa-solid fa-clock-rotate-left"></i>
+           <span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
+           <button id="btnResume" class="btn-resume-action">繼續觀看</button>
+           <button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
+       </div>
+   </div>
+<?php endif; ?>
+*/ ?>
 
     <?php if (isset($video['status']) && $video['status'] === 'ready'): ?>
         <div class="video-player-section">
@@ -179,21 +181,28 @@ include __DIR__ . '/partials/header.php';
         let lastSavedPosition = <?= (int) $last_position ?>;
         let initialSeekDone = false;
 
-        // 1. Resume playback position prompt
+        /* [BACKUP] Prompt UI Elements
         const resumePrompt = document.getElementById('resumePrompt');
         const btnResume = document.getElementById('btnResume');
         const btnSkipResume = document.getElementById('btnSkipResume');
         let promptHideTimer = null;
+        */
 
         video.addEventListener('loadedmetadata', function () {
-            // Show prompt if we have a position deeper than 1s
+            // Auto-resume if we have a saved position > 1s
             if (lastSavedPosition > 1 && !initialSeekDone) {
+                video.currentTime = lastSavedPosition;
+                // Optional: Show a small toast or log? For now, just jump.
+                
+                /* [BACKUP] Show Prompt Logic
                 resumePrompt.style.display = 'flex';
                 setTimeout(() => resumePrompt.style.opacity = '1', 50);
+                */
             }
             initialSeekDone = true;
         });
-
+        
+        /* [BACKUP] Event Listeners for Prompt
         // Start auto-hide timer ONLY when video starts playing
         video.addEventListener('play', function () {
             if (resumePrompt && resumePrompt.style.display === 'flex' && !promptHideTimer) {
@@ -222,6 +231,7 @@ include __DIR__ . '/partials/header.php';
                 if (promptHideTimer) clearTimeout(promptHideTimer);
             });
         }
+        */
 
         // 2. Progress Tracking (Throttled)
         let lastUpdateTime = Date.now();
