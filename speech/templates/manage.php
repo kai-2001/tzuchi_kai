@@ -26,7 +26,7 @@ include __DIR__ . '/partials/header.php';
         <div class="search-bar">
             <form action="manage_videos.php" method="GET" style="display:flex; width:100%; gap:10px;">
                 <input type="text" name="q" placeholder="搜尋影片標題或講者..." value="<?= htmlspecialchars($search) ?>">
-                <button type="submit" class="btn-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button type="submit" class="btn-admin"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
 
             <a href="process_queue.php" class="btn-queue" title="轉檔排程管理">

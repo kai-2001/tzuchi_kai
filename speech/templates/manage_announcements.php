@@ -40,6 +40,9 @@ include __DIR__ . '/partials/header.php';
                 <button type="submit" class="btn-admin" style="width: auto; padding: 0 20px;"><i
                         class="fa-solid fa-magnifying-glass"></i></button>
             </form>
+            <a href="batch_upload_announcements.php" class="btn-admin" style="white-space: nowrap; width: auto; padding: 0 20px; text-decoration: none; display: flex; align-items: center; border-radius: 12px; margin-right: 10px; background: white; color: var(--primary-color); border: 1px solid var(--primary-color);">
+                <i class="fa-solid fa-file-csv me-2"></i> 批次上傳
+            </a>
             <a href="add_announcement.php" class="btn-admin btn-primary-gradient"
                 style="white-space: nowrap; width: auto; padding: 0 25px; text-decoration: none; display: flex; align-items: center; border-radius: 12px;">
                 <i class="fa-solid fa-plus me-2"></i> 新增公告
