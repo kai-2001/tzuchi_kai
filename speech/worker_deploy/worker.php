@@ -104,7 +104,7 @@ $jobs_done = 0;
 
 while (true) {
     // A. Pick Job
-    $res = $conn->query("SELECT id, title, content_path FROM videos WHERE status = 'pending' ORDER BY id ASC LIMIT 1");
+    $res = $conn->query("SELECT id, title, content_path, thumbnail_path FROM videos WHERE status = 'pending' ORDER BY id ASC LIMIT 1");
 
     if (!$res || $res->num_rows === 0) {
         if ($jobs_done > 0)
@@ -122,12 +122,14 @@ while (true) {
     $id = $video['id'];
     $input_relative = $video['content_path'];
     $input_full = WORKER_APP_ROOT . DIRECTORY_SEPARATOR . $input_relative;
+    $current_thumb = $video['thumbnail_path'];
 
     // B. Claim
     $conn->query("UPDATE videos SET status = 'processing', process_msg='正在轉檔中...', updated_at = NOW() WHERE id = $id AND status = 'pending'");
     if ($conn->affected_rows === 0)
         continue;
 
+    // Log Job
     worker_log(">>> Job $id: {$video['title']}");
 
     if (!file_exists($input_full)) {
@@ -146,7 +148,6 @@ while (true) {
 
     // Run GPU
     worker_log("Starting GPU Transcode...");
-    // $conn->query("UPDATE videos SET process_msg='GPU Starting...', updated_at=NOW() WHERE id=$id");
 
     $ret = run_ffmpeg_live($cmd_gpu, $conn, $id, "GPU");
 
@@ -165,16 +166,55 @@ while (true) {
     // G. Finalize
     if ($ret === 0 && file_exists($output_full)) {
         sleep(1);
+        $final_video_path = $input_full;
+
+        // Replace original with processed
         if (@unlink($input_full)) {
             rename($output_full, $input_full);
-            $conn->query("UPDATE videos SET status='ready', process_msg='Done' WHERE id=$id");
-            worker_log("Job $id Success.");
+            // $conn->query("UPDATE videos SET status='ready', process_msg='Done' WHERE id=$id"); 
+            // Deferred update until thumbnail check
         } else {
             $new_rel = str_replace(WORKER_APP_ROOT . '/', '', $output_full);
-            $new_rel = str_replace(WORKER_APP_ROOT . '\\', '', $new_rel); // Handle Windows
-            $conn->query("UPDATE videos SET content_path='$new_rel', status='ready' WHERE id=$id");
-            worker_log("Job $id Success (Alt path).");
+            $new_rel = str_replace(WORKER_APP_ROOT . '\\', '', $new_rel);
+            $final_video_path = $output_full;
+            $conn->query("UPDATE videos SET content_path='$new_rel' WHERE id=$id");
         }
+
+        // --- Thumbnail Extraction Logic ---
+        $thumb_update_sql = "";
+        // Check if thumbnail is missing or file doesn't exist
+        $thumb_full_path = $current_thumb ? (WORKER_APP_ROOT . DIRECTORY_SEPARATOR . $current_thumb) : "";
+
+        if (empty($current_thumb) || !file_exists($thumb_full_path) || strpos(basename($current_thumb), '_auto') !== false) {
+            worker_log("Thumbnail missing or auto-generated. Generating from video...");
+
+            // Define new thumb path
+            // Use 'uploads/thumbnails/' structure relative to root
+            $thumb_filename = "thumb_{$id}_auto.jpg";
+            $thumb_rel_path = "uploads/thumbnails/" . $thumb_filename;
+            $thumb_dest_path = WORKER_APP_ROOT . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "thumbnails" . DIRECTORY_SEPARATOR . $thumb_filename;
+
+            // Ensure dir exists
+            $thumb_dir = dirname($thumb_dest_path);
+            if (!is_dir($thumb_dir))
+                mkdir($thumb_dir, 0777, true);
+
+            // Extract frame at 1s
+            $cmd_thumb = sprintf('"%s" -y -i "%s" -ss 00:00:01.000 -vframes 1 -q:v 2 "%s" 2>&1', $ffmpeg_path, $final_video_path, $thumb_dest_path);
+
+            // Execute
+            exec($cmd_thumb, $thumb_out, $thumb_ret);
+
+            if ($thumb_ret === 0 && file_exists($thumb_dest_path)) {
+                $conn->query("UPDATE videos SET thumbnail_path='$thumb_rel_path' WHERE id=$id");
+                worker_log("Thumbnail generated: $thumb_rel_path");
+            } else {
+                worker_log("Thumbnail generation failed.");
+            }
+        }
+
+        $conn->query("UPDATE videos SET status='ready', process_msg='Done' WHERE id=$id");
+        worker_log("Job $id Success.");
     } else {
         $conn->query("UPDATE videos SET status='error', process_msg='Failed' WHERE id=$id");
         worker_log("Job $id Failed.");
