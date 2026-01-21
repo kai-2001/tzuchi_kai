@@ -14,7 +14,7 @@
                 新增公告</h2>
         </div>
         <div class="user-nav">
-            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回列表</a>
+            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回公告列表</a>
         </div>
     </div>
 </header>

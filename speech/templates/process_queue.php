@@ -4,10 +4,15 @@
     <div class="header-container">
         <div class="header-left">
             <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">影片管理中心</h1>
+                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
             </a>
-            <span class="breadcrumb-separator">/</span>
-            <h2 class="page-title">轉檔排程佇列</h2>
+            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
+            <a href="manage_videos.php"
+                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">影片管理</a>
+
+            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
+            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
+                轉檔排程佇列</h2>
         </div>
         <div class="user-nav">
             <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 回影片列表</a>
@@ -40,9 +45,10 @@
     <!-- Waiting Queue -->
     <div class="section-title"
         style="margin-bottom: 25px; margin-top: 10px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 12px;">
-        <i class="fa-solid fa-hourglass-start" style="color: var(--primary-color);"></i> 
+        <i class="fa-solid fa-hourglass-start" style="color: var(--primary-color);"></i>
         <span>待處理清單 (Waiting)</span>
-        <span style="background: #f1f5f9; color: #64748b; font-size: 0.85rem; padding: 2px 10px; border-radius: 20px; border: 1px solid #e2e8f0; font-weight: 700; min-width: 30px; text-align: center;">
+        <span
+            style="background: #f1f5f9; color: #64748b; font-size: 0.85rem; padding: 2px 10px; border-radius: 20px; border: 1px solid #e2e8f0; font-weight: 700; min-width: 30px; text-align: center;">
             <?= count($waiting_videos) ?>
         </span>
     </div>

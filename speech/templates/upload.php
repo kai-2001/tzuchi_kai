@@ -12,11 +12,15 @@ include __DIR__ . '/partials/header.php';
                 <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
             </a>
             <span class="breadcrumb-separator" style="color: #ccc;">/</span>
+            <a href="manage_videos.php"
+                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">影片管理</a>
+
+            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
             <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
                 上傳新演講</h2>
         </div>
         <div class="user-nav">
-            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> <span>返回首頁</span></a>
+            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 回影片列表</a>
         </div>
     </div>
 </header>

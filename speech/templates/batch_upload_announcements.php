@@ -14,7 +14,7 @@
                 批次上傳公告</h2>
         </div>
         <div class="user-nav">
-            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回列表</a>
+            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回公告列表</a>
         </div>
     </div>
 </header>
@@ -60,7 +60,8 @@
             </h3>
             <div style="color: #64748b; line-height: 2; margin-bottom: 15px;">
                 請準備 Excel (.xlsx) 或 CSV (.csv) 檔案，欄位順序如下（第一列標題列會被略過）：
-                <a href="test_upload2.xlsx" download="範例檔案.xlsx" style="display: inline-flex; align-items: center; background: #f0f9ff; color: var(--primary-color); padding: 2px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; border: 1px solid #bae6fd; margin-left: 8px; vertical-align: middle;">
+                <a href="test_upload2.xlsx" download="範例檔案.xlsx"
+                    style="display: inline-flex; align-items: center; background: #f0f9ff; color: var(--primary-color); padding: 2px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; border: 1px solid #bae6fd; margin-left: 8px; vertical-align: middle;">
                     <i class="fa-solid fa-file-excel" style="margin-right: 5px;"></i> 下載 Excel 範例
                 </a>
             </div>

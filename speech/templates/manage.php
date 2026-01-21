@@ -13,9 +13,11 @@ include __DIR__ . '/partials/header.php';
             </a>
             <span class="breadcrumb-separator" style="color: #ccc;">/</span>
             <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                影片管理中心</h2>
+                影片管理</h2>
         </div>
         <div class="user-nav">
+            <a href="manage_announcements.php" class="btn-admin"><i
+                    class="fa-solid fa-bullhorn"></i><span>公告管理</span></a>
             <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> <span>返回首頁</span></a>
         </div>
     </div>

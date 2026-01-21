@@ -1970,7 +1970,8 @@ select:focus {
 
 .player-layout.single-view .main-player {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .player-layout.dual-view .main-player {
@@ -1986,9 +1987,10 @@ select:focus {
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
-    height: fit-content;
     display: flex;
     flex-direction: column;
+    height: 0;
+    min-height: 100%;
 }
 
 .main-player video {

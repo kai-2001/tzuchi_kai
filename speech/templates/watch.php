@@ -32,19 +32,19 @@ include __DIR__ . '/partials/header.php';
 <div class="watch-container" style="padding-top: 120px;">
     <?php /* [BACKUP] Resume Prompt Logic
 <?php if ($last_position > 0): ?>
-   <?php
-   $m = floor($last_position / 60);
-   $s = $last_position % 60;
-   $time_fmt = sprintf('%02d:%02d', $m, $s);
-   ?>
-   <div id="resumePrompt" class="resume-prompt-overlay" style="display: none;">
-       <div class="prompt-content">
-           <i class="fa-solid fa-clock-rotate-left"></i>
-           <span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
-           <button id="btnResume" class="btn-resume-action">繼續觀看</button>
-           <button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
-       </div>
-   </div>
+<?php
+$m = floor($last_position / 60);
+$s = $last_position % 60;
+$time_fmt = sprintf('%02d:%02d', $m, $s);
+?>
+<div id="resumePrompt" class="resume-prompt-overlay" style="display: none;">
+  <div class="prompt-content">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
+      <button id="btnResume" class="btn-resume-action">繼續觀看</button>
+      <button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
 <?php endif; ?>
 */ ?>
 
@@ -163,12 +163,7 @@ include __DIR__ . '/partials/header.php';
         </ul>
 
         <?php if ($video['format'] === 'evercam'): ?>
-            <div class="watch-header-actions">
-                <a href="<?= htmlspecialchars(dirname($video['content_path'])) ?>/config.js" target="_blank"
-                    class="btn-open-popup">
-                    <i class="fa-solid fa-code"></i> 查看設定檔
-                </a>
-            </div>
+            <!-- Config button removed -->
         <?php endif; ?>
     </div>
 </div>
@@ -193,7 +188,7 @@ include __DIR__ . '/partials/header.php';
             if (lastSavedPosition > 1 && !initialSeekDone) {
                 video.currentTime = lastSavedPosition;
                 // Optional: Show a small toast or log? For now, just jump.
-                
+
                 /* [BACKUP] Show Prompt Logic
                 resumePrompt.style.display = 'flex';
                 setTimeout(() => resumePrompt.style.opacity = '1', 50);
@@ -201,7 +196,7 @@ include __DIR__ . '/partials/header.php';
             }
             initialSeekDone = true;
         });
-        
+
         /* [BACKUP] Event Listeners for Prompt
         // Start auto-hide timer ONLY when video starts playing
         video.addEventListener('play', function () {
