@@ -3,7 +3,8 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
 // Access Control
-if (!is_manager()) {
+// Access Control
+if (!is_manager() && !is_campus_admin()) {
     die("未授權。");
 }
 
@@ -11,8 +12,14 @@ $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
 // Ownership Check
-$stmt = $conn->prepare("SELECT content_path, thumbnail_path, format FROM videos WHERE id = ?");
-$stmt->bind_param("i", $video_id);
+if (is_manager()) {
+    $stmt = $conn->prepare("SELECT content_path, thumbnail_path, format FROM videos WHERE id = ?");
+    $stmt->bind_param("i", $video_id);
+} else {
+    // Campus Admin: Must match campus
+    $stmt = $conn->prepare("SELECT content_path, thumbnail_path, format FROM videos WHERE id = ? AND campus_id = ?");
+    $stmt->bind_param("ii", $video_id, $_SESSION['campus_id']);
+}
 $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 

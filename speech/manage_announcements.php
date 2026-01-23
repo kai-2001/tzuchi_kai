@@ -6,8 +6,8 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
-if (!is_manager()) {
-    die("未授權：僅管理員可進入此頁面。");
+if (!is_manager() && !is_campus_admin()) {
+    die("未授權：僅管理員或院區管理員可進入此頁面。");
 }
 
 // ============================================
@@ -17,9 +17,22 @@ if (isset($_GET['action'])) {
     // Delete
     if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         $id = (int) $_GET['id'];
-        $conn->query("DELETE FROM announcements WHERE id = $id");
-        header("Location: manage_announcements.php?msg=deleted");
-        exit;
+
+        $sql = "DELETE FROM announcements WHERE id = $id";
+        if (is_campus_admin()) {
+            $sql .= " AND campus_id = " . (int) $_SESSION['campus_id'];
+        }
+
+        $conn->query($sql);
+
+        // Check if deletion actually happened (to give better feedback if permission denied or not found)
+        if ($conn->affected_rows > 0) {
+            header("Location: manage_announcements.php?msg=deleted");
+            exit;
+        } else {
+            // Illegal attempt or not found
+            die("刪除失敗：權限不足或公告不存在。");
+        }
     }
     // Toggle Active Status (optional if needed in future, but not requested in MVP)
     // Toggle Hero Status
@@ -61,6 +74,11 @@ $offset = ($page - 1) * $limit;
 // LOGIC: Build Query
 // ============================================
 $where_sql = "1=1";
+
+if (is_campus_admin()) {
+    $where_sql .= " AND a.campus_id = " . (int) $_SESSION['campus_id'];
+}
+
 $params = [];
 $types = "";
 

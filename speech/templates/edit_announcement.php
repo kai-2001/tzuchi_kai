@@ -58,14 +58,35 @@
 
             <div class="form-group">
                 <label>所屬院區</label>
-                <select name="campus_id">
-                    <option value="0" <?= $announcement['campus_id'] == 0 ? 'selected' : '' ?>>全部院區</option>
+                <select name="campus_id" <?= is_campus_admin() ? 'style="pointer-events: none; background: #f1f5f9;"' : '' ?>>
+                    <?php if (!is_campus_admin()): ?>
+                        <option value="0" <?= $announcement['campus_id'] == 0 ? 'selected' : '' ?>>全部院區</option>
+                    <?php endif; ?>
                     <?php foreach ($campuses as $c): ?>
-                        <option value="<?= $c['id'] ?>" <?= $announcement['campus_id'] == $c['id'] ? 'selected' : '' ?>>
+                        <?php
+                        // If campus_admin, only show their own campus
+                        if (is_campus_admin() && $c['id'] != $_SESSION['campus_id']) {
+                            continue;
+                        }
+
+                        // Determine selection
+                        $selected = '';
+                        if (is_campus_admin()) {
+                            if ($c['id'] == $_SESSION['campus_id'])
+                                $selected = 'selected';
+                        } else {
+                            if ($c['id'] == $announcement['campus_id'])
+                                $selected = 'selected';
+                        }
+                        ?>
+                        <option value="<?= $c['id'] ?>" <?= $selected ?>>
                             <?= htmlspecialchars($c['name']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+                <?php if (is_campus_admin()): ?>
+                    <input type="hidden" name="campus_id" value="<?= $_SESSION['campus_id'] ?>">
+                <?php endif; ?>
             </div>
 
             <div class="form-group full-width">
@@ -114,18 +135,16 @@
                     </div>
                     <div class="form-grid">
 
-                        <div class="form-group">
-                            <label>排序 (越小越前面)</label>
-                            <input type="number" name="sort_order" value="<?= $announcement['sort_order'] ?>">
-                        </div>
+                        <input type="hidden" name="sort_order" value="0">
                     </div>
                 </div>
             </div>
 
-            <div class="form-actions" style="margin-top: 30px; display: flex; gap: 15px;">
-                <button type="submit" class="btn-submit">儲存變更</button>
-                <a href="manage_announcements.php" class="btn-admin"
-                    style="text-decoration:none; display:inline-flex; align-items: center; padding: 12px 24px;">取消</a>
+            <div class="form-actions" style="margin-top: 40px; display: flex; justify-content: center; gap: 20px;">
+                <button type="submit" class="btn-submit"
+                    style="padding: 12px 40px; font-size: 1rem; border-radius: 50px; min-width: 160px;">
+                    儲存變更
+                </button>
             </div>
         </form>
     </div>

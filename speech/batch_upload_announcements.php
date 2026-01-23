@@ -6,7 +6,7 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/SimpleXLSX.php'; // Include our new helper
 
-if (!is_manager()) {
+if (!is_manager() && !is_campus_admin()) {
     header("Location: login.php");
     exit;
 }
@@ -135,7 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $location = isset($row[4]) ? trim($row[4]) : '';
                     $description = isset($row[5]) ? trim($row[5]) : '';
-                    $campus_id = isset($row[6]) ? (int) $row[6] : 0;
+
+                    if (is_campus_admin()) {
+                        $campus_id = $_SESSION['campus_id'];
+                    } else {
+                        $campus_id = isset($row[6]) ? (int) $row[6] : 0;
+                    }
 
                     $stmt->bind_param("ssssssi", $title, $speaker, $affiliation, $event_date, $location, $description, $campus_id);
 

@@ -55,12 +55,21 @@
 
             <div class="form-group">
                 <label>所屬院區</label>
-                <select name="campus_id">
-                    <option value="0">全部院區</option>
+                <select name="campus_id" <?= is_campus_admin() ? 'style="pointer-events: none; background: #f1f5f9;"' : '' ?>>
+                    <?php if (!is_campus_admin()): ?>
+                        <option value="0">全部院區</option>
+                    <?php endif; ?>
                     <?php foreach ($campuses as $c): ?>
-                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
+                        <?php if (is_campus_admin() && $c['id'] != $_SESSION['campus_id'])
+                            continue; ?>
+                        <option value="<?= $c['id'] ?>" <?= (is_campus_admin() && $c['id'] == $_SESSION['campus_id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($c['name']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
+                <?php if (is_campus_admin()): ?>
+                    <input type="hidden" name="campus_id" value="<?= $_SESSION['campus_id'] ?>">
+                <?php endif; ?>
             </div>
 
             <div class="form-group full-width">
@@ -101,18 +110,16 @@
                     </div>
                     <div class="form-grid">
 
-                        <div class="form-group">
-                            <label>排序 (越小越前面)</label>
-                            <input type="number" name="sort_order" value="0">
-                        </div>
+                        <input type="hidden" name="sort_order" value="0">
                     </div>
                 </div>
             </div>
 
-            <div class="form-actions" style="margin-top: 30px; display: flex; gap: 15px;">
-                <button type="submit" class="btn-submit">確定新增</button>
-                <a href="manage_announcements.php" class="btn-admin"
-                    style="text-decoration:none; display:inline-flex; align-items: center; padding: 12px 24px;">取消</a>
+            <div class="form-actions" style="margin-top: 40px; display: flex; justify-content: center; gap: 20px;">
+                <button type="submit" class="btn-submit"
+                    style="padding: 12px 40px; font-size: 1rem; border-radius: 50px; min-width: 160px;">
+                    確定新增
+                </button>
             </div>
         </form>
     </div>

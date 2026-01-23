@@ -12,8 +12,8 @@ require_once 'includes/worker_trigger.php';
 // ============================================
 // LOGIC: Access Control
 // ============================================
-if (!is_manager()) {
-    die("未授權：僅管理員可進入此頁面。");
+if (!is_manager() && !is_campus_admin()) {
+    die("未授權：僅管理員或院區管理員可進入此頁面。");
 }
 
 // ============================================
@@ -42,7 +42,11 @@ $offset = ($page - 1) * $limit;
 $count_query = "SELECT COUNT(*) as total 
                FROM videos v
                LEFT JOIN speakers s ON v.speaker_id = s.id
-               WHERE (1=1)"; // Show all to admin
+               WHERE (1=1)";
+
+if (is_campus_admin()) {
+    $count_query .= " AND v.campus_id = " . (int) $_SESSION['campus_id'];
+}
 $count_params = [];
 $count_types = "";
 
@@ -70,6 +74,10 @@ $query = "SELECT v.*, s.name as speaker_name, c.name as campus_name, v.status, v
           LEFT JOIN speakers s ON v.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id
           WHERE (1=1)";
+
+if (is_campus_admin()) {
+    $query .= " AND v.campus_id = " . (int) $_SESSION['campus_id'];
+}
 
 $params = [];
 $types = "";

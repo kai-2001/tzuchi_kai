@@ -33,6 +33,8 @@ if (isset($_GET['data']) && isset($_GET['sig'])) {
                     $stmt->execute();
                     $user = $stmt->get_result()->fetch_assoc();
 
+                    // Campus ID logic would need to be handled here if SSO provides it, otherwise leaves as NULL for manual assignment
+
                     if (!$user) {
                         $stmt = $conn->prepare("INSERT INTO users (username, role) VALUES (?, 'member')");
                         $stmt->bind_param("s", $username);
@@ -46,7 +48,10 @@ if (isset($_GET['data']) && isset($_GET['sig'])) {
 
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $username;
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['username'] = $username;
                     $_SESSION['role'] = $role;
+                    $_SESSION['campus_id'] = $user['campus_id'] ?? null;
 
                     header("Location: index.php");
                     exit;
@@ -85,23 +90,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
+        $_SESSION['user_id'] = $user_id;
+        $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;
+        $_SESSION['campus_id'] = $user['campus_id'] ?? null;
 
         if (is_array($auth_result) && isset($auth_result['sn'])) {
             $display_name = $auth_result['sn'];
             $_SESSION['display_name'] = $display_name;
 
-            // Persist to DB
-            $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
-            $up_stmt->bind_param("si", $display_name, $user_id);
+            // Campus Mapping Logic (Dynamic from DB)
+            $soap_branch = strtolower($auth_result['branch'] ?? '');
+            $campus_id = null;
+
+            if ($soap_branch) {
+                // Find campus by branch_code
+                $c_stmt = $conn->prepare("SELECT id FROM campuses WHERE branch_code = ?");
+                $c_stmt->bind_param("s", $soap_branch);
+                $c_stmt->execute();
+                $c_res = $c_stmt->get_result();
+                if ($row = $c_res->fetch_assoc()) {
+                    $campus_id = $row['id'];
+                }
+            }
+
+            if ($campus_id) {
+                $_SESSION['campus_id'] = $campus_id;
+                // Update DB
+                $up_stmt = $conn->prepare("UPDATE users SET display_name = ?, campus_id = ? WHERE id = ?");
+                $up_stmt->bind_param("sii", $display_name, $campus_id, $user_id);
+            } else {
+                // Update DB Name only
+                $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+                $up_stmt->bind_param("si", $display_name, $user_id);
+            }
             $up_stmt->execute();
+
         } elseif (is_object($auth_result) && isset($auth_result->sn)) {
             $display_name = $auth_result->sn;
             $_SESSION['display_name'] = $display_name;
 
-            // Persist to DB
-            $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
-            $up_stmt->bind_param("si", $display_name, $user_id);
+            // Campus Mapping Logic (Dynamic from DB)
+            $soap_branch = strtolower($auth_result->branch ?? '');
+            $campus_id = null;
+
+            if ($soap_branch) {
+                // Find campus by branch_code
+                $c_stmt = $conn->prepare("SELECT id FROM campuses WHERE branch_code = ?");
+                $c_stmt->bind_param("s", $soap_branch);
+                $c_stmt->execute();
+                $c_res = $c_stmt->get_result();
+                if ($row = $c_res->fetch_assoc()) {
+                    $campus_id = $row['id'];
+                }
+            }
+
+            if ($campus_id) {
+                $_SESSION['campus_id'] = $campus_id;
+                $up_stmt = $conn->prepare("UPDATE users SET display_name = ?, campus_id = ? WHERE id = ?");
+                $up_stmt->bind_param("sii", $display_name, $campus_id, $user_id);
+            } else {
+                $up_stmt = $conn->prepare("UPDATE users SET display_name = ? WHERE id = ?");
+                $up_stmt->bind_param("si", $display_name, $user_id);
+            }
             $up_stmt->execute();
         }
 

@@ -40,7 +40,8 @@ include __DIR__ . '/partials/header.php';
                 <button type="submit" class="btn-admin" style="width: auto; padding: 0 20px;"><i
                         class="fa-solid fa-magnifying-glass"></i></button>
             </form>
-            <a href="batch_upload_announcements.php" class="btn-admin" style="white-space: nowrap; width: auto; padding: 0 20px; text-decoration: none; display: flex; align-items: center; border-radius: 12px; margin-right: 10px; background: white; color: var(--primary-color); border: 1px solid var(--primary-color);">
+            <a href="batch_upload_announcements.php" class="btn-admin"
+                style="white-space: nowrap; width: auto; padding: 0 20px; text-decoration: none; display: flex; align-items: center; border-radius: 12px; margin-right: 10px; background: white; color: var(--primary-color); border: 1px solid var(--primary-color);">
                 <i class="fa-solid fa-file-csv me-2"></i> 批次上傳
             </a>
             <a href="add_announcement.php" class="btn-admin btn-primary-gradient"
@@ -64,7 +65,7 @@ include __DIR__ . '/partials/header.php';
                             <th>講者</th>
                             <th style="width: 90px;">分院</th>
                             <th style="width: 120px; text-align: center;">橫幅顯示</th>
-                            <th style="width: 80px; text-align: center;">排序</th>
+
                             <th style="width: 100px; text-align: center;">操作</th>
                         </tr>
                     </thead>
@@ -87,12 +88,6 @@ include __DIR__ . '/partials/header.php';
                                                text-decoration: none; transition: all 0.3s ease;" title="點擊切換首頁橫幅顯示">
                                         <?= $a['is_hero'] ? '顯示中' : '隱藏' ?>
                                     </a>
-                                </td>
-                                <td style="text-align: center;">
-                                    <input type="number" value="<?= $a['sort_order'] ?>"
-                                        onchange="updateSortOrder(<?= $a['id'] ?>, this.value)"
-                                                <?= $a['is_hero'] ? '' : 'disabled' ?>
-                                        style="width: 60px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 6px; <?= $a['is_hero'] ? '' : 'opacity: 0.5; cursor: not-allowed; background: #f1f5f9;' ?>">
                                 </td>
                                 <td>
                                     <div class="actions-wrapper" style="justify-content: center;">

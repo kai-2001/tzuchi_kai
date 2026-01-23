@@ -6,7 +6,7 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/worker_trigger.php';
 
-if (!is_manager()) {
+if (!is_manager() && !is_campus_admin()) {
     die("未授權。");
 }
 
@@ -20,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['video_ids'])) {
 
         // Update Status to 'pending'
         $sql = "UPDATE videos SET status = 'pending' WHERE id IN ($id_list) AND status = 'waiting'";
+        if (is_campus_admin()) {
+            $sql .= " AND campus_id = " . (int) $_SESSION['campus_id'];
+        }
         if ($conn->query($sql)) {
             $affected_rows = $conn->affected_rows;
 
@@ -35,32 +38,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['video_ids'])) {
 }
 
 // Toggle Auto-Compression Setting
+$campus_id = is_campus_admin() ? $_SESSION['campus_id'] : 0;
+$setting_key = 'auto_compression';
+
 if (isset($_GET['toggle_auto'])) {
     $new_val = $_GET['toggle_auto'] === '1' ? '1' : '0';
-    $stmt = $conn->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES ('auto_compression', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-    $stmt->bind_param("ss", $new_val, $new_val);
+    $stmt = $conn->prepare("INSERT INTO system_settings (setting_key, campus_id, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+    $stmt->bind_param("siss", $setting_key, $campus_id, $new_val, $new_val);
     $stmt->execute();
     header("Location: process_queue.php"); // Reload page
     exit;
 }
 
 // Fetch Current Setting
+// Fetch Current Setting
 $auto_compression = '0';
-$res = $conn->query("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression'");
+$stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ? AND campus_id = ?");
+$stmt->bind_param("si", $setting_key, $campus_id);
+$stmt->execute();
+$res = $stmt->get_result();
 if ($res && $row = $res->fetch_assoc()) {
     $auto_compression = $row['setting_value'];
 }
 
 // Fetch Waiting Videos
 $waiting_videos = [];
-$res = $conn->query("SELECT * FROM videos WHERE status = 'waiting' ORDER BY created_at ASC");
+$wait_sql = "SELECT * FROM videos WHERE status = 'waiting'";
+if (is_campus_admin()) {
+    $wait_sql .= " AND campus_id = " . (int) $_SESSION['campus_id'];
+}
+$wait_sql .= " ORDER BY created_at ASC";
+
+$res = $conn->query($wait_sql);
 if ($res) {
     $waiting_videos = $res->fetch_all(MYSQLI_ASSOC);
 }
 
 // Fetch Pending/Processing (Monitor)
 $active_jobs = [];
-$res = $conn->query("SELECT id, title, status, process_msg FROM videos WHERE status IN ('pending', 'processing') ORDER BY id ASC");
+$active_sql = "SELECT id, title, status, process_msg FROM videos WHERE status IN ('pending', 'processing')";
+if (is_campus_admin()) {
+    $active_sql .= " AND campus_id = " . (int) $_SESSION['campus_id'];
+}
+$active_sql .= " ORDER BY id ASC";
+
+$res = $conn->query($active_sql);
 if ($res) {
     $active_jobs = $res->fetch_all(MYSQLI_ASSOC);
 }

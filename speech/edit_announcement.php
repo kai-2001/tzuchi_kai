@@ -5,7 +5,7 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
-if (!is_manager()) {
+if (!is_manager() && !is_campus_admin()) {
     die("未授權");
 }
 
@@ -20,6 +20,13 @@ $stmt->bind_param("i", $id);
 $stmt->execute();
 $announcement = $stmt->get_result()->fetch_assoc();
 
+// Check Campus Admin Permission
+if (is_campus_admin() && $announcement) {
+    if ($announcement['campus_id'] != $_SESSION['campus_id']) {
+        die("無權限編輯此公告（非所屬院區）。");
+    }
+}
+
 if (!$announcement) {
     die("公告不存在");
 }
@@ -31,7 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $speaker_name = $_POST['speaker_name'] ?? '';
     // $event_date = $_POST['event_date'] ?: null; // Handle empty date carefully
     $event_date = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
-    $campus_id = (int) $_POST['campus_id'];
+    if (is_campus_admin()) {
+        $campus_id = $_SESSION['campus_id'];
+    } else {
+        $campus_id = (int) $_POST['campus_id'];
+    }
     $link_url = $_POST['link_url'] ?? '';
     $is_hero = (int) ($_POST['is_hero'] ?? 0);
     $hero_start_date = !empty($_POST['hero_start_date']) ? $_POST['hero_start_date'] : null;

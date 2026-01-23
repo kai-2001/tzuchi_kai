@@ -73,15 +73,19 @@
                 <li>地點</li>
                 <li>詳細內容</li>
                 <li>院區 ID (<?php
-                global $conn;
-                $c_list = ['0=全部'];
-                $c_res = $conn->query("SELECT * FROM campuses ORDER BY id");
-                if ($c_res) {
-                    while ($c = $c_res->fetch_assoc()) {
-                        $c_list[] = $c['id'] . '=' . htmlspecialchars($c['name']);
+                if (is_campus_admin()) {
+                    echo "<span style='color: #ea580c; font-weight: bold;'>注意：系統將強制設為您的所屬院區，檔案中的數值將被忽略</span>";
+                } else {
+                    global $conn;
+                    $c_list = ['0=全部'];
+                    $c_res = $conn->query("SELECT * FROM campuses ORDER BY id");
+                    if ($c_res) {
+                        while ($c = $c_res->fetch_assoc()) {
+                            $c_list[] = $c['id'] . '=' . htmlspecialchars($c['name']);
+                        }
                     }
+                    echo implode(', ', $c_list);
                 }
-                echo implode(', ', $c_list);
                 ?>)</li>
             </ol>
             <div style="font-size: 0.9rem; color: #94a3b8;">

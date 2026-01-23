@@ -12,7 +12,7 @@ require_once 'includes/worker_trigger.php';
 // ============================================
 // LOGIC: Access Control
 // ============================================
-if (!is_manager()) {
+if (!is_manager() && !is_campus_admin()) {
     die("未授權。");
 }
 
@@ -22,11 +22,20 @@ if (!is_manager()) {
 $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
-$stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position 
-                       FROM videos v 
-                       LEFT JOIN speakers s ON v.speaker_id = s.id 
-                       WHERE v.id = ? AND v.user_id = ?");
-$stmt->bind_param("ii", $video_id, $user_id);
+if (is_manager()) {
+    $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position 
+                           FROM videos v 
+                           LEFT JOIN speakers s ON v.speaker_id = s.id 
+                           WHERE v.id = ?");
+    $stmt->bind_param("i", $video_id);
+} else {
+    // Campus Admin: Must match campus
+    $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position 
+                           FROM videos v 
+                           LEFT JOIN speakers s ON v.speaker_id = s.id 
+                           WHERE v.id = ? AND v.campus_id = ?");
+    $stmt->bind_param("ii", $video_id, $_SESSION['campus_id']);
+}
 $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 
@@ -48,7 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
 
         $title = $_POST['title'];
-        $campus_id = $_POST['campus_id'];
+
+        if (is_campus_admin()) {
+            $campus_id = $_SESSION['campus_id'];
+        } else {
+            $campus_id = $_POST['campus_id'];
+        }
         $event_date = $_POST['event_date'];
         $speaker_name = $_POST['speaker_name'];
         $affiliation = $_POST['affiliation'] ?? '';
@@ -260,9 +274,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Check auto_compression setting to determine initial status
             $auto_compression = '0';
-            $res = $conn->query("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression'");
-            if ($res && $row = $res->fetch_assoc()) {
-                $auto_compression = $row['setting_value'];
+            // Check specific campus setting first
+            $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $campus_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+
+            $settings = [];
+            while ($row = $res->fetch_assoc()) {
+                $settings[$row['campus_id']] = $row['setting_value'];
+            }
+
+            if (isset($settings[$campus_id])) {
+                $auto_compression = $settings[$campus_id];
+            } elseif (isset($settings[0])) {
+                $auto_compression = $settings[0];
             }
 
             // Set status and trigger flag based on auto-compression setting

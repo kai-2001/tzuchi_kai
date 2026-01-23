@@ -81,6 +81,11 @@ function is_manager()
     return isset($_SESSION['role']) && $_SESSION['role'] === 'manager';
 }
 
+function is_campus_admin()
+{
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'campus_admin' && !empty($_SESSION['campus_id']);
+}
+
 /**
  * Enable "Remember Me" for a user
  */
@@ -141,7 +146,9 @@ function check_remember_me()
                     if ($user) {
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['username'] = $user['username'];
+                        $_SESSION['username'] = $user['username'];
                         $_SESSION['role'] = $user['role'];
+                        $_SESSION['campus_id'] = $user['campus_id'] ?? null;
                         if (!empty($user['display_name'])) {
                             $_SESSION['display_name'] = $user['display_name'];
                         }
