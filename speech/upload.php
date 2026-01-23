@@ -12,8 +12,8 @@ require_once 'includes/worker_trigger.php';
 // ============================================
 // LOGIC: Access Control
 // ============================================
-if (!is_manager()) {
-    die("未授權：僅管理員可進入此頁面。");
+if (!is_manager() && !is_campus_admin()) {
+    die("未授權：僅管理員或院區管理員可進入此頁面。");
 }
 
 // ============================================
@@ -225,11 +225,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Check Auto-Compression Setting
+        // Check Auto-Compression Setting (Campus Specific)
         $auto_compression = '0';
-        $res = $conn->query("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression'");
-        if ($res && $row = $res->fetch_assoc()) {
-            $auto_compression = $row['setting_value'];
+        // Check specific campus setting first
+        $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $campus_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        $settings = [];
+        while ($row = $res->fetch_assoc()) {
+            $settings[$row['campus_id']] = $row['setting_value'];
+        }
+
+        if (isset($settings[$campus_id])) {
+            $auto_compression = $settings[$campus_id];
+        } elseif (isset($settings[0])) {
+            $auto_compression = $settings[0];
         }
 
         // Save Video with ownership and new metadata

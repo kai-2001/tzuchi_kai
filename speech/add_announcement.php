@@ -5,7 +5,7 @@
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
 
-if (!is_manager()) {
+if (!is_manager() && !is_campus_admin()) {
     die("未授權");
 }
 

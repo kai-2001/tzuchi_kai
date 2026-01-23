@@ -43,11 +43,18 @@ include __DIR__ . '/partials/header.php';
 
                 <div class="form-group">
                     <label>所屬院區</label>
-                    <select name="campus_id" required>
+                    <select name="campus_id" required <?= is_campus_admin() ? 'style="pointer-events: none; background: #f1f5f9;"' : '' ?>>
                         <?php foreach ($campuses as $c): ?>
-                            <option value="<?= $c['id'] ?>"><?= $c['name'] ?></option>
+                            <?php if (is_campus_admin() && $c['id'] != $_SESSION['campus_id'])
+                                continue; ?>
+                            <option value="<?= $c['id'] ?>" <?= (is_campus_admin() && $c['id'] == $_SESSION['campus_id']) ? 'selected' : '' ?>>
+                                <?= $c['name'] ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php if (is_campus_admin()): ?>
+                        <input type="hidden" name="campus_id" value="<?= $_SESSION['campus_id'] ?>">
+                    <?php endif; ?>
                 </div>
 
                 <div class="form-group">
