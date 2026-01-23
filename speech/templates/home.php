@@ -22,52 +22,7 @@ if (!empty($hero_slides)) {
 $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slides));
 ?>
 
-<header class="<?= !$show_hero ? 'static-header' : '' ?>">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text">學術演講影片平台</h1>
-            </a>
-        </div>
-
-        <div class="search-box">
-            <form action="index.php" method="GET">
-                <input type="text" name="q" placeholder="搜尋標題、講者或單位..." value="<?= htmlspecialchars($search) ?>">
-                <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <?php if ($campus_id > 0): ?><input type="hidden" name="campus"
-                        value="<?= $campus_id ?>"><?php endif; ?>
-            </form>
-        </div>
-
-        <div class="user-nav">
-            <?php if (!is_manager() && !is_campus_admin()): ?>
-                <a href="announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> <span>公告</span></a>
-            <?php endif; ?>
-            <?php if (is_logged_in()): ?>
-                <?php if (is_manager() || is_campus_admin()): ?>
-                    <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-list-check"></i> <span>影片</span></a>
-                    <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i>
-                        <span>公告</span></a>
-                    <!-- <a href="upload.php" class="btn-admin"><i class="fa-solid fa-cloud-arrow-up"></i> <span>上傳</span></a> -->
-                <?php endif; ?>
-
-                <div class="user-dropdown">
-                    <div class="user-info">
-                        <i class="fa-solid fa-circle-user"></i>
-                        <span><?= htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['username']) ?></span>
-                    </div>
-                    <div class="dropdown-content">
-                        <a href="logout.php" class="dropdown-item text-danger">
-                            <i class="fa-solid fa-right-from-bracket"></i> 登出
-                        </a>
-                    </div>
-                </div>
-            <?php else: ?>
-                <a href="login.php" class="btn-admin"><i class="fa-solid fa-user-lock"></i> <span>登入</span></a>
-            <?php endif; ?>
-        </div>
-    </div>
-</header>
+<?php include __DIR__ . '/partials/navbar.php'; ?>
 
 
 

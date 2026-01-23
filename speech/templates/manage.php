@@ -165,31 +165,5 @@ include __DIR__ . '/partials/header.php';
     </div>
 </div>
 
-<script>
-    function confirmDelete(id) {
-        if (confirm('確定要刪除這部影片嗎？此操作無法復原。')) {
-            window.location.href = 'delete_video.php?id=' + id;
-        }
-    }
-</script>
-
-<script>
-    // Auto-refresh logic: If there are any "Pending" or "Processing" badges, refresh every 10 seconds
-    (function () {
-        const activeBadges = document.querySelectorAll('.badge.bg-warning, .badge.bg-info');
-        if (activeBadges.length > 0) {
-            console.log("Active jobs detected, starting auto-refresh interval...");
-            setInterval(() => {
-                // If the user isn't currently typing in the search box, refresh
-                if (document.activeElement.tagName !== 'INPUT') {
-                    window.location.reload();
-                } else {
-                    console.log("User is typing, skipping refresh this cycle.");
-                }
-            }, 10000); // Check every 10 seconds
-        }
-    })();
-
-</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

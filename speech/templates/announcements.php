@@ -126,34 +126,7 @@
     <?php endif; ?>
 </div>
 
-<script>
-    function filterAnnouncements(campusId, tabElement) {
-        // 1. Update Tab Active State
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tabElement.classList.add('active');
-
-        // 2. Filter Rows
-        const rows = document.querySelectorAll('.announcement-row');
-        const isAll = (campusId === 'all');
-
-        rows.forEach(row => {
-            const rowCId = row.getAttribute('data-campus-id');
-            // Logic: 
-            // If viewing 'All' -> Show Everything.
-            // If viewing Specific Campus -> Show rows matching that Campus ID OR rows with ID 0 (Global).
-            // Let's assume ID 0 is Global announcements which appear everywhere.
-            if (isAll) {
-                row.style.display = '';
-            } else {
-                if (rowCId == campusId || rowCId == 0) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-    }
-</script>
+<script src="assets/js/announcements.js"></script>
 
 <style>
     /* Announcement Table Styles */

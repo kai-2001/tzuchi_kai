@@ -5,25 +5,14 @@
 include __DIR__ . '/partials/header.php';
 ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <a href="manage_videos.php"
-                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">影片管理</a>
-
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                上傳新演講</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 回影片列表</a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+// Controller sets $page_title = '上傳演講', but breadcrumb expects '上傳新演講' to match exactly? 
+// Actually navbar.php uses $page_title directly. 
+// Let's ensure it matches the visual. 
+$page_title = '上傳新演講';
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
     <div class="upload-form">
@@ -120,76 +109,6 @@ include __DIR__ . '/partials/header.php';
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('form');
-        const btnSubmit = document.getElementById('btn-submit');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Disable button
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = '上傳中...';
-            progressContainer.style.display = 'block';
-
-            const formData = new FormData(form);
-            const xhr = new XMLHttpRequest();
-
-            xhr.open('POST', form.action, true);
-
-            // Upload Progress
-            xhr.upload.onprogress = function (e) {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    progressText.innerText = percent + '%';
-
-                    if (percent >= 100) {
-                        progressText.innerText = '上傳完成，正在處理資料...';
-                    }
-                }
-            };
-
-            // Complete
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    // If the response is a redirect (which PHP default does) or success content
-                    // Since we expect a redirect header usually, AJAX handles redirection automatically if 302/301?
-                    // Actually XMLHttpRequest follows redirects automatically and returns the FINAL page content.
-                    // So checking xhr.responseURL is better.
-                    if (xhr.responseURL && !xhr.responseURL.includes('upload.php')) {
-                        // Success: Redirected to manage page or others
-                        window.location.href = xhr.responseURL;
-                    } else {
-                        // It stayed on upload.php, might be error or success msg
-                        // We can just reload or parse output. 
-                        // Simplest: Replace document body with response
-                        document.documentElement.innerHTML = xhr.responseText;
-                        // Re-run scripts? No. 
-                        // Better: Check if response text contains "Success" or specific marker?
-                        // Given our PHP adds ?msg=...
-                        window.location.reload(); // Fallback
-                    }
-                } else {
-                    alert('上傳失敗: ' + xhr.statusText);
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerText = '開始上傳';
-                }
-            };
-
-            xhr.onerror = function () {
-                alert('網路錯誤，上傳失敗。');
-                btnSubmit.disabled = false;
-                btnSubmit.innerText = '開始上傳';
-            };
-
-            xhr.send(formData);
-        });
-    });
-</script>
+<script src="assets/js/upload.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

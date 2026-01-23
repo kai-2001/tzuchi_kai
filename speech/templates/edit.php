@@ -127,69 +127,7 @@ include __DIR__ . '/partials/header.php';
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('form');
-        const btnSubmit = document.getElementById('btn-submit');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
+<script src="assets/js/upload.js"></script>
 
-        form.addEventListener('submit', function (e) {
-
-            // Only intercept if a file is selected (for Edit page)
-            // If no file, we can submit normally or use same XHR flow. Same XHR flow is fine.
-            e.preventDefault();
-
-            // Disable button
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = '處理中...';
-            progressContainer.style.display = 'block';
-
-            const formData = new FormData(form);
-            const xhr = new XMLHttpRequest();
-
-            xhr.open('POST', form.action, true);
-
-            // Upload Progress
-            xhr.upload.onprogress = function (e) {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    progressText.innerText = percent + '%';
-
-                    if (percent >= 100) {
-                        progressText.innerText = '上傳完成，正在處理資料...';
-                    }
-                }
-            };
-
-            // Complete
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    if (xhr.responseURL && !xhr.responseURL.includes('edit_video.php')) {
-                        // Success: Redirected
-                        window.location.href = xhr.responseURL;
-                    } else {
-                        document.documentElement.innerHTML = xhr.responseText;
-                        window.location.reload();
-                    }
-                } else {
-                    alert('更新失敗: ' + xhr.statusText);
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerText = '儲存修改';
-                }
-            };
-
-            xhr.onerror = function () {
-                alert('網路錯誤，更新失敗。');
-                btnSubmit.disabled = false;
-                btnSubmit.innerText = '儲存修改';
-            };
-
-            xhr.send(formData);
-        });
-    });
-</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

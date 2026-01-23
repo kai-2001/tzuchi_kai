@@ -28,14 +28,7 @@ if ($id > 0) {
 // ============================================
 // LOGIC: Fetch video data
 // ============================================
-$stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position, c.name as campus_name 
-                      FROM videos v
-                      LEFT JOIN speakers s ON v.speaker_id = s.id
-                      LEFT JOIN campuses c ON v.campus_id = c.id
-                      WHERE v.id = ?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$video = $stmt->get_result()->fetch_assoc();
+$video = video_get_by_id($id);
 
 if (!$video) {
     die("未找到該演講。");

@@ -20,7 +20,7 @@
 </header>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
-    <div class="upload-form" style="max-width: 800px; margin: 0 auto;">
+    <div class="upload-form-container">
         <?php if ($error): ?>
             <div class="alert alert-danger" style="color: #f87171; margin-bottom: 20px;"><?= $error ?></div>
         <?php endif; ?>
@@ -125,43 +125,6 @@
     </div>
 </div>
 
-<script>
-    const heroFields = document.getElementById('hero-fields');
-    const radioShow = document.getElementById('hero_show');
-    const radioHide = document.getElementById('hero_hide');
-    const inputs = heroFields.querySelectorAll('input, select, textarea');
-    const eventDateInput = document.getElementById('event_date');
-    const heroStartDateInput = document.getElementById('hero_start_date');
-    const heroEndDateInput = document.getElementById('hero_end_date');
-
-    function updateState() {
-        const isShow = radioShow.checked;
-        inputs.forEach(el => el.disabled = !isShow);
-        heroFields.style.opacity = isShow ? '1' : '0.5';
-    }
-
-    // Auto-fill dates logic
-    eventDateInput.addEventListener('change', function () {
-        if (!this.value) return;
-
-        const eventDate = new Date(this.value);
-
-        // Start date: 7 days before
-        const startDate = new Date(eventDate);
-        startDate.setDate(eventDate.getDate() - 7);
-        heroStartDateInput.value = startDate.toISOString().split('T')[0];
-
-        // End date: 1 day after
-        const endDate = new Date(eventDate);
-        endDate.setDate(eventDate.getDate() + 1);
-        heroEndDateInput.value = endDate.toISOString().split('T')[0];
-    });
-
-    radioShow.addEventListener('change', updateState);
-    radioHide.addEventListener('change', updateState);
-
-    // Init
-    updateState();
-</script>
+<script src="assets/js/announcements.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

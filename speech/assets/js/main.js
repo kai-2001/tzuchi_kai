@@ -27,13 +27,81 @@ function closeModal() {
 }
 
 /**
- * Confirm delete action
+ * Common confirmation dialogs for object management
  */
-function confirmDelete(id, type) {
-    type = type || 'video';
-    const message = '確定要刪除這部影片嗎？此動作無法復原。';
-    if (confirm(message)) {
+function confirmDelete(id) {
+    if (confirm('確定要刪除這部影片嗎？此操作無法復原。')) {
         window.location.href = 'delete_video.php?id=' + id;
+    }
+}
+
+function confirmDeleteAnnouncement(id) {
+    if (confirm('確定要刪除這個公告嗎？')) {
+        window.location.href = 'manage_announcements.php?action=delete&id=' + id;
+    }
+}
+
+/**
+ * Auto-refresh logic (Moved from templates/manage.php)
+ * Refreshes the page if there are active background jobs (Pending/Processing)
+ */
+function initAutoRefresh() {
+    const activeBadges = document.querySelectorAll('.badge.bg-warning, .badge.bg-info');
+    if (activeBadges.length > 0) {
+        console.log("Active jobs detected, starting auto-refresh interval...");
+        setInterval(() => {
+            // Prevent refresh if user is interacting with an input
+            if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                window.location.reload();
+            } else {
+                console.log("User interaction detected, skipping refresh this cycle.");
+            }
+        }, 12000); // Check every 12 seconds
+    }
+}
+
+/**
+ * Enhanced Form Validation (Inspired by Zhenyang project)
+ */
+function checkForm(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return true;
+
+    const requiredFields = form.querySelectorAll('[required]');
+    for (let field of requiredFields) {
+        if (!field.value.trim()) {
+            const label = form.querySelector(`label[for="${field.id}"]`) || { innerText: field.name || '此欄位' };
+            alert(`${label.innerText.replace(':', '')} 為必填項目`);
+            field.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Centralized API Post Wrapper (JSON)
+ */
+async function apiPost(url, data) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.status === 'error') {
+            alert(result.msg || '發生錯誤');
+            return null;
+        }
+        return result;
+    } catch (error) {
+        console.error('API Error:', error);
+        alert('網路連線失敗，請稍後再試。');
+        return null;
     }
 }
 
@@ -55,12 +123,13 @@ window.addEventListener('load', () => {
 
     // 初始化滾動動畫
     initScrollAnimations();
+
+    // 初始化自動重新整理
+    initAutoRefresh();
 });
 
 function initSwipers() {
     if (typeof Swiper === 'undefined') {
-        console.warn("Swiper not loaded yet, retrying...");
-        setTimeout(initSwipers, 500);
         return;
     }
 
@@ -84,11 +153,6 @@ function initSwipers() {
             effect: 'fade',
             fadeEffect: {
                 crossFade: true
-            },
-            on: {
-                init: function () {
-                    console.log('Swiper initialized');
-                }
             }
         });
     }

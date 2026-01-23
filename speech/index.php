@@ -10,85 +10,28 @@ require_once 'includes/auth.php';
 session_write_close();
 
 // ============================================
-// LOGIC: Pagination settings
+// LOGIC: Filter and Pagination settings
 // ============================================
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-$offset = ($page - 1) * ITEMS_PER_PAGE;
-
-// ============================================
-// LOGIC: Filter settings
-// ============================================
 $campus_id = isset($_GET['campus']) ? (int) $_GET['campus'] : 0;
 $search = isset($_GET['q']) ? $_GET['q'] : '';
+$limit = ITEMS_PER_PAGE;
+$offset = ($page - 1) * $limit;
 
 // ============================================
-// LOGIC: Build Query
+// LOGIC: Fetch Data via Models
 // ============================================
-$query = "SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name 
-          FROM videos v
-          LEFT JOIN speakers s ON v.speaker_id = s.id
-          LEFT JOIN campuses c ON v.campus_id = c.id
-          WHERE v.status = 'ready'";
-$params = [];
-$types = "";
+$total_items = video_count_ready($campus_id, $search);
+$total_pages = ceil($total_items / $limit);
+$videos = video_get_ready($campus_id, $search, $limit, $offset);
 
-if ($campus_id > 0) {
-    $query .= " AND v.campus_id = ?";
-    $params[] = $campus_id;
-    $types .= "i";
-}
-
-if (!empty($search)) {
-    $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ?)";
-    $search_param = "%$search%";
-    $params[] = $search_param;
-    $params[] = $search_param;
-    $params[] = $search_param;
-    $types .= "sss";
-}
-
-// ============================================
-// LOGIC: Get Total Count for Pagination
-// ============================================
-$count_query = str_replace("SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name", "SELECT COUNT(*)", $query);
-$stmt = $conn->prepare($count_query);
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$result = $stmt->get_result();
-$total_items = $result->fetch_row()[0];
-$total_pages = ceil($total_items / ITEMS_PER_PAGE);
-
-// ============================================
-// LOGIC: Get Results
-// ============================================
-$query .= " ORDER BY v.created_at DESC LIMIT ? OFFSET ?";
-$params[] = ITEMS_PER_PAGE;
-$params[] = $offset;
-$types .= "ii";
-
-$stmt = $conn->prepare($query);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$videos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-// ============================================
-// LOGIC: Get Campuses for tabs
-// ============================================
 $campuses = $conn->query("SELECT * FROM campuses")->fetch_all(MYSQLI_ASSOC);
 
-// ============================================
-// LOGIC: Get Upcoming Lectures (Fallback for Hero)
-// ============================================
-$upcoming_query = "SELECT u.*, c.name as campus_name 
-                  FROM announcements u
-                  LEFT JOIN campuses c ON u.campus_id = c.id
-                  WHERE u.event_date >= CURRENT_DATE AND u.is_active = 1
-                  ORDER BY u.event_date ASC";
-$upcoming_raw = $conn->query($upcoming_query)->fetch_all(MYSQLI_ASSOC);
+// Announcements & Hero
+$hero_slides = announcement_get_hero();
+$upcoming_raw = announcement_get_upcoming();
 
-// Group by Month -> Campus
+// Group by Month -> Campus (View-specific logic restored to controller)
 $upcoming_grouped = [];
 foreach ($upcoming_raw as $lecture) {
     if (!$lecture['event_date'])
@@ -99,23 +42,9 @@ foreach ($upcoming_raw as $lecture) {
 }
 
 // ============================================
-// LOGIC: Get Hero Slides (Curated)
-// query announcements where is_hero = 1
-// ============================================
-$hero_query = "SELECT s.*, c.name as campus_name FROM announcements s 
-               LEFT JOIN campuses c ON s.campus_id = c.id 
-               WHERE s.is_active = 1 
-               AND s.is_hero = 1
-               AND (s.hero_start_date IS NULL OR s.hero_start_date <= CURDATE())
-               AND (s.hero_end_date IS NULL OR s.hero_end_date > CURDATE())
-               ORDER BY s.sort_order ASC, s.created_at DESC LIMIT 5";
-$hero_slides = $conn->query($hero_query)->fetch_all(MYSQLI_ASSOC);
-
-// ============================================
 // TEMPLATE: Pass data to template
 // ============================================
 $page_title = '首頁';
-$page_css_files = [];
 $page_js = "window.isLoggedIn = " . (is_logged_in() ? 'true' : 'false') . ";";
 $show_login_modal = true;
 

@@ -127,28 +127,6 @@ include __DIR__ . '/partials/header.php';
     </div>
 </div>
 
-<script>
-    function confirmDeleteAnnouncement(id) {
-        if (confirm('確定要刪除這個公告嗎？')) {
-            window.location.href = 'manage_announcements.php?action=delete&id=' + id;
-        }
-    }
-
-    function updateSortOrder(id, newOrder) {
-        fetch('manage_announcements.php?action=update_order&id=' + id + '&order=' + newOrder)
-            .then(response => {
-                if (response.ok) {
-                    // Optional: Show a small toast or just console log
-                    console.log('Order updated');
-                } else {
-                    alert('排序更新失敗');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('排序更新發生錯誤');
-            });
-    }
-</script>
+<script src="assets/js/announcements.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

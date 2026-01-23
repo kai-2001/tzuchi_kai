@@ -1,27 +1,16 @@
-# --- Private Configs (CRITICAL) ---
-moodle/config.php
-speech/includes/config.php
-includes/config.php
+# Exclude Zhenyang project as requested
+/Zhenyang/
 
-# --- Large/Temporary Folders ---
-# Exclude video uploads that exceed GitHub's 100MB limit
-speech/uploads/
-moodle/uploaddata/
+# Project specific ignores
+/speech/uploads/
+/speech/temp_log.txt
+/speech/.agent/
 
-# Moodle's runtime data
-moodle/cache/*
-moodle/localcache/*
-moodle/temp/*
-moodle/sessions/*
-moodle/trashcan/*
-
-# --- System Files ---
-.DS_Store
+# Windows system files
 Thumbs.db
-*.log
-*.tmp
-*.bak
+Desktop.ini
+
+# Common ignores
 node_modules/
-.vscode/
-.idea/
-.gemini/
+.DS_Store
+*.log
