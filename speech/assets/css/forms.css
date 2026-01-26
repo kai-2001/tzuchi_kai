@@ -14,7 +14,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 24px 30px;
 }
 
 .full-width {
@@ -27,9 +27,11 @@
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #334155;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    padding-left: 5px;
 }
 
 .btn-submit {
@@ -149,9 +151,171 @@
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
 
     .full-width {
         grid-column: span 1;
     }
+}
+
+/* Global Responsive Table Wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+}
+
+/* Queue Page Enhanced Styles */
+.queue-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 40px;
+}
+
+.queue-settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.queue-section-header {
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+}
+
+.queue-section-desc {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.btn-toggle {
+    border-radius: 50px;
+    padding: 10px 25px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: white;
+    background: #64748b;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-toggle.active {
+    background: #059669;
+}
+
+.queue-section-title {
+    margin-bottom: 25px;
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+}
+
+.queue-counter-pill {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    font-weight: 700;
+    min-width: 30px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .queue-settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   Form Validation Styles
+   ============================================ */
+
+/* Invalid input state */
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
+input.is-invalid:focus,
+select.is-invalid:focus,
+textarea.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2) !important;
+}
+
+/* Error message below input */
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    padding-left: 5px;
+    font-weight: 500;
+}
+
+.is-invalid~.invalid-feedback {
+    display: block;
+}
+
+/* Valid input state */
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+    border-color: #28a745 !important;
+}
+
+/* Toast animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Required field indicator */
+.required-mark {
+    color: #dc3545;
+    margin-left: 2px;
 }

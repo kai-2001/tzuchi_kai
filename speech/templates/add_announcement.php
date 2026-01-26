@@ -1,31 +1,24 @@
 <?php include __DIR__ . '/partials/header.php'; ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <a href="manage_announcements.php"
-                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">公告管理</a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                新增公告</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回公告列表</a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '新增公告';
+$custom_breadcrumbs = [
+    ['label' => '公告管理', 'url' => 'manage_announcements.php']
+];
+$nav_actions = [
+    ['label' => '返回列表', 'url' => 'manage_announcements.php', 'icon' => 'fa-solid fa-arrow-left']
+];
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
-    <div class="upload-form-container">
+    <div class="upload-form">
         <?php if ($error): ?>
             <div class="alert alert-danger" style="color: #f87171; margin-bottom: 20px;"><?= $error ?></div>
         <?php endif; ?>
 
-        <form action="add_announcement.php" method="POST" enctype="multipart/form-data">
+        <form action="add_announcement.php" method="POST" enctype="multipart/form-data" id="announcementForm">
             <div class="form-group full-width">
                 <label>公告標題 <span style="color:red;">*</span></label>
                 <input type="text" name="title" required placeholder="例如：12月全院演講公告">
@@ -74,15 +67,14 @@
 
             <div class="form-group full-width">
                 <label>詳細內容/備註</label>
-                <textarea name="description"
-                    style="height: 120px; width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 1rem;"></textarea>
+                <textarea name="description" style="height: 120px; width: 100%;"></textarea>
             </div>
 
             <div
-                style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-top: 10px; border: 1px solid #e2e8f0;">
+                style="background: rgba(248, 250, 252, 0.5); padding: 25px; border-radius: 15px; margin-top: 10px; border: 1px solid #e2e8f0;">
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label
-                        style="font-weight: 600; color: #0ea5e9; display: block; margin-bottom: 10px;">顯示在首頁橫幅</label>
+                        style="font-weight: 600; color: var(--primary-color); display: block; margin-bottom: 15px;">顯示在首頁橫幅</label>
                     <div style="display: flex; gap: 20px;">
                         <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
                             <input type="radio" name="is_hero" value="1" id="hero_show"> 顯示
@@ -125,6 +117,12 @@
     </div>
 </div>
 
+<script src="assets/js/validators.js"></script>
 <script src="assets/js/announcements.js"></script>
+<script>
+    <?php require_once __DIR__ . '/../includes/Validator.php'; ?>
+    const announcementRules = <?= Validator::getRulesJson('add_announcement') ?>;
+    FormValidator.init('announcementForm', announcementRules);
+</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

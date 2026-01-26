@@ -23,7 +23,7 @@ include __DIR__ . '/partials/navbar.php';
             <div style="color: #f87171; margin-bottom: 20px;"><?= $error ?></div>
         <?php endif; ?>
 
-        <form action="upload.php" method="POST" enctype="multipart/form-data">
+        <form action="upload.php" method="POST" enctype="multipart/form-data" id="uploadForm">
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label>演講標題</label>
@@ -109,6 +109,13 @@ include __DIR__ . '/partials/navbar.php';
     </div>
 </div>
 
+<script src="assets/js/validators.js"></script>
 <script src="assets/js/upload.js"></script>
+<script>
+    // Initialize form validation with rules from backend
+    <?php require_once __DIR__ . '/../includes/Validator.php'; ?>
+    const uploadRules = <?= Validator::getRulesJson('upload') ?>;
+    FormValidator.init('uploadForm', uploadRules);
+</script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

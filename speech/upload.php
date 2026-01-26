@@ -9,6 +9,7 @@ require_once 'includes/config.php';
 require_once 'includes/auth.php';
 require_once 'includes/worker_trigger.php';
 require_once 'includes/helpers.php';
+require_once 'includes/Validator.php';
 
 // ============================================
 // LOGIC: Access Control
@@ -28,16 +29,10 @@ $error = '';
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Validation using helper
-        $required_fields = [
-            'title' => '演講標題',
-            'campus_id' => '院區',
-            'event_date' => '演講日期',
-            'speaker_name' => '講者姓名'
-        ];
-        $val_errors = validate_required($_POST, $required_fields);
-        if (!empty($val_errors)) {
-            throw new Exception(implode(' ', $val_errors));
+        // Backend validation using Validator class
+        $validation = Validator::validate($_POST, 'upload');
+        if (!$validation['valid']) {
+            throw new Exception(Validator::getFirstError($validation['errors']));
         }
 
         // Detect if post_max_size was exceeded

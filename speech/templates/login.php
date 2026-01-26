@@ -27,7 +27,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="login.php" method="POST" autocomplete="off">
+            <form action="login.php" method="POST" autocomplete="off" id="loginForm">
                 <div class="form-group">
                     <label>管理帳號</label>
                     <div class="input-wrapper">
@@ -63,6 +63,13 @@
             </a>
         </div>
     </div>
+
+    <script src="assets/js/validators.js"></script>
+    <script>
+        <?php require_once __DIR__ . '/../includes/Validator.php'; ?>
+        const loginRules = <?= Validator::getRulesJson('login') ?>;
+        FormValidator.init('loginForm', loginRules);
+    </script>
 </body>
 
 </html>
