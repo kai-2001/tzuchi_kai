@@ -1,26 +1,19 @@
 <?php include __DIR__ . '/partials/header.php'; ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <a href="manage_announcements.php"
-                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">公告管理</a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                批次上傳公告</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 返回公告列表</a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '批次上傳公告';
+$custom_breadcrumbs = [
+    ['label' => '公告管理', 'url' => 'manage_announcements.php']
+];
+$nav_actions = [
+    ['label' => '返回列表', 'url' => 'manage_announcements.php', 'icon' => 'fa-solid fa-arrow-left']
+];
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
-    <div class="upload-form-container">
+    <div class="upload-form">
 
         <?php if (!empty($success_msg)): ?>
             <div class="alert alert-success">
@@ -65,7 +58,7 @@
                 <li>詳細內容</li>
                 <li>院區 ID (<?php
                 if (is_campus_admin()) {
-                    echo "<span style='color: #ea580c; font-weight: bold;'>注意：系統將強制設為您的所屬院區，檔案中的數值將被忽略</span>";
+                    echo "<span style='color: #0891b2; font-weight: 600;'>💡 此欄位可填空或省略，系統會自動設為您的所屬院區</span>";
                 } else {
                     global $conn;
                     $c_list = ['0=全部'];

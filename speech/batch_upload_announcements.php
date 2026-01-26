@@ -176,4 +176,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Prepare view
+$page_title = '批次上傳公告';
+$page_css_files = ['forms.css', 'manage.css'];
 include 'templates/batch_upload_announcements.php';

@@ -8,6 +8,46 @@
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .search-bar form {
+        width: 100%;
+        gap: 0;
+        /* Tight align for input and button */
+    }
+
+    .search-bar input {
+        border-radius: 12px 0 0 12px !important;
+        height: 48px;
+    }
+
+    /* Search button inside form */
+    .search-bar form .btn-admin {
+        border-radius: 0 12px 12px 0 !important;
+        width: 60px;
+        height: 48px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .btn-queue,
+    .btn-batch,
+    .btn-add-video {
+        width: 100%;
+        justify-content: center;
+        height: 48px;
+        font-weight: 600;
+    }
+}
+
 .btn-edit {
     color: var(--primary-color);
     font-size: 1.1rem;
@@ -54,10 +94,12 @@
     background: #cbd5e1;
 }
 
-.btn-queue {
+.btn-queue,
+.btn-batch {
     /* Shape & Layout */
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 10px 20px;
     border-radius: 12px;
@@ -66,13 +108,41 @@
 
     /* Visuals */
     background: #64748b;
-    color: white;
+    color: white !important;
     border: none;
+    font-weight: 600;
 
     /* Transition */
     transition: all 0.3s ease;
 }
 
-.btn-queue:hover {
+.btn-queue:hover,
+.btn-batch:hover {
     background: #475569;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: white !important;
+}
+
+.btn-add-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 25px;
+    border-radius: 12px;
+    white-space: nowrap;
+    text-decoration: none;
+    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-add-video:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 132, 145, 0.3);
+    color: white;
 }

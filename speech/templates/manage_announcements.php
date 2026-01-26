@@ -5,22 +5,15 @@
 include __DIR__ . '/partials/header.php';
 ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                公告管理</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-video"></i> 影片管理</a>
-            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> 返回首頁</a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '公告管理';
+$nav_actions = [
+    ['label' => '影片管理', 'url' => 'manage_videos.php', 'icon' => 'fa-solid fa-video'],
+    ['label' => '返回首頁', 'url' => 'index.php', 'icon' => 'fa-solid fa-house']
+];
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
     <div class="upload-form">
@@ -35,18 +28,15 @@ include __DIR__ . '/partials/header.php';
         <?php endif; ?>
 
         <div class="search-bar">
-            <form action="manage_announcements.php" method="GET" style="display:flex; width:100%; gap:10px;">
+            <form action="manage_announcements.php" method="GET">
                 <input type="text" name="q" placeholder="搜尋標題、講者或地點..." value="<?= htmlspecialchars($search ?? '') ?>">
-                <button type="submit" class="btn-admin" style="width: auto; padding: 0 20px;"><i
-                        class="fa-solid fa-magnifying-glass"></i></button>
+                <button type="submit" class="btn-admin"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
-            <a href="batch_upload_announcements.php" class="btn-admin"
-                style="white-space: nowrap; width: auto; padding: 0 20px; text-decoration: none; display: flex; align-items: center; border-radius: 12px; margin-right: 10px; background: white; color: var(--primary-color); border: 1px solid var(--primary-color);">
-                <i class="fa-solid fa-file-csv me-2"></i> 批次上傳
+            <a href="batch_upload_announcements.php" class="btn-batch" title="批次上傳公告資料 (CSV/Excel)">
+                <i class="fa-solid fa-file-csv"></i> <span>批次上傳</span>
             </a>
-            <a href="add_announcement.php" class="btn-admin btn-primary-gradient"
-                style="white-space: nowrap; width: auto; padding: 0 25px; text-decoration: none; display: flex; align-items: center; border-radius: 12px;">
-                <i class="fa-solid fa-plus me-2"></i> 新增公告
+            <a href="add_announcement.php" class="btn-add-video">
+                <i class="fa-solid fa-plus"></i> 新增公告
             </a>
         </div>
 

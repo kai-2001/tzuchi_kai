@@ -93,6 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $campuses = $conn->query("SELECT * FROM campuses ORDER BY id")->fetch_all(MYSQLI_ASSOC);
 
 $page_title = '編輯公告';
-$page_css_files = ['manage.css'];
+$page_css_files = ['forms.css', 'manage.css'];
 include 'templates/edit_announcement.php';
 ?>

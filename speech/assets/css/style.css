@@ -2,7 +2,7 @@
 
 :root {
     --primary-color: #008491;
-    /* ????*/
+    /* ?��???*/
     --primary-light: #e6f3f4;
     --primary-dark: #006b75;
     --accent-color: #ffc107;
@@ -26,6 +26,8 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     padding: 0;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .container,
@@ -71,7 +73,6 @@ header.static-header {
 }
 
 header.scrolled h1.logo-text,
-header.static-header h1.logo-text,
 header.scrolled .user-info span,
 header.static-header .user-info span,
 header.scrolled .user-info i,
@@ -79,6 +80,11 @@ header.static-header .user-info i,
 header.scrolled .search-box input::placeholder,
 header.static-header .search-box input::placeholder {
     color: var(--primary-dark) !important;
+}
+
+header.static-header h1.logo-text {
+    color: var(--text-primary) !important;
+    font-weight: 500;
 }
 
 header.scrolled .search-box input,
@@ -619,6 +625,22 @@ h1.logo-text {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+}
+
+/* Force horizontal scroll instead of squashing columns on small screens */
+@media (max-width: 768px) {
+    .table-responsive .glass-table {
+        min-width: 800px;
+        width: 800px !important;
+    }
+}
+
 .glass-table th {
     background: rgba(0, 132, 145, 0.05);
     padding: 18px 20px;
@@ -645,12 +667,23 @@ h1.logo-text {
 .upload-form {
     background: var(--glass-white);
     backdrop-filter: blur(20px);
-    padding: 50px;
+    padding: 30px;
+    /* Reduced from 50px */
     border-radius: 30px;
     border: 1px solid var(--glass-border);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
     max-width: 900px;
     margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .upload-form {
+        padding: 20px;
+        border-radius: 20px;
+        max-width: 100% !important;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
 }
 
 .form-grid {
@@ -1598,7 +1631,7 @@ select:focus {
     position: relative;
     width: 100%;
     height: 50vh;
-    min-height: 300px;
+    min-height: 380px;
     max-height: 450px;
     border-radius: 0;
     box-shadow: none;
@@ -1755,6 +1788,38 @@ select:focus {
 }
 
 /* =========================================
+   Admin Header Styles (Breadcrumbs)
+   ========================================= */
+.breadcrumb-link,
+.breadcrumb-separator {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary) !important;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.breadcrumb-separator {
+    color: #ccc;
+    margin: 0 10px;
+}
+
+.breadcrumb-link:hover {
+    color: var(--text-primary) !important;
+    text-decoration: none !important;
+}
+
+/* =========================================
    Responsive Adjustments (RWD)
    ========================================= */
 
@@ -1816,7 +1881,9 @@ select:focus {
     .header-container {
         flex-direction: row;
         flex-wrap: wrap;
+        /* Restore wrap for search-box to drop below */
         justify-content: space-between;
+        align-items: center;
         gap: 5px;
         padding: 0 10px;
     }
@@ -1849,18 +1916,50 @@ select:focus {
     .logo-text {
         font-size: 1.0rem;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    }
+
+    /* Hide site name only in admin mode (with breadcrumbs) to save space */
+    .static-header.admin-mode .logo-text {
+        display: none;
+    }
+
+    /* Keep logo visible on home page with campus filter */
+    .static-header.home-filtered .logo-text {
+        display: block;
+        color: var(--primary-dark) !important;
+    }
+
+    .breadcrumb-link,
+    .breadcrumb-separator,
+    .page-title {
+        max-width: none;
+        white-space: nowrap;
+        font-size: 1.2rem !important;
+        /* Unified to preferred thin style for phone */
+        font-weight: 500 !important;
+        color: var(--text-primary) !important;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .breadcrumb-separator {
+        color: #ccc !important;
+        margin: 0 8px;
+    }
+
+    .d-none-mobile {
+        display: none !important;
     }
 
     /* Hide text in buttons on mobile */
-    .btn-admin span,
+    .user-nav .btn-admin span,
     .user-info span {
         display: none;
     }
 
-    /* Smaller buttons (32px) */
-    .btn-admin {
+    /* Smaller buttons (32px) for navigation only */
+    .user-nav .btn-admin {
         padding: 0;
         border-radius: 50%;
         width: 32px;
@@ -1892,17 +1991,18 @@ select:focus {
     /* Container Padding */
     .container,
     .home-content-layout {
-        padding-left: 12px;
-        padding-right: 12px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
-    /* Fix overlap on pages with fixed header */
+    /* Fix overlap on pages with fixed header - Tighter gap */
     .container[style*="padding-top"] {
-        padding-top: 170px !important;
+        padding-top: 70px !important;
     }
 
+    /* Home page with campus filter needs more margin for header + search bar wrap */
     .home-content-layout[style*="margin-top"] {
-        margin-top: 170px !important;
+        margin-top: 120px !important;
     }
 
     /* Hero Section Tweaks */
@@ -1915,7 +2015,7 @@ select:focus {
     .hero-slide-content {
         align-items: center;
         text-align: center;
-        padding-top: 60px;
+        padding-top: 20px;
     }
 
     .hero-meta-top {
@@ -1940,7 +2040,7 @@ select:focus {
         justify-content: flex-start;
         overflow-x: auto;
         padding: 10px 12px;
-        margin: 0 -12px 20px -12px;
+        margin: 15px -12px 20px -12px;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -2147,5 +2247,30 @@ select:focus {
     .chapter-list {
         display: none;
         max-height: 300px;
+    }
+}
+
+/* =========================================
+   Responsive Utility Classes (Vanilla CSS)
+   ========================================= */
+.d-none {
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    .d-md-table-cell {
+        display: table-cell !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .d-lg-table-cell {
+        display: table-cell !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .d-xl-table-cell {
+        display: table-cell !important;
     }
 }

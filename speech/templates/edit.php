@@ -11,24 +11,11 @@
 include __DIR__ . '/partials/header.php';
 ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <a href="manage_videos.php"
-                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">影片管理</a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                編輯影片資料</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> <span>返回列表</span></a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '編輯影片資料';
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
     <div class="upload-form">
@@ -55,7 +42,7 @@ include __DIR__ . '/partials/header.php';
                         <?php endforeach; ?>
                     </select>
                     <?php if (is_campus_admin()): ?>
-                            <input type="hidden" name="campus_id" value="<?= $video['campus_id'] ?>">
+                        <input type="hidden" name="campus_id" value="<?= $video['campus_id'] ?>">
                     <?php endif; ?>
                 </div>
 

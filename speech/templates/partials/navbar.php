@@ -4,39 +4,57 @@
  * 
  * Logic:
  * - Default Mode: Shows Search Bar (for Home)
- * - Simple Mode ($navbar_mode == 'simple'): Shows Breadcrumbs (for Upload/Manage pages)
+ * - Simple/Admin Mode: Shows Breadcrumbs
  * 
  * Expected Variables in Scope:
  * - $navbar_mode (optional): 'simple' or undefined
  * - $page_title (optional): For breadcrumbs
- * - $search: Current search query (for Home mode)
- * - $campus_id: Current campus ID (for Home mode)
+ * - $custom_breadcrumbs (optional): Array of ['label' => '...', 'url' => '...']
+ * - $nav_actions (optional): Array of ['label' => '...', 'url' => '...', 'icon' => '...']
  */
 $navbar_mode = $navbar_mode ?? 'default';
 ?>
-<header
-    class="<?= (isset($show_hero) && !$show_hero) ? 'static-header' : ($navbar_mode == 'simple' ? 'static-header' : '') ?>">
+<?php
+// Determine header class:
+// - 'simple' mode (admin pages with breadcrumbs): use 'static-header'
+// - Home page without hero (campus filtered): use 'static-header home-filtered' 
+// - Home page with hero: no special class
+$header_class = '';
+if ($navbar_mode == 'simple') {
+    $header_class = 'static-header admin-mode';
+} elseif (isset($show_hero) && !$show_hero) {
+    $header_class = 'static-header home-filtered';
+}
+?>
+<header class="<?= $header_class ?>">
     <div class="header-container">
 
         <!-- Left Section: Logo & Breadcrumbs -->
         <div class="header-left">
             <a href="index.php" class="logo">
-                <h1 class="logo-text" style="<?= $navbar_mode == 'simple' ? 'color: var(--primary-dark);' : '' ?>">
-                    學術演講影片平台</h1>
+                <h1 class="logo-text">學術演講影片平台</h1>
             </a>
 
             <?php if ($navbar_mode == 'simple'): ?>
-                <!-- Simple Mode: Context Breadcrumbs -->
-                <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-                <a href="manage_videos.php"
-                    style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">
-                    影片管理
-                </a>
-                <?php if (isset($page_title) && $page_title != '影片管理'): ?>
-                    <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-                    <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                        <?= htmlspecialchars($page_title) ?>
-                    </h2>
+                <!-- Breadcrumbs Logic -->
+                <?php
+                $crumbs = $custom_breadcrumbs ?? [];
+                if (empty($crumbs)) {
+                    // Default fallback logic
+                    if ($page_title != '影片管理' && $page_title != '公告管理') {
+                        $crumbs[] = ['label' => '影片管理', 'url' => 'manage_videos.php'];
+                    }
+                }
+                ?>
+
+                <?php foreach ($crumbs as $crumb): ?>
+                    <span class="breadcrumb-separator">/</span>
+                    <a href="<?= $crumb['url'] ?>" class="breadcrumb-link"><?= htmlspecialchars($crumb['label']) ?></a>
+                <?php endforeach; ?>
+
+                <?php if (isset($page_title)): ?>
+                    <span class="breadcrumb-separator">/</span>
+                    <h2 class="page-title" style="margin: 0;"><?= htmlspecialchars($page_title) ?></h2>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -54,13 +72,25 @@ $navbar_mode = $navbar_mode ?? 'default';
             </div>
         <?php endif; ?>
 
-        <!-- Right Section: User Nav (Common to All) -->
+        <!-- Right Section: User Nav -->
         <div class="user-nav">
-            <?php if ($navbar_mode == 'simple'): ?>
-                <!-- Simple Mode: Back Button -->
-                <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 回影片列表</a>
+            <?php if (isset($nav_actions) && !empty($nav_actions)): ?>
+                <?php foreach ($nav_actions as $action): ?>
+                    <a href="<?= $action['url'] ?>" class="btn-admin" title="<?= htmlspecialchars($action['label']) ?>">
+                        <i class="<?= $action['icon'] ?>"></i>
+                        <span>
+                            <?= htmlspecialchars($action['label']) ?>
+                        </span>
+                    </a>
+                <?php endforeach; ?>
+            <?php elseif ($navbar_mode == 'simple'): ?>
+                <!-- Default Back Button for Simple Mode -->
+                <a href="manage_videos.php" class="btn-admin" title="回影片列表">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>回影片列表</span>
+                </a>
             <?php else: ?>
-                <!-- Default Mode: Full User Menu -->
+                <!-- Default Mode: User Menu -->
                 <?php if (!is_manager() && !is_campus_admin()): ?>
                     <a href="announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i> <span>公告</span></a>
                 <?php endif; ?>

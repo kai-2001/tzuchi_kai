@@ -5,39 +5,30 @@
 include __DIR__ . '/partials/header.php';
 ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                影片管理</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_announcements.php" class="btn-admin"><i
-                    class="fa-solid fa-bullhorn"></i><span>公告管理</span></a>
-            <a href="index.php" class="btn-admin"><i class="fa-solid fa-house"></i> <span>返回首頁</span></a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '影片管理';
+$nav_actions = [
+    ['label' => '公告管理', 'url' => 'manage_announcements.php', 'icon' => 'fa-solid fa-bullhorn'],
+    ['label' => '返回首頁', 'url' => 'index.php', 'icon' => 'fa-solid fa-house']
+];
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
     <div class="upload-form">
         <div class="search-bar">
-            <form action="manage_videos.php" method="GET" style="display:flex; width:100%; gap:10px;">
+            <form action="manage_videos.php" method="GET">
                 <input type="text" name="q" placeholder="搜尋影片標題或講者..." value="<?= htmlspecialchars($search) ?>">
                 <button type="submit" class="btn-admin"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
 
             <a href="process_queue.php" class="btn-queue" title="轉檔排程管理">
-                <i class="fa-solid fa-list-check"></i> <span>轉檔排程</span>
+                <i class="fa-solid fa-list-check"></i> <span>轉檔排程管理</span>
             </a>
 
-            <a href="upload.php" class="btn-admin btn-primary-gradient"
-                style="white-space: nowrap; width: auto; padding: 0 25px; text-decoration: none; display: flex; align-items: center; border-radius: 12px;">
-                <i class="fa-solid fa-plus me-2"></i> 新增影片
+            <a href="upload.php" class="btn-add-video">
+                <i class="fa-solid fa-plus"></i> 新增影片
             </a>
         </div>
 
@@ -73,9 +64,9 @@ include __DIR__ . '/partials/header.php';
                             <th>縮圖</th>
                             <th>標題</th>
                             <th>主講人</th>
-                            <th>狀態</th> <!-- Added column -->
-                            <th>觀看次數</th>
-                            <th>日期</th>
+                            <th class="d-none d-lg-table-cell">狀態</th>
+                            <th class="d-none d-xl-table-cell">院區</th>
+                            <th class="d-none d-md-table-cell">日期</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -89,7 +80,7 @@ include __DIR__ . '/partials/header.php';
                                 </td>
                                 <td><?= htmlspecialchars($v['title']) ?></td>
                                 <td><?= htmlspecialchars($v['speaker_name']) ?></td>
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <?php
                                     $status = $v['status'] ?? 'ready';
                                     $badgeClass = 'bg-secondary';
@@ -125,8 +116,8 @@ include __DIR__ . '/partials/header.php';
                                             title="<?= htmlspecialchars($v['process_msg']) ?>"></i>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= htmlspecialchars($v['campus_name']) ?></td> <!-- Restored Campus Name column -->
-                                <td><?= htmlspecialchars($v['event_date']) ?></td>
+                                <td class="d-none d-xl-table-cell"><?= htmlspecialchars($v['campus_name']) ?></td>
+                                <td class="d-none d-md-table-cell"><?= htmlspecialchars($v['event_date']) ?></td>
                                 <td>
                                     <div class="actions-wrapper">
                                         <a href="edit_video.php?id=<?= $v['id'] ?>" class="btn-edit" title="編輯"><i

@@ -1,40 +1,25 @@
 <?php include __DIR__ . '/partials/header.php'; ?>
 
-<header class="static-header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="index.php" class="logo">
-                <h1 class="logo-text" style="color: var(--primary-dark);">學術演講影片平台</h1>
-            </a>
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <a href="manage_videos.php"
-                style="text-decoration:none; color: var(--text-primary); font-size: 1.2rem; font-weight: 500;">影片管理</a>
-
-            <span class="breadcrumb-separator" style="color: #ccc;">/</span>
-            <h2 class="page-title" style="color: var(--text-primary); font-size: 1.2rem; font-weight: 500; margin: 0;">
-                轉檔排程佇列</h2>
-        </div>
-        <div class="user-nav">
-            <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-arrow-left"></i> 回影片列表</a>
-        </div>
-    </div>
-</header>
+<?php
+$navbar_mode = 'simple';
+$page_title = '轉檔排程佇列';
+include __DIR__ . '/partials/navbar.php';
+?>
 
 <div class="container" style="padding-top: 120px; max-width: 1000px;">
 
     <!-- Settings Card -->
-    <div class="card"
-        style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 40px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h3 style="margin: 0 0 5px 0; color: var(--text-primary);"><i class="fa-solid fa-robot"></i> 自動壓縮模式</h3>
-                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+    <div class="queue-card settings-card">
+        <div class="queue-settings-row">
+            <div class="queue-settings-info">
+                <h3 class="queue-section-header"><i class="fa-solid fa-robot"></i> 自動壓縮模式</h3>
+                <p class="queue-section-desc">
                     啟用後，新上傳的影片將自動排程並通知轉檔主機。關閉則需在此手動啟動。
                 </p>
             </div>
-            <div>
-                <a href="?toggle_auto=<?= $auto_compression === '1' ? '0' : '1' ?>" class="btn-admin"
-                    style="border-radius: 50px; padding: 10px 25px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: white; background: <?= $auto_compression === '1' ? '#059669' : '#64748b' ?>; border: none;">
+            <div class="queue-settings-action">
+                <a href="?toggle_auto=<?= $auto_compression === '1' ? '0' : '1' ?>"
+                    class="btn-toggle <?= $auto_compression === '1' ? 'active' : '' ?>">
                     <i class="fa-solid <?= $auto_compression === '1' ? 'fa-toggle-on' : 'fa-toggle-off' ?>"></i>
                     <span><?= $auto_compression === '1' ? '已啟用 (Auto)' : '已停用 (Manual)' ?></span>
                 </a>
@@ -43,12 +28,10 @@
     </div>
 
     <!-- Waiting Queue -->
-    <div class="section-title"
-        style="margin-bottom: 25px; margin-top: 10px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 12px;">
+    <div class="queue-section-title">
         <i class="fa-solid fa-hourglass-start" style="color: var(--primary-color);"></i>
         <span>待處理清單 (Waiting)</span>
-        <span
-            style="background: #f1f5f9; color: #64748b; font-size: 0.85rem; padding: 2px 10px; border-radius: 20px; border: 1px solid #e2e8f0; font-weight: 700; min-width: 30px; text-align: center;">
+        <span class="queue-counter-pill">
             <?= count($waiting_videos) ?>
         </span>
     </div>
