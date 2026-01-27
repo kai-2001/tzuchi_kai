@@ -57,11 +57,18 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
 
                                 <?php if (!empty($slide['speaker_name'])): ?>
                                     <div class="hero-speaker-row">
-                                        <i class="fa-solid fa-user-tie"></i>
-                                        <span><?= htmlspecialchars($slide['speaker_name']) ?></span>
-                                        <?php if (!empty($slide['affiliation'])): ?>
+                                        <?php if (!empty($slide['speaker_name'])): ?>
+                                            <span class="speaker"><?= htmlspecialchars($slide['speaker_name']) ?></span>
+                                        <?php endif; ?>
+                                        <?php
+                                        $info_parts = [];
+                                        if (!empty($slide['affiliation']))
+                                            $info_parts[] = htmlspecialchars($slide['affiliation']);
+                                        if (!empty($slide['position']))
+                                            $info_parts[] = htmlspecialchars($slide['position']);
+                                        if (!empty($info_parts)): ?>
                                             <span class="affiliation">|
-                                                <?= htmlspecialchars($slide['affiliation']) ?></span>
+                                                <?= implode(' - ', $info_parts) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 <?php else: ?>

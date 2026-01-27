@@ -30,16 +30,23 @@ include __DIR__ . '/partials/navbar.php';
                     <input type="text" name="speaker_name" placeholder="非必填">
                 </div>
                 <div class="form-group">
-                    <label>單位/職稱</label>
-                    <input type="text" name="affiliation" placeholder="例如：某某醫院 醫師">
+                    <label>服務單位</label>
+                    <input type="text" name="affiliation" placeholder="例如：台中慈濟醫院心臟科">
                 </div>
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
+                    <label>職務</label>
+                    <input type="text" name="position" placeholder="例如：主治醫師">
+                </div>
+                <div class="form-group">
                     <label>活動日期</label>
                     <input type="date" name="event_date" id="event_date">
                 </div>
+            </div>
+
+            <div class="form-grid">
                 <div class="form-group">
                     <label>地點</label>
                     <input type="text" name="location" placeholder="例如：國際會議廳">

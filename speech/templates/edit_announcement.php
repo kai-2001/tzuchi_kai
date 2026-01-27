@@ -33,16 +33,23 @@ include __DIR__ . '/partials/navbar.php';
                         value="<?= htmlspecialchars($announcement['speaker_name']) ?>">
                 </div>
                 <div class="form-group">
-                    <label>單位/職稱</label>
+                    <label>服務單位</label>
                     <input type="text" name="affiliation" value="<?= htmlspecialchars($announcement['affiliation']) ?>">
                 </div>
             </div>
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label>活動日期</label>
-                    <input type="date" name="event_date" id="event_date" value="<?= $announcement['event_date'] ?>">
+                    <label>職務</label>
+                    <input type="text" name="position" value="<?= htmlspecialchars($announcement['position'] ?? '') ?>">
                 </div>
+                <div class="form-group">
+                    <label>活動日期</label>
+                    <input type="date" name="event_date" value="<?= htmlspecialchars($announcement['event_date']) ?>">
+                </div>
+            </div>
+
+            <div class="form-grid">
                 <div class="form-group">
                     <label>地點</label>
                     <input type="text" name="location" value="<?= htmlspecialchars($announcement['location']) ?>">

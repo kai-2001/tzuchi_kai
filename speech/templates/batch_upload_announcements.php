@@ -52,7 +52,8 @@ include __DIR__ . '/partials/navbar.php';
             <ol>
                 <li><strong>標題 (必填)</strong></li>
                 <li>講者姓名</li>
-                <li>單位/職稱</li>
+                <li>服務單位</li>
+                <li>職務</li>
                 <li>活動日期 (支援 YYYY-MM-DD 或 Excel 日期格式)</li>
                 <li>地點</li>
                 <li>詳細內容</li>

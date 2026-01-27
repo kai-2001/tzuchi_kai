@@ -20,8 +20,8 @@ $stmt->bind_param("i", $id);
 $stmt->execute();
 $announcement = $stmt->get_result()->fetch_assoc();
 
-// Check Campus Admin Permission
-if (is_campus_admin() && $announcement) {
+// Check Campus Admin Permission (Manager can edit all campuses)
+if (is_campus_admin() && !is_manager() && $announcement) {
     if ($announcement['campus_id'] != $_SESSION['campus_id']) {
         die("無權限編輯此公告（非所屬院區）。");
     }
@@ -36,6 +36,8 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'];
     $speaker_name = $_POST['speaker_name'] ?? '';
+    $affiliation = $_POST['affiliation'] ?? '';
+    $position = $_POST['position'] ?? '';
     // $event_date = $_POST['event_date'] ?: null; // Handle empty date carefully
     $event_date = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
     if (is_campus_admin()) {
@@ -49,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hero_end_date = !empty($_POST['hero_end_date']) ? $_POST['hero_end_date'] : null;
     $sort_order = (int) ($_POST['sort_order'] ?? 0);
     $location = $_POST['location'] ?? '';
-    $affiliation = $_POST['affiliation'] ?? '';
     $description = $_POST['description'] ?? '';
     $current_image = $_POST['current_image'] ?? '';
 
@@ -75,10 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $sql = "UPDATE announcements SET 
                 title=?, speaker_name=?, event_date=?, campus_id=?, link_url=?, 
-                image_url=?, is_hero=?, hero_start_date=?, hero_end_date=?, sort_order=?, location=?, affiliation=?, description=? 
+                image_url=?, is_hero=?, hero_start_date=?, hero_end_date=?, sort_order=?, location=?, affiliation=?, position=?, description=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssisssssssssi", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $description, $id);
+        $stmt->bind_param("sssississsisssi", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description, $id);
 
         if ($stmt->execute()) {
             header("Location: manage_announcements.php?msg=updated");

@@ -1,6 +1,6 @@
 <?php
 /**
- * Add Announcement Controller
+ * Add New Announcement
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
@@ -20,16 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $title = $_POST['title'];
         $speaker_name = $_POST['speaker_name'] ?? '';
+        $affiliation = $_POST['affiliation'] ?? '';
+        $position = $_POST['position'] ?? '';
         $event_date = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
         $campus_id = (int) $_POST['campus_id'];
         $link_url = $_POST['link_url'] ?? '';
+        $location = $_POST['location'] ?? '';
+        $description = $_POST['description'] ?? '';
         $is_hero = (int) ($_POST['is_hero'] ?? 0);
         $hero_start_date = !empty($_POST['hero_start_date']) ? $_POST['hero_start_date'] : null;
         $hero_end_date = !empty($_POST['hero_end_date']) ? $_POST['hero_end_date'] : null;
         $sort_order = (int) ($_POST['sort_order'] ?? 0);
-        $location = $_POST['location'] ?? '';
-        $affiliation = $_POST['affiliation'] ?? '';
-        $description = $_POST['description'] ?? '';
 
         // Image Upload
         $image_url = '';
@@ -48,8 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, event_date, campus_id, link_url, image_url, is_hero, hero_start_date, hero_end_date, sort_order, location, affiliation, description, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
-        $stmt->bind_param("sssisssssssss", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $description);
+
+        $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, event_date, campus_id, link_url, image_url, is_hero, hero_start_date, hero_end_date, sort_order, location, affiliation, position, description, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+        $stmt->bind_param("sssississsssss", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description);
 
         if ($stmt->execute()) {
             header("Location: manage_announcements.php?msg=added");

@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fail_reasons = [];
 
                 global $conn;
-                $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, affiliation, event_date, location, description, campus_id, is_hero, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())");
+                $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, affiliation, position, event_date, location, description, campus_id, is_hero, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW())");
 
                 foreach ($rows as $index => $row) {
                     // Expected Format:
@@ -113,7 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $speaker = isset($row[1]) ? trim($row[1]) : '';
                     $affiliation = isset($row[2]) ? trim($row[2]) : '';
-                    $event_date = isset($row[3]) ? trim($row[3]) : null;
+                    $position = isset($row[3]) ? trim($row[3]) : '';
+                    $event_date = isset($row[4]) ? trim($row[4]) : null;
                     if (empty($event_date)) {
                         $event_date = null;
                     } elseif (is_numeric($event_date)) {
@@ -133,16 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
 
-                    $location = isset($row[4]) ? trim($row[4]) : '';
-                    $description = isset($row[5]) ? trim($row[5]) : '';
+                    $location = isset($row[5]) ? trim($row[5]) : '';
+                    $description = isset($row[6]) ? trim($row[6]) : '';
 
                     if (is_campus_admin()) {
                         $campus_id = $_SESSION['campus_id'];
                     } else {
-                        $campus_id = isset($row[6]) ? (int) $row[6] : 0;
+                        $campus_id = isset($row[7]) ? (int) $row[7] : 0;
                     }
 
-                    $stmt->bind_param("ssssssi", $title, $speaker, $affiliation, $event_date, $location, $description, $campus_id);
+                    $stmt->bind_param("sssssssi", $title, $speaker, $affiliation, $position, $event_date, $location, $description, $campus_id);
 
                     try {
                         if ($stmt->execute()) {

@@ -85,7 +85,16 @@
                                         <div class="topic-speaker">
                                             <i class="fa-solid fa-user-tie"></i>
                                             <?= htmlspecialchars($item['speaker_name']) ?>
-                                            <?= $item['affiliation'] ? '<span class="affiliation">| ' . htmlspecialchars($item['affiliation']) . '</span>' : '' ?>
+                                            <?php
+                                            $info_parts = [];
+                                            if (!empty($item['affiliation']))
+                                                $info_parts[] = htmlspecialchars($item['affiliation']);
+                                            if (!empty($item['position']))
+                                                $info_parts[] = htmlspecialchars($item['position']);
+                                            if (!empty($info_parts)) {
+                                                echo '<span class="affiliation">| ' . implode(' - ', $info_parts) . '</span>';
+                                            }
+                                            ?>
                                         </div>
                                     <?php endif; ?>
                                 </div>
