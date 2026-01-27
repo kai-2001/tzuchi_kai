@@ -21,52 +21,49 @@ include __DIR__ . '/partials/navbar.php';
                     <?php endif; ?>
                 </p>
             </div>
+            <?php if (!is_manager()): ?>
+                <!-- Campus Admin: Show toggle button on the right -->
+                <?php $setting = $campus_settings[0]; ?>
+                <div class="queue-settings-action">
+                    <a href="?toggle_auto=<?= $setting['auto_compression'] === '1' ? '0' : '1' ?>&campus_id=<?= $setting['campus_id'] ?>"
+                        class="btn-toggle <?= $setting['auto_compression'] === '1' ? 'active' : '' ?>">
+                        <i
+                            class="fa-solid <?= $setting['auto_compression'] === '1' ? 'fa-toggle-on' : 'fa-toggle-off' ?>"></i>
+                        <span><?= $setting['auto_compression'] === '1' ? '已啟用 (Auto)' : '已停用 (Manual)' ?></span>
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
 
         <?php if (is_manager()): ?>
             <!-- Manager: Show table with all campuses -->
-            <div class="table-responsive mt-3"
-                style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                <table class="table mb-0" style="background: white;">
-                    <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+            <div class="campus-settings-table-wrapper">
+                <table class="campus-settings-table">
+                    <thead>
                         <tr>
-                            <th style="padding: 15px; font-weight: 600; color: #495057;">院區</th>
-                            <th style="padding: 15px; width: 180px; text-align: center; font-weight: 600; color: #495057;">
-                                自動壓縮</th>
+                            <th class="campus-name-col">院區</th>
+                            <th class="campus-toggle-col">自動壓縮</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($campus_settings as $setting): ?>
-                            <tr style="border-bottom: 1px solid #f0f0f0;">
-                                <td style="padding: 15px; vertical-align: middle;">
-                                    <i class="fa-solid fa-building"
-                                        style="color: var(--primary-color); margin-right: 10px; font-size: 1rem;"></i>
-                                    <span style="font-size: 1rem;"><?= htmlspecialchars($setting['campus_name']) ?></span>
+                            <tr class="campus-row">
+                                <td class="campus-name-cell">
+                                    <i class="fa-solid fa-building campus-icon"></i>
+                                    <span class="campus-name-text"><?= htmlspecialchars($setting['campus_name']) ?></span>
                                 </td>
-                                <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                                <td class="campus-toggle-cell">
                                     <a href="?toggle_auto=<?= $setting['auto_compression'] === '1' ? '0' : '1' ?>&campus_id=<?= $setting['campus_id'] ?>"
-                                        class="btn-toggle <?= $setting['auto_compression'] === '1' ? 'active' : '' ?>"
-                                        style="display: inline-block; text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: all 0.3s;">
-                                        <i class="fa-solid <?= $setting['auto_compression'] === '1' ? 'fa-toggle-on' : 'fa-toggle-off' ?>"
-                                            style="font-size: 1.2rem;"></i>
-                                        <span
-                                            style="margin-left: 6px; font-weight: 500;"><?= $setting['auto_compression'] === '1' ? '已啟用' : '已停用' ?></span>
+                                        class="btn-toggle <?= $setting['auto_compression'] === '1' ? 'active' : '' ?>">
+                                        <i
+                                            class="fa-solid <?= $setting['auto_compression'] === '1' ? 'fa-toggle-on' : 'fa-toggle-off' ?>"></i>
+                                        <span><?= $setting['auto_compression'] === '1' ? '已啟用' : '已停用' ?></span>
                                     </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
-        <?php else: ?>
-            <!-- Campus Admin: Show original two-column layout -->
-            <?php $setting = $campus_settings[0]; ?>
-            <div class="queue-settings-action">
-                <a href="?toggle_auto=<?= $setting['auto_compression'] === '1' ? '0' : '1' ?>&campus_id=<?= $setting['campus_id'] ?>"
-                    class="btn-toggle <?= $setting['auto_compression'] === '1' ? 'active' : '' ?>">
-                    <i class="fa-solid <?= $setting['auto_compression'] === '1' ? 'fa-toggle-on' : 'fa-toggle-off' ?>"></i>
-                    <span><?= $setting['auto_compression'] === '1' ? '已啟用 (Auto)' : '已停用 (Manual)' ?></span>
-                </a>
             </div>
         <?php endif; ?>
     </div>

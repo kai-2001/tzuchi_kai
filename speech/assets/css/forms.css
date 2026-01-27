@@ -195,6 +195,17 @@
     font-size: 0.95rem;
 }
 
+.queue-settings-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.queue-settings-action {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
 .btn-toggle {
     border-radius: 50px;
     padding: 10px 25px;
@@ -213,6 +224,84 @@
 .btn-toggle.active {
     background: #059669;
 }
+
+.btn-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Campus Settings Table */
+.campus-settings-table-wrapper {
+    margin-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    background: white;
+}
+
+.campus-settings-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.campus-settings-table thead {
+    background: linear-gradient(135deg, #008491 0%, #00a3b3 100%);
+}
+
+.campus-settings-table thead th {
+    padding: 18px 20px;
+    font-weight: 600;
+    color: white;
+    text-align: left;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+.campus-settings-table .campus-toggle-col {
+    width: 200px;
+    text-align: center;
+}
+
+.campus-settings-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.campus-settings-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.campus-settings-table tbody tr:hover {
+    background-color: #f8fafb;
+}
+
+.campus-settings-table .campus-name-cell {
+    padding: 18px 20px;
+    vertical-align: middle;
+}
+
+.campus-settings-table .campus-icon {
+    color: var(--primary-color);
+    margin-right: 12px;
+    font-size: 1.1rem;
+    vertical-align: middle;
+}
+
+.campus-settings-table .campus-name-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.campus-settings-table .campus-toggle-cell {
+    padding: 18px 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+
 
 .queue-section-title {
     margin-bottom: 25px;

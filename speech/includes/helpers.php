@@ -188,17 +188,38 @@ function process_evercam_zip($zip_temp_path, $file_id)
     if ($zip->locateName($video_path_in_zip) === false) {
         $zip->close();
         deleteDirectory($extract_dir);
-        throw new Exception("找不到影片檔：$video_path_in_zip (設定檔指定為 $video_filename)");
+        throw new Exception("找不到影片檔：$video_path_in_zip (config.js 指定的檔名為 $video_filename, 但 ZIP 中不存在此檔案)");
     }
 
     // ============================================
     // Step 4: Extract files
     // ============================================
+    // Note: Uncompressed file size check can be added here if needed in the future:
+    // $zip_stat = $zip->statName($video_path_in_zip);
+    // $uncompressed_size = $zip_stat['size'];
+    // if ($uncompressed_size > $max_size) { throw new Exception(...); }
+
     if (!$zip->extractTo($extract_dir, [$config_path_in_zip, $video_path_in_zip])) {
         $zip->close();
         deleteDirectory($extract_dir);
-        throw new Exception("解壓縮失敗：無法將檔案從 ZIP 中取出。");
+
+        // Check disk space
+        $free_space = disk_free_space($extract_dir);
+        $zip_stat = $zip->statName($video_path_in_zip);
+        $required_size = $zip_stat['size'];  // Uncompressed size needed
+
+        if ($free_space < $required_size) {
+            $free_space_gb = round($free_space / 1024 / 1024 / 1024, 2);
+            $required_gb = round($required_size / 1024 / 1024 / 1024, 2);
+            throw new Exception(
+                "解壓縮失敗：磁碟空間不足。" .
+                "需要 {$required_gb}GB，但只剩 {$free_space_gb}GB。請聯繫系統管理員清理磁碟空間。"
+            );
+        }
+
+        throw new Exception("解壓縮失敗：無法將檔案從 ZIP 中取出。請確認 ZIP 檔案未損壞。");
     }
+
     $zip->close();
 
     // ============================================
