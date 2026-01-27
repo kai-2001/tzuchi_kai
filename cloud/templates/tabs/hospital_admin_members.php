@@ -3,6 +3,9 @@
  * 院區管理員 - 成員管理介面
  * templates/tabs/hospital_admin_members.php
  */
+
+// 引入 config 以使用 BASE_URL
+require_once __DIR__ . '/../../includes/config.php';
 ?>
 <div id="section-member-management" class="page-section">
     <div class="section-header">
@@ -132,6 +135,9 @@
     // 院區成員管理 - JavaScript
     // ============================================
 
+    // 从 PHP config 获取根路径
+    const BASE_URL = '<?= BASE_URL ?>';
+
     let allMembers = [];
     let deleteTargetId = null;
 
@@ -154,7 +160,7 @@
         `;
 
         // 修正：確保載入函數存在
-        fetch('/api/hospital_admin/list_members.php')
+        fetch(`${BASE_URL}/api/hospital_admin/list_members.php`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -299,8 +305,8 @@
         const formData = new FormData(form);
         const mode = formData.get('mode');
         const endpoint = mode === 'add'
-            ? '/api/hospital_admin/add_member.php'
-            : '/api/hospital_admin/update_member.php';
+            ? `${BASE_URL}/api/hospital_admin/add_member.php`
+            : `${BASE_URL}/api/hospital_admin/update_member.php`;
 
         const submitBtn = document.getElementById('modal-submit-btn');
         const originalText = submitBtn.innerHTML;
@@ -346,7 +352,7 @@
 
         showToast('正在變更角色...', 'info');
 
-        fetch('/api/hospital_admin/change_role.php', {
+        fetch(`${BASE_URL}/api/hospital_admin/change_role.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${memberId}&role=${newRole}`
@@ -389,7 +395,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 刪除中...';
 
-        fetch('/api/hospital_admin/delete_member.php', {
+        fetch(`${BASE_URL}/api/hospital_admin/delete_member.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${deleteTargetId}`

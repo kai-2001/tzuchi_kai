@@ -1,0 +1,30 @@
+# Sensitive configuration files
+.env
+
+# User uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*~
+.DS_Store
+
+# Database analysis tools (temporary)
+check_db_schema.php
+db_schema_analysis.txt
+add_database_indexes.php
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS generated files
+Thumbs.db

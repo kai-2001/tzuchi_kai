@@ -1,5 +1,5 @@
 <?php
-// worker.php - Background Video Processing Script (Live Progress Version)
+// worker.php - Background Video Processing Script (Security Hardened Version)
 
 function worker_log($message)
 {
@@ -33,13 +33,6 @@ file_put_contents($pidFile, getmypid());
 
 worker_log("Worker started (PID: " . getmypid() . ").");
 
-// CLI Only Check
-// CLI Only Check
-// if (php_sapi_name() !== 'cli' && !isset($_GET['run'])) {
-//     worker_log("Error: CLI access only. SAPI: " . php_sapi_name());
-//     exit;
-// }
-
 require_once __DIR__ . '/includes/worker_config.php';
 
 $conn = new mysqli(WORKER_DB_HOST, WORKER_DB_USER, WORKER_DB_PASS, WORKER_DB_NAME);
@@ -48,6 +41,22 @@ if ($conn->connect_error) {
     exit;
 }
 $conn->set_charset("utf8mb4");
+
+// --------------------------------------------------------------------------
+// HELPER: Validate Path Security
+// --------------------------------------------------------------------------
+function validate_path($relative_path, $base_root)
+{
+    $full_path = $base_root . DIRECTORY_SEPARATOR . $relative_path;
+    $real_path = realpath($full_path);
+
+    // Check if path exists and is within allowed directory
+    if ($real_path === false || strpos($real_path, $base_root) !== 0) {
+        return false;
+    }
+
+    return $real_path;
+}
 
 // --------------------------------------------------------------------------
 // HELPER: Run FFmpeg with Live Monitoring
@@ -103,8 +112,10 @@ $wait_seconds = 3;
 $jobs_done = 0;
 
 while (true) {
-    // A. Pick Job
-    $res = $conn->query("SELECT id, title, content_path, thumbnail_path FROM videos WHERE status = 'pending' ORDER BY id ASC LIMIT 1");
+    // A. Pick Job (Using Prepared Statement)
+    $stmt = $conn->prepare("SELECT id, title, content_path, thumbnail_path FROM videos WHERE status = 'pending' ORDER BY id ASC LIMIT 1");
+    $stmt->execute();
+    $res = $stmt->get_result();
 
     if (!$res || $res->num_rows === 0) {
         if ($jobs_done > 0)
@@ -119,14 +130,31 @@ while (true) {
 
     $empty_checks = 0;
     $video = $res->fetch_assoc();
-    $id = $video['id'];
+    $id = (int) $video['id']; // Ensure integer
     $input_relative = $video['content_path'];
-    $input_full = WORKER_APP_ROOT . DIRECTORY_SEPARATOR . $input_relative;
     $current_thumb = $video['thumbnail_path'];
 
-    // B. Claim
-    $conn->query("UPDATE videos SET status = 'processing', process_msg='正在轉檔中...', updated_at = NOW() WHERE id = $id AND status = 'pending'");
-    if ($conn->affected_rows === 0)
+    // B. Validate Path Security
+    $input_full = validate_path($input_relative, WORKER_APP_ROOT);
+    if ($input_full === false) {
+        worker_log("Invalid or unsafe path: $input_relative");
+        $stmt_err = $conn->prepare("UPDATE videos SET status=?, process_msg=? WHERE id=?");
+        $status = 'error';
+        $msg = 'Invalid file path';
+        $stmt_err->bind_param("ssi", $status, $msg, $id);
+        $stmt_err->execute();
+        $jobs_done++;
+        continue;
+    }
+
+    // C. Claim Job (Using Prepared Statement)
+    $stmt_claim = $conn->prepare("UPDATE videos SET status=?, process_msg=?, updated_at=NOW() WHERE id=? AND status='pending'");
+    $status_proc = 'processing';
+    $msg_proc = '正在轉檔中...';
+    $stmt_claim->bind_param("ssi", $status_proc, $msg_proc, $id);
+    $stmt_claim->execute();
+
+    if ($stmt_claim->affected_rows === 0)
         continue;
 
     // Log Job
@@ -134,7 +162,11 @@ while (true) {
 
     if (!file_exists($input_full)) {
         worker_log("File missing: $input_relative (Root: " . WORKER_APP_ROOT . ")");
-        $conn->query("UPDATE videos SET status='error', process_msg='File missing' WHERE id=$id");
+        $stmt_err = $conn->prepare("UPDATE videos SET status=?, process_msg=? WHERE id=?");
+        $status = 'error';
+        $msg = 'File missing';
+        $stmt_err->bind_param("ssi", $status, $msg, $id);
+        $stmt_err->execute();
         $jobs_done++;
         continue;
     }
@@ -142,16 +174,21 @@ while (true) {
     $path_info = pathinfo($input_full);
     $output_full = $path_info['dirname'] . '/' . $path_info['filename'] . '_processed.mp4';
 
-    // Commands: Use -nostats -progress pipe:1 for reliable parsing
-    $cmd_gpu = sprintf('"%s" -nostats -progress pipe:1 -i "%s" -c:v h264_nvenc -preset p4 -rc vbr -cq 26 -c:a aac -b:a 128k -movflags +faststart -y "%s" 2>&1', $ffmpeg_path, $input_full, $output_full);
-    $cmd_cpu = sprintf('"%s" -nostats -progress pipe:1 -i "%s" -c:v libx264 -crf 28 -preset fast -c:a aac -b:a 128k -movflags +faststart -y "%s" 2>&1', $ffmpeg_path, $input_full, $output_full);
+    // D. Properly escape shell arguments
+    $ffmpeg_esc = escapeshellarg($ffmpeg_path);
+    $input_esc = escapeshellarg($input_full);
+    $output_esc = escapeshellarg($output_full);
 
-    // Run GPU
+    // Commands: Use -nostats -progress pipe:1 for reliable parsing
+    $cmd_gpu = sprintf('%s -nostats -progress pipe:1 -i %s -c:v h264_nvenc -preset p4 -rc vbr -cq 26 -c:a aac -b:a 128k -movflags +faststart -y %s 2>&1', $ffmpeg_esc, $input_esc, $output_esc);
+    $cmd_cpu = sprintf('%s -nostats -progress pipe:1 -i %s -c:v libx264 -crf 28 -preset fast -c:a aac -b:a 128k -movflags +faststart -y %s 2>&1', $ffmpeg_esc, $input_esc, $output_esc);
+
+    // E. Run GPU
     worker_log("Starting GPU Transcode...");
 
     $ret = run_ffmpeg_live($cmd_gpu, $conn, $id, "GPU");
 
-    // CPU Fallback
+    // F. CPU Fallback
     if ($ret !== 0) {
         worker_log("GPU Failed ($ret). Switching to CPU...");
         worker_log("CPU Command: $cmd_cpu"); // DEBUG Log
@@ -171,13 +208,14 @@ while (true) {
         // Replace original with processed
         if (@unlink($input_full)) {
             rename($output_full, $input_full);
-            // $conn->query("UPDATE videos SET status='ready', process_msg='Done' WHERE id=$id"); 
-            // Deferred update until thumbnail check
         } else {
             $new_rel = str_replace(WORKER_APP_ROOT . '/', '', $output_full);
             $new_rel = str_replace(WORKER_APP_ROOT . '\\', '', $new_rel);
             $final_video_path = $output_full;
-            $conn->query("UPDATE videos SET content_path='$new_rel' WHERE id=$id");
+
+            $stmt_update = $conn->prepare("UPDATE videos SET content_path=? WHERE id=?");
+            $stmt_update->bind_param("si", $new_rel, $id);
+            $stmt_update->execute();
         }
 
         // --- Thumbnail Extraction Logic ---
@@ -189,7 +227,6 @@ while (true) {
             worker_log("Thumbnail missing or auto-generated. Generating from video...");
 
             // Define new thumb path
-            // Use 'uploads/thumbnails/' structure relative to root
             $thumb_filename = "thumb_{$id}_auto.jpg";
             $thumb_rel_path = "uploads/thumbnails/" . $thumb_filename;
             $thumb_dest_path = WORKER_APP_ROOT . DIRECTORY_SEPARATOR . "uploads" . DIRECTORY_SEPARATOR . "thumbnails" . DIRECTORY_SEPARATOR . $thumb_filename;
@@ -199,24 +236,36 @@ while (true) {
             if (!is_dir($thumb_dir))
                 mkdir($thumb_dir, 0777, true);
 
-            // Extract frame at 1s
-            $cmd_thumb = sprintf('"%s" -y -i "%s" -ss 00:00:01.000 -vframes 1 -q:v 2 "%s" 2>&1', $ffmpeg_path, $final_video_path, $thumb_dest_path);
+            // Extract frame at 1s (with proper escaping)
+            $thumb_dest_esc = escapeshellarg($thumb_dest_path);
+            $final_video_esc = escapeshellarg($final_video_path);
+            $cmd_thumb = sprintf('%s -y -i %s -ss 00:00:01.000 -vframes 1 -q:v 2 %s 2>&1', $ffmpeg_esc, $final_video_esc, $thumb_dest_esc);
 
             // Execute
             exec($cmd_thumb, $thumb_out, $thumb_ret);
 
             if ($thumb_ret === 0 && file_exists($thumb_dest_path)) {
-                $conn->query("UPDATE videos SET thumbnail_path='$thumb_rel_path' WHERE id=$id");
+                $stmt_thumb = $conn->prepare("UPDATE videos SET thumbnail_path=? WHERE id=?");
+                $stmt_thumb->bind_param("si", $thumb_rel_path, $id);
+                $stmt_thumb->execute();
                 worker_log("Thumbnail generated: $thumb_rel_path");
             } else {
                 worker_log("Thumbnail generation failed.");
             }
         }
 
-        $conn->query("UPDATE videos SET status='ready', process_msg='Done' WHERE id=$id");
+        $stmt_done = $conn->prepare("UPDATE videos SET status=?, process_msg=? WHERE id=?");
+        $status_ready = 'ready';
+        $msg_done = 'Done';
+        $stmt_done->bind_param("ssi", $status_ready, $msg_done, $id);
+        $stmt_done->execute();
         worker_log("Job $id Success.");
     } else {
-        $conn->query("UPDATE videos SET status='error', process_msg='Failed' WHERE id=$id");
+        $stmt_fail = $conn->prepare("UPDATE videos SET status=?, process_msg=? WHERE id=?");
+        $status_err = 'error';
+        $msg_fail = 'Failed';
+        $stmt_fail->bind_param("ssi", $status_err, $msg_fail, $id);
+        $stmt_fail->execute();
         worker_log("Job $id Failed.");
     }
     $jobs_done++;

@@ -16,7 +16,8 @@ function trigger_log($msg)
 // 1. Authenticate
 $token = $_POST['token'] ?? '';
 if ($token !== WORKER_SECRET_TOKEN) {
-    trigger_log("Unauthorized access attempt. Token: $token");
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    trigger_log("Unauthorized access attempt from IP: $ip");
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;

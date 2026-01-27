@@ -36,11 +36,13 @@ function local_login($username, $password)
 function soap_login($username, $password)
 {
     try {
+        // Configure SSL verification based on environment
+        // Production: SOAP_VERIFY_SSL=true, Development: SOAP_VERIFY_SSL=false
         $context = stream_context_create([
             'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
+                'verify_peer' => SOAP_VERIFY_SSL,
+                'verify_peer_name' => SOAP_VERIFY_SSL,
+                'allow_self_signed' => !SOAP_VERIFY_SSL
             ]
         ]);
 
@@ -52,7 +54,9 @@ function soap_login($username, $password)
             'stream_context' => $context
         ]);
 
-        // Supervisor's snippet: $client->login($acc, md5($pwd))
+        // NOTE: MD5 is REQUIRED by the external SOAP service (慈濟 LMS)
+        // This is NOT under our control - the third-party API expects MD5-hashed passwords
+        // Reference: Supervisor's implementation snippet
         $result = $client->login($username, md5($password));
 
         // If it's a '1' or an array/object, it's a success
@@ -145,7 +149,6 @@ function check_remember_me()
 
                     if ($user) {
                         $_SESSION['user_id'] = $user['id'];
-                        $_SESSION['username'] = $user['username'];
                         $_SESSION['username'] = $user['username'];
                         $_SESSION['role'] = $user['role'];
                         $_SESSION['campus_id'] = $user['campus_id'] ?? null;

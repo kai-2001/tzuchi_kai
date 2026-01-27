@@ -16,6 +16,10 @@ $moodle_url = 'http://kai/cloud/moodle'; // 請改成你 Moodle 的實際網址
 $moodle_token = '758a2fbbc57ae5ef9f1724d462cbe7e1'; // Portal API Token
 $moodle_sso_secret = '68071733b2b4d6fb8877e07ec5e5b571'; // SSO Login 外掛共享金鑰
 
+// 2b. 網站根路徑設定（專案搬移時只需修改這裡）
+define('BASE_URL', '/cloud');        // 網站根 URL 路徑（前端使用）
+define('BASE_PATH', __DIR__ . '/..');  // 網站根實體路徑（後端使用）
+
 // 3. 認證模式 ('soap' 或 'local')
 define('AUTH_MODE', 'local');
 

@@ -37,28 +37,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['video_ids'])) {
     }
 }
 
-// Toggle Auto-Compression Setting
-$campus_id = is_campus_admin() ? $_SESSION['campus_id'] : 0;
-$setting_key = 'auto_compression';
-
-if (isset($_GET['toggle_auto'])) {
+// Handle Auto-Compression Setting Toggle
+if (isset($_GET['toggle_auto']) && isset($_GET['campus_id'])) {
+    $target_campus_id = (int) $_GET['campus_id'];
     $new_val = $_GET['toggle_auto'] === '1' ? '1' : '0';
+
+    // Permission check
+    if (is_campus_admin() && $target_campus_id !== $_SESSION['campus_id']) {
+        die("未授權：院區管理員只能修改自己院區的設定。");
+    }
+
+    $setting_key = 'auto_compression';
     $stmt = $conn->prepare("INSERT INTO system_settings (setting_key, campus_id, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-    $stmt->bind_param("siss", $setting_key, $campus_id, $new_val, $new_val);
+    $stmt->bind_param("siss", $setting_key, $target_campus_id, $new_val, $new_val);
     $stmt->execute();
-    header("Location: process_queue.php"); // Reload page
+    header("Location: process_queue.php");
     exit;
 }
 
-// Fetch Current Setting
-// Fetch Current Setting
-$auto_compression = '0';
-$stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ? AND campus_id = ?");
-$stmt->bind_param("si", $setting_key, $campus_id);
-$stmt->execute();
-$res = $stmt->get_result();
-if ($res && $row = $res->fetch_assoc()) {
-    $auto_compression = $row['setting_value'];
+// Fetch Auto-Compression Settings for Display
+$campus_settings = [];
+
+if (is_manager()) {
+    // Manager: Fetch all campuses (not global default)
+    // Note: Global setting (campus_id=0) remains in DB as fallback but is not shown in UI
+    $campuses = $conn->query("SELECT id, name FROM campuses ORDER BY id");
+
+    while ($campus = $campuses->fetch_assoc()) {
+        $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id = ?");
+        $stmt->bind_param("i", $campus['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $setting = $result->fetch_assoc();
+
+        $campus_settings[] = [
+            'campus_id' => $campus['id'],
+            'campus_name' => $campus['name'],
+            'auto_compression' => $setting ? $setting['setting_value'] : '0',
+            'is_global' => false
+        ];
+    }
+} else {
+    // Campus Admin: Only their campus
+    $my_campus_id = $_SESSION['campus_id'];
+    $stmt = $conn->prepare("SELECT name FROM campuses WHERE id = ?");
+    $stmt->bind_param("i", $my_campus_id);
+    $stmt->execute();
+    $campus_name = $stmt->get_result()->fetch_assoc()['name'];
+
+    $stmt = $conn->prepare("SELECT setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id = ?");
+    $stmt->bind_param("i", $my_campus_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $setting = $result->fetch_assoc();
+
+    $campus_settings[] = [
+        'campus_id' => $my_campus_id,
+        'campus_name' => $campus_name,
+        'auto_compression' => $setting ? $setting['setting_value'] : '0',
+        'is_global' => false
+    ];
 }
 
 // Fetch Waiting Videos

@@ -13,7 +13,8 @@ require_once 'includes/worker_trigger.php';
 // LOGIC: Access Control
 // ============================================
 if (!is_manager() && !is_campus_admin()) {
-    die("未授權。");
+    header('Location: index.php?error=unauthorized');
+    exit;
 }
 
 // ============================================
@@ -40,7 +41,8 @@ $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 
 if (!$video) {
-    die("找不到影片或權限不足。");
+    header('Location: manage_videos.php?error=not_found');
+    exit;
 }
 
 // ============================================
@@ -154,122 +156,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // But upload.php sets duration to 0 if not found? 
                 // Let's assume duration update is handled or 0.
             } elseif ($ext === 'zip') {
-                $zip = new ZipArchive;
-                if ($zip->open($temp_name) === TRUE) {
-                    $extract_dir = UPLOAD_DIR_VIDEOS . $file_id . '/';
-                    mkdir($extract_dir, 0777, true);
-
-                    // Locate config.js and identify video file
-                    $config_content = '';
-                    $video_filename = '';
-                    $has_config = false;
-                    $zip_prefix = ''; // Store the folder prefix (e.g., "Folder/") if config.js is nested
-
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $zf = $zip->getNameIndex($i);
-                        if (basename($zf) === 'config.js') {
-                            $config_content = $zip->getFromIndex($i);
-                            $has_config = true;
-                            // Capture the directory path of config.js as prefix
-                            $dir = dirname($zf);
-                            $zip_prefix = ($dir === '.') ? '' : $dir . '/';
-                            break; // Found config, stop searching
-                        }
-                    }
-
-                    if (!$has_config) {
-                        $zip->close();
-                        // deleteDir($extract_dir); // Should add helper or use rmdir if empty
-                        // Since we don't have deleteDir helper in this scope (it's in upload.php), 
-                        // we might leave garbage or need to copy deleteDir logic. 
-                        // For now, let's just focus on extraction success so no garbage is created in valid cases.
-                        throw new Exception("ZIP 檔案中未找到 config.js");
-                    }
-
-                    // Parse config.js
-                    if (preg_match('/var\s+config\s*=\s*(\{.*\})/s', $config_content, $matches)) {
-                        $json_text = rtrim(trim($matches[1]), ';');
-                        $config_data = json_decode($json_text, true);
-                        if ($config_data) {
-                            if (isset($config_data['src'][0]['src']))
-                                $video_filename = $config_data['src'][0]['src'];
-                            if (isset($config_data['index']))
-                                $metadata = json_encode($config_data['index']);
-                            if (isset($config_data['duration']))
-                                $duration = (int) ($config_data['duration'] / 1000);
-                        }
-                    }
-
-                    if (empty($video_filename)) {
-                        // Try fallback to media.mp4 - Must look inside the same prefix
-                        $search_target = $zip_prefix . 'media.mp4';
-                        for ($i = 0; $i < $zip->numFiles; $i++) {
-                            if ($zip->getNameIndex($i) === $search_target) {
-                                $video_filename = 'media.mp4'; // Internal logic uses simple name
-                                break;
-                            }
-                        }
-                    }
-
-                    if (empty($video_filename)) {
-                        $zip->close();
-                        throw new Exception("無法從 ZIP 中識別影片檔案。");
-                    }
-
-                    // Prepare full paths for extraction
-                    $config_path_in_zip = $zip_prefix . 'config.js';
-                    $video_path_in_zip = $zip_prefix . $video_filename;
-
-                    // Check if video file actually exists in zip at expected path
-                    if ($zip->locateName($video_path_in_zip) === false) {
-                        $zip->close();
-                        throw new Exception("找不到影片檔：$video_path_in_zip (設定檔指定為 $video_filename)");
-                    }
-
-                    if (!$zip->extractTo($extract_dir, [$config_path_in_zip, $video_path_in_zip])) {
-                        $zip->close();
-                        throw new Exception("解壓縮失敗：無法將檔案從 ZIP 中取出。");
-                    }
-                    $zip->close();
-
-                    // Flatten structure if nested
-                    if (!empty($zip_prefix)) {
-                        $full_config_path = $extract_dir . $config_path_in_zip;
-                        $full_video_path = $extract_dir . $video_path_in_zip;
-
-                        if (file_exists($full_config_path)) {
-                            rename($full_config_path, $extract_dir . 'config.js');
-                        }
-                        if (file_exists($full_video_path)) {
-                            rename($full_video_path, $extract_dir . $video_filename);
-                        }
-
-                        // Clean up - Use simple recursive delete for the prefix dir
-                        $first_dir = explode('/', $zip_prefix)[0];
-                        $clean_target = $extract_dir . $first_dir;
-                        if (is_dir($clean_target)) {
-                            // Quick recursive delete for cleanup
-                            $iter = new RecursiveIteratorIterator(
-                                new RecursiveDirectoryIterator($clean_target, RecursiveDirectoryIterator::SKIP_DOTS),
-                                RecursiveIteratorIterator::CHILD_FIRST
-                            );
-                            foreach ($iter as $path) {
-                                $path->isDir() ? rmdir($path->getPathname()) : unlink($path->getPathname());
-                            }
-                            rmdir($clean_target);
-                        }
-                    }
-
-                    // Final Sanity Check: Did we actually get the files?
-                    if (!file_exists($extract_dir . 'config.js') || !file_exists($extract_dir . $video_filename)) {
-                        // Cleanup - reusing the manual delete logic isn't clean here without a helper, 
-                        // but we should at least error out.
-                        throw new Exception("檔案寫入失敗：解壓縮顯示成功，但目標資料夾中找不到檔案。");
-                    }
-
-                    $content_path = 'uploads/videos/' . $file_id . '/' . $video_filename;
-                    $format = 'evercam';
-                }
+                // Use centralized EverCam ZIP processing helper
+                $result = process_evercam_zip($temp_name, $file_id);
+                $content_path = $result['content_path'];
+                $format = $result['format'];
+                $metadata = $result['metadata'];
+                $duration = $result['duration'];
             }
 
             // Check auto_compression setting to determine initial status

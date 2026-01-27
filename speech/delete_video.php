@@ -5,7 +5,8 @@ require_once 'includes/auth.php';
 // Access Control
 // Access Control
 if (!is_manager() && !is_campus_admin()) {
-    die("未授權。");
+    header('Location: index.php?error=unauthorized');
+    exit;
 }
 
 $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -59,26 +60,9 @@ if ($video) {
 
     header("Location: manage_videos.php?msg=deleted");
 } else {
-    die("找不到影片或權限不足。");
+    header('Location: manage_videos.php?error=not_found');
+    exit;
 }
 
-// Helper function for recursive delete
-function deleteDirectory($dir)
-{
-    if (!file_exists($dir)) {
-        return true;
-    }
-    if (!is_dir($dir)) {
-        return unlink($dir);
-    }
-    foreach (scandir($dir) as $item) {
-        if ($item == '.' || $item == '..') {
-            continue;
-        }
-        if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
-            return false;
-        }
-    }
-    return rmdir($dir);
-}
+// Helper function deleteDirectory() is now in includes/helpers.php
 ?>

@@ -20,7 +20,7 @@
     <nav id="portal-global-nav">
         <!-- 左側區域：Logo + 選單 -->
         <div style="display:flex; align-items:center;">
-            <a href="/index.php?tab=showHome" class="pg-brand">
+            <a href="/cloud/index.php?tab=showHome" class="pg-brand">
                 <i class="fas fa-cloud"></i>
                 <span>雲嘉學習網</span>
             </a>
@@ -28,42 +28,42 @@
             <div class="pg-menu">
                 <!-- 學生專用連結 (預設隱藏，由 JS 決定顯示) -->
                 <div id="pg-student-links" style="display:none; gap:5px; align-items:center;">
-                    <a href="/index.php" class="pg-link">
+                    <a href="/cloud/index.php" class="pg-link">
                         <i class="fas fa-home"></i> 個人主頁
                     </a>
-                    <a href="/index.php?tab=quick-enroll" class="pg-link">
+                    <a href="/cloud/index.php?tab=quick-enroll" class="pg-link">
                         <i class="fas fa-compass"></i> 探索課程
                     </a>
-                    <a href="/index.php?tab=my-courses" class="pg-link">
+                    <a href="/cloud/index.php?tab=my-courses" class="pg-link">
                         <i class="fas fa-book-open"></i> 我的課程
                     </a>
                 </div>
 
                 <!-- 開課教師專用連結 (預設隱藏) -->
                 <div id="pg-teacher-links" style="display:none; gap:5px; align-items:center;">
-                    <a href="/index.php" class="pg-link">
+                    <a href="/cloud/index.php" class="pg-link">
                         <i class="fas fa-home"></i> 個人主頁
                     </a>
-                    <a href="/moodle/course/edit.php" class="pg-link">
+                    <a href="/cloud/moodle/course/edit.php" class="pg-link">
                         <i class="fas fa-plus-circle"></i> 新增課程
                     </a>
-                    <a href="/index.php?tab=course-management" class="pg-link">
+                    <a href="/cloud/index.php?tab=course-management" class="pg-link">
                         <i class="fas fa-tasks"></i> 課程管理
                     </a>
                 </div>
 
                 <!-- 管理員專用連結 (預設隱藏) -->
                 <div id="pg-admin-links" style="display:none; gap:5px; align-items:center;">
-                    <a href="/moodle/course/index.php" class="pg-link">
+                    <a href="/cloud/moodle/course/index.php" class="pg-link">
                         <i class="fas fa-list"></i> 課程列表
                     </a>
-                    <a href="/moodle/course/edit.php?category=2" class="pg-link">
+                    <a href="/cloud/moodle/course/edit.php?category=2" class="pg-link">
                         <i class="fas fa-plus-circle"></i> 新增課程
                     </a>
-                    <a href="/moodle/admin/user.php" class="pg-link">
+                    <a href="/cloud/moodle/admin/user.php" class="pg-link">
                         <i class="fas fa-users"></i> 使用者
                     </a>
-                    <a href="/moodle/admin/search.php" class="pg-link">
+                    <a href="/cloud/moodle/admin/search.php" class="pg-link">
                         <i class="fas fa-cogs"></i> 網站管理
                     </a>
                 </div>
@@ -88,8 +88,8 @@
                         <div class="user-avatar-circle" id="custom-user-avatar">U</div>
                     </div>
                     <div class="pg-dropdown-content" style="right:0; left:auto;">
-                        <a href="/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
-                        <a href="/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
+                        <a href="/cloud/change_password.php"><i class="fas fa-key"></i> 修改密碼</a>
+                        <a href="/cloud/logout.php" id="custom-logout-link"><i class="fas fa-sign-out-alt"></i> 登出系統</a>
                     </div>
                 </div>
             </div>
@@ -155,13 +155,13 @@
         // 確保導覽列內的登出指向正確
         var customLogout = document.getElementById('custom-logout-link');
         if (customLogout) {
-            customLogout.href = '/logout.php';
+            customLogout.href = '/cloud/logout.php';
         }
 
         // 處理 Moodle 頁面上其他可能出現的登出連結
         var logoutLinks = document.querySelectorAll('a[href*="logout.php"]');
         logoutLinks.forEach(function (link) {
-            link.href = '/logout.php';
+            link.href = '/cloud/logout.php';
         });
 
         // ========================================
@@ -195,7 +195,7 @@
                 var manageCatId = getCookie('portal_manage_cat_id');
                 var addCourseLink = document.querySelector('#pg-teacher-links a[href*="/course/edit.php"]');
                 if (addCourseLink && manageCatId && manageCatId !== '0') {
-                    addCourseLink.href = '/moodle/course/edit.php?category=' + manageCatId;
+                    addCourseLink.href = '/cloud/moodle/course/edit.php?category=' + manageCatId;
                 }
             }
 
@@ -378,12 +378,12 @@
                         // 恢復原本角色
                         if (switchIcon) switchIcon.className = 'fas fa-user-tie';
                         if (switchRoleText) switchRoleText.textContent = '恢復教師身分';
-                        switchRoleLink.href = '/moodle/course/switchrole.php?id=' + courseId + '&switchrole=0&sesskey=' + sesskey + '&returnurl=' + encodeURIComponent(returnPath);
+                        switchRoleLink.href = '/cloud/moodle/course/switchrole.php?id=' + courseId + '&switchrole=0&sesskey=' + sesskey + '&returnurl=' + encodeURIComponent(returnPath);
                     } else {
                         // 切換為學生檢視 (role=5 是學生)
                         if (switchIcon) switchIcon.className = 'fas fa-user-graduate';
                         if (switchRoleText) switchRoleText.textContent = '切換為學生檢視';
-                        switchRoleLink.href = '/moodle/course/switchrole.php?id=' + courseId + '&switchrole=5&sesskey=' + sesskey + '&returnurl=' + encodeURIComponent(returnPath);
+                        switchRoleLink.href = '/cloud/moodle/course/switchrole.php?id=' + courseId + '&switchrole=5&sesskey=' + sesskey + '&returnurl=' + encodeURIComponent(returnPath);
                     }
                     switchRoleLink.style.display = 'inline-flex';
                 }
