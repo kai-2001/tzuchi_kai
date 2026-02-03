@@ -45,6 +45,12 @@ function initPlayer(videoId, lastSavedPosition) {
             video.play();
         });
     });
+
+    // 4. Handle video completion - reset progress to 0
+    video.addEventListener('ended', function () {
+        saveProgress(videoId, 0);
+        console.log('Video completed, progress reset to 0');
+    });
 }
 
 function saveProgress(videoId, pos) {
