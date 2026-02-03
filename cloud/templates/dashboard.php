@@ -8,16 +8,17 @@ $is_hospital_admin = isset($_SESSION['is_hospital_admin']) ? $_SESSION['is_hospi
     <?php if ($is_admin && !$is_hospital_admin): ?>
         <?php include 'tabs/admin_console.php'; ?>
     <?php elseif ($is_hospital_admin): ?>
-        <!-- 院區管理員介面 -->
+        <!-- 院區管理員介面 - 簡化版 -->
         <?php include 'tabs/hospital_admin_home.php'; ?>
-        <?php include 'tabs/hospital_admin_members.php'; ?>
-        <?php include 'tabs/hospital_admin_categories.php'; ?>
-        <?php include 'tabs/hospital_admin_courses.php'; ?>
-        <?php include 'tabs/hospital_admin_cohorts.php'; ?>
+        <?php include 'tabs/hospital_admin_members_v2.php'; ?>
+        <?php include 'tabs/admin_settings.php'; ?>
+        <?php include 'tabs/admin_categories.php'; ?>
+        <?php include 'tabs/course_management_v3.php'; ?>
+        <?php include 'tabs/course_packages.php'; ?>
     <?php elseif ($is_coursecreator): ?>
         <!-- 開課教師介面 -->
         <?php include 'tabs/teacher_home.php'; ?>
-        <?php include 'tabs/teacher_management.php'; ?>
+        <?php include 'tabs/course_management_v3.php'; ?>
     <?php else: ?>
         <!-- 學生介面 -->
         <?php include 'tabs/student_home.php'; ?>

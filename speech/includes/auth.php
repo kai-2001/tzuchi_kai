@@ -5,15 +5,52 @@
 require_once __DIR__ . '/config.php';
 
 /**
- * Unified login function
+ * Unified login function with hybrid authentication support
+ * 
+ * In SOAP mode:
+ * - Privileged accounts (manager/campus_admin with local password) use local DB
+ * - Regular users use SOAP authentication
  */
 function user_login($username, $password)
 {
     if (defined('AUTH_MODE') && AUTH_MODE === 'local') {
+        // Full local mode - all accounts use local DB
         return local_login($username, $password);
     } else {
-        return soap_login($username, $password);
+        // SOAP mode with hybrid authentication
+        // Check if this is a privileged account with local password
+        if (is_privileged_account($username)) {
+            return local_login($username, $password);
+        } else {
+            return soap_login($username, $password);
+        }
     }
+}
+
+/**
+ * Check if an account is a privileged account
+ * 
+ * Privileged accounts: manager or campus_admin with local password set
+ * These accounts will use local DB authentication even in SOAP mode
+ */
+function is_privileged_account($username)
+{
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT role, password FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+
+    if (!$user) {
+        return false; // User doesn't exist in local DB
+    }
+
+    // Check if role is manager or campus_admin AND password is set
+    $is_privileged_role = in_array($user['role'], ['manager', 'campus_admin']);
+    $has_local_password = !empty($user['password']);
+
+    return $is_privileged_role && $has_local_password;
 }
 
 /**

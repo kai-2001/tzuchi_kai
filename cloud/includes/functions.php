@@ -173,4 +173,3 @@ function get_institution_cohort($institution_name)
 
     return $cohort_id;
 }
-?>

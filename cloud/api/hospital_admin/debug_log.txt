@@ -15,3 +15,363 @@ moodle_update_user result: Array
 
 )
 
+Start update_member.php [2026-01-29 03:33:23]
+DB Connected
+Exception: 無權限操作此成員
+Start update_member.php [2026-01-29 07:29:39]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 07:30:35]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 07:36:40]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 07:54:13]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 07:56:46]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 07:57:17]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Role changed from student to coursecreator. Syncing to Category 7...
+moodle_assign_role result: Array
+(
+    [success] => 1
+)
+
+Start update_member.php [2026-01-29 07:58:06]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 蔡小名
+    [email] => o0o5678@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 08:01:12]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北學生33
+    [email] => taipei@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 08:05:40]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:05:48]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:10:14]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:10:22]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:10:29]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:10:37]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:10:51]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:11:34]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師
+    [email] => sttttttt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [error] => User not found in Moodle
+)
+
+Start update_member.php [2026-01-29 08:20:56]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北學生33
+    [email] => taipei@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Role changed from student to coursecreator. Syncing to Category 7...
+moodle_assign_role result: Array
+(
+    [success] => 1
+)
+
+Start update_member.php [2026-01-29 08:45:08]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 陳楷傑
+    [email] => h125518958@example.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 08:49:57]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 0129北老師
+    [email] => teacher_tp_1@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Start update_member.php [2026-01-29 08:54:33]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 北老師0129
+    [email] => teacher3@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Role changed from coursecreator to student. Syncing to Category 7...
+moodle_unassign_role result: Array
+(
+    [success] => 1
+)
+
+Start update_member.php [2026-01-30 08:41:11]
+DB Connected
+DB Update Success. Syncing Moodle if needed...
+Syncing profile to Moodle: Array
+(
+    [fullname] => 王大明
+    [email] => tt@gmail.com
+)
+
+moodle_update_user result: Array
+(
+    [warnings] => Array
+        (
+        )
+
+)
+
+Role changed from coursecreator to student. Syncing to Category 7...
+moodle_unassign_role result: Array
+(
+    [success] => 1
+)
+

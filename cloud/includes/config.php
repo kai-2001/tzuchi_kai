@@ -35,4 +35,3 @@ define('CURL_CONNECT_TIMEOUT', 5);     // API 連線超時（秒）
 
 // 6. 系統執行檔路徑 (用於 exec)  <- 已棄用，改用 Web Services
 // define('PHP_BIN_PATH', 'c:\\php\\php.exe');
-?>

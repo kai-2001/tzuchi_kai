@@ -73,10 +73,33 @@ include __DIR__ . '/partials/navbar.php';
 
                 <div class="form-group full-width">
                     <label>上傳 mp4 或 evercam zip 檔</label>
-                    <input type="file" name="video_file" accept=".mp4,.zip" required>
+                    <input type="file" name="video_file" accept=".mp4,.zip" id="video_file">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>或 貼上影片連結</label>
+                    <input type="url" name="video_link" id="video_link"
+                        placeholder="http://example.com/videos/abc123/index.html">
+                    <small class="form-hint">
+                        <i class="fas fa-info-circle"></i> 檔案上傳與連結輸入擇一即可。使用連結的影片將直接設為可播放狀態，不進行壓縮。
+                    </small>
                 </div>
             </div>
             <style>
+                .form-hint {
+                    display: block;
+                    color: #64748b;
+                    font-size: 0.875rem;
+                    margin-top: 8px;
+                    line-height: 1.5;
+                    padding-left: 5px;
+                }
+
+                .form-hint i {
+                    color: var(--primary-color);
+                    margin-right: 4px;
+                    font-size: 0.85rem;
+                }
                 @keyframes progress-stripe {
                     0% {
                         background-position: 1rem 0;
@@ -112,6 +135,66 @@ include __DIR__ . '/partials/navbar.php';
 <script src="assets/js/validators.js"></script>
 <script src="assets/js/upload.js"></script>
 <script>
+    // Mutual exclusion and conditional required validation
+    const videoFile = document.getElementById('video_file');
+    const videoLink = document.getElementById('video_link');
+    const form = document.getElementById('uploadForm');
+
+    function updateFileInput() {
+        if (videoLink.value.trim()) {
+            // Link has value - disable and clear file
+            videoFile.value = '';
+            videoFile.disabled = true;
+            videoFile.removeAttribute('required');
+            videoFile.style.backgroundColor = '#f1f5f9';
+            videoLink.setAttribute('required', 'required');
+        } else {
+            // Link is empty - enable file
+            videoFile.disabled = false;
+            videoFile.setAttribute('required', 'required');
+            videoFile.style.backgroundColor = '';
+            videoLink.removeAttribute('required');
+        }
+    }
+
+    function updateLinkInput() {
+        if (videoFile.files.length > 0) {
+            // File selected - disable and clear link
+            videoLink.value = '';
+            videoLink.disabled = true;
+            videoLink.removeAttribute('required');
+            videoLink.style.backgroundColor = '#f1f5f9';
+            videoFile.setAttribute('required', 'required');
+        } else {
+            // No file - enable link
+            videoLink.disabled = false;
+            videoLink.setAttribute('required', 'required');
+            videoLink.style.backgroundColor = '';
+            videoFile.removeAttribute('required');
+        }
+    }
+
+    videoFile.addEventListener('change', updateLinkInput);
+    videoLink.addEventListener('input', updateFileInput);
+
+    // Form submit validation
+    form.addEventListener('submit', function (e) {
+        const hasFile = videoFile.files.length > 0;
+        const hasLink = videoLink.value.trim() !== '';
+
+        if (!hasFile && !hasLink) {
+            e.preventDefault();
+            alert('請選擇上傳檔案或提供影片連結。');
+            return false;
+        }
+
+        if (hasFile && hasLink) {
+            e.preventDefault();
+            alert('請只選擇一種上傳方式：檔案上傳或影片連結。');
+            return false;
+        }
+    });
+
     // Initialize form validation with rules from backend
     <?php require_once __DIR__ . '/../includes/Validator.php'; ?>
     const uploadRules = <?= Validator::getRulesJson('upload') ?>;

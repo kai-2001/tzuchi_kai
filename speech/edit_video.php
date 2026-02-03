@@ -100,34 +100,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $thumb_path = 'uploads/thumbnails/' . $filename;
         }
 
-        // Handle Video/Content Update
+        // Handle Video/Content Update (File or Link)
         $content_path = $video['content_path']; // Default to old
         $format = $video['format'];
         $metadata = $video['metadata'];
         $duration = $video['duration'];
         $status_update_sql = ""; // Only update status if file changed
+        $is_link_upload = false;
 
-        if (isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
+        // Check if using link or file upload
+        $using_link = !empty($_POST['video_link']);
+        $using_file = isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK;
 
-            // 1. Cleanup Old File/Directory logic
+        if ($using_link && $using_file) {
+            throw new Exception("請選擇檔案上傳或連結輸入其中一種方式。");
+        }
+
+        if ($using_link) {
+            // Handle link-based update
+            $video_link = trim($_POST['video_link']);
+
+            // Validate URL format
+            if (!filter_var($video_link, FILTER_VALIDATE_URL)) {
+                throw new Exception("影片連結格式無效。");
+            }
+
+            // Ensure it's http or https
+            $scheme = parse_url($video_link, PHP_URL_SCHEME);
+            if (!in_array($scheme, ['http', 'https'])) {
+                throw new Exception("影片連結必須使用 http:// 或 https:// 協定。");
+            }
+
+            // Determine format based on URL
+            $url_path = parse_url($video_link, PHP_URL_PATH);
+            $basename = basename($url_path);
+
+            if (strtolower($basename) === 'index.html') {
+                // EverCam format with index.html
+                $directory = dirname($video_link);
+                $content_path = $directory . '/media.mp4';
+                $format = 'evercam';
+                $metadata = null;
+                $duration = 0;
+            } else {
+                // Check file extension
+                $ext = strtolower(pathinfo($url_path, PATHINFO_EXTENSION));
+
+                if ($ext === 'mp4') {
+                    $content_path = $video_link;
+                    $format = 'mp4';
+                    $metadata = null;
+                    $duration = 0;
+                } else {
+                    // Assume EverCam if not .mp4 and not index.html
+                    $content_path = $video_link;
+                    $format = 'evercam';
+                    $metadata = null;
+                    $duration = 0;
+                }
+            }
+
+            $is_link_upload = true;
+
+            // Note: Old file cleanup is skipped for link uploads since old content might be a link too
+            // If old content was a file, it won't be deleted automatically
+            // This is acceptable as the path is being replaced
+
+        } elseif ($using_file) {
+
+            // 1. Cleanup Old File/Directory logic (only for file replacements)
             $old_path_rel = $video['content_path'];
-            $old_full_path = __DIR__ . '/' . $old_path_rel; // Absolute path
+            $old_full_path = __DIR__ . '/' . $old_path_rel;
 
             if (!empty($old_path_rel) && file_exists($old_full_path)) {
-                // Check if it's a standalone file (MP4 in root of uploads/videos)
-                // or a file inside a subdir (EverCam folder)
                 $path_info = pathinfo($old_full_path);
                 $parent_dir = dirname($old_full_path);
 
-                // If the parent dir is NOT the main videos folder, it implies it's a specific subfolder (EverCam)
-                // UPLOAD_DIR_VIDEOS ends with slash, e.g. .../uploads/videos/
-                // parent_dir would be .../uploads/videos/content_xyz
                 $upload_root_norm = str_replace('\\', '/', realpath(UPLOAD_DIR_VIDEOS));
                 $parent_dir_norm = str_replace('\\', '/', realpath($parent_dir));
 
                 if ($parent_dir_norm !== $upload_root_norm) {
                     // It's a subfolder (EverCam), delete the whole folder
-                    // Quick recursive delete
                     $files = glob($parent_dir_norm . '/*');
                     foreach ($files as $file) {
                         if (is_file($file))
@@ -164,33 +217,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $duration = $result['duration'];
             }
 
-            // Check auto_compression setting to determine initial status
-            $auto_compression = '0';
-            // Check specific campus setting first
-            $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $campus_id);
-            $stmt->execute();
-            $res = $stmt->get_result();
-
-            $settings = [];
-            while ($row = $res->fetch_assoc()) {
-                $settings[$row['campus_id']] = $row['setting_value'];
-            }
-
-            if (isset($settings[$campus_id])) {
-                $auto_compression = $settings[$campus_id];
-            } elseif (isset($settings[0])) {
-                $auto_compression = $settings[0];
-            }
-
-            // Set status and trigger flag based on auto-compression setting
-            if ($auto_compression === '1') {
-                $status = 'pending';
-                $should_trigger = true;
-            } else {
-                $status = 'waiting';
+            // Determine status based on upload type
+            if ($is_link_upload) {
+                // Link-based uploads skip compression entirely
+                $status = 'ready';
                 $should_trigger = false;
+            } else {
+                // File uploads: Check auto_compression setting
+                $auto_compression = '0';
+                // Check specific campus setting first
+                $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $campus_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
+                $settings = [];
+                while ($row = $res->fetch_assoc()) {
+                    $settings[$row['campus_id']] = $row['setting_value'];
+                }
+
+                if (isset($settings[$campus_id])) {
+                    $auto_compression = $settings[$campus_id];
+                } elseif (isset($settings[0])) {
+                    $auto_compression = $settings[0];
+                }
+
+                // Determine status based on compression mode
+                // Priority: COMPRESSION_MODE (global) > auto_compression (campus-specific)
+                if (COMPRESSION_MODE === 'disabled') {
+                    // Skip compression entirely - go directly to ready
+                    $status = 'ready';
+                    $should_trigger = false;
+                } elseif ($auto_compression === '1') {
+                    // Compression enabled + auto mode
+                    $status = 'pending';
+                    $should_trigger = true;
+                } else {
+                    // Compression enabled + manual mode
+                    $status = 'waiting';
+                    $should_trigger = false;
+                }
             }
         } else {
             $status = $video['status']; // Keep old status

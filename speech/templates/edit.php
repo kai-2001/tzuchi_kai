@@ -78,10 +78,34 @@ include __DIR__ . '/partials/navbar.php';
 
                 <div class="form-group full-width">
                     <label>更新 mp4 或 evercam zip 檔 (留空則保持不變)</label>
-                    <input type="file" name="video_file" accept=".mp4,.zip">
+                    <input type="file" name="video_file" accept=".mp4,.zip" id="video_file">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>或 貼上影片連結 (留空則保持不變)</label>
+                    <input type="url" name="video_link" id="video_link"
+                        placeholder="http://example.com/videos/abc123/index.html">
+                    <small class="form-hint">
+                        <i class="fas fa-info-circle"></i> 檔案上傳與連結輸入擇一即可。使用連結的影片將直接設為可播放狀態，不進行壓縮。
+                    </small>
                 </div>
             </div>
             <style>
+                .form-hint {
+                    display: block;
+                    color: #64748b;
+                    font-size: 0.875rem;
+                    margin-top: 8px;
+                    line-height: 1.5;
+                    padding-left: 5px;
+                }
+
+                .form-hint i {
+                    color: var(--primary-color);
+                    margin-right: 4px;
+                    font-size: 0.85rem;
+                }
+
                 @keyframes progress-stripe {
                     0% {
                         background-position: 1rem 0;
@@ -115,6 +139,55 @@ include __DIR__ . '/partials/navbar.php';
 </div>
 
 <script src="assets/js/upload.js"></script>
+<script>
+    // Mutual exclusion for file and link inputs in edit form
+    document.addEventListener('DOMContentLoaded', function () {
+        const videoFile = document.getElementById('video_file');
+        const videoLink = document.getElementById('video_link');
+        const form = document.querySelector('form');
+
+        function updateFileInput() {
+            if (videoLink.value.trim()) {
+                // Link has value - disable and clear file
+                videoFile.value = '';
+                videoFile.disabled = true;
+                videoFile.style.backgroundColor = '#f1f5f9';
+            } else {
+                // Link is empty - enable file
+                videoFile.disabled = false;
+                videoFile.style.backgroundColor = '';
+            }
+        }
+
+        function updateLinkInput() {
+            if (videoFile.files.length > 0) {
+                // File selected - disable and clear link
+                videoLink.value = '';
+                videoLink.disabled = true;
+                videoLink.style.backgroundColor = '#f1f5f9';
+            } else {
+                // No file - enable link
+                videoLink.disabled = false;
+                videoLink.style.backgroundColor = '';
+            }
+        }
+
+        videoFile.addEventListener('change', updateLinkInput);
+        videoLink.addEventListener('input', updateFileInput);
+
+        // Form submit validation
+        form.addEventListener('submit', function (e) {
+            const hasFile = videoFile.files.length > 0;
+            const hasLink = videoLink.value.trim() !== '';
+
+            if (hasFile && hasLink) {
+                e.preventDefault();
+                alert('請只選擇一種上傳方式：檔案上傳或影片連結。');
+                return false;
+            }
+        });
+    });
+</script>
 
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

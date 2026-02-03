@@ -1,55 +1,6 @@
 <?php
 // includes/auth.php - 認證邏輯
-
-/**
- * 檢查使用者是否為開課教師 (coursecreator)
- * 透過 portal_db 的 role 欄位查詢
- * @param string $username 使用者帳號
- * @param mysqli $conn 可選的現有資料庫連線
- * @return bool 是否為開課教師
- */
-function check_teacherplus_role($username, $conn = null)
-{
-    global $db_host, $db_user, $db_pass, $db_name;
-    $local_conn = false;
-
-    try {
-        if (!$conn) {
-            $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-            $local_conn = true;
-        }
-
-        if ($conn->connect_error) {
-            return false;
-        }
-
-        // 查詢使用者的 role 欄位
-        $stmt = $conn->prepare("SELECT role FROM users WHERE username = ?");
-        if (!$stmt) {
-            if ($local_conn)
-                $conn->close();
-            return false;
-        }
-
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $is_teacherplus = false;
-
-        if ($row = $result->fetch_assoc()) {
-            $is_teacherplus = ($row['role'] === 'coursecreator');
-        }
-
-        $stmt->close();
-        if ($local_conn)
-            $conn->close();
-        return $is_teacherplus;
-
-    } catch (Exception $e) {
-        error_log("Role check error: " . $e->getMessage());
-        return false;
-    }
-}
+require_once __DIR__ . '/attribute_helper.php';
 
 
 /**
@@ -68,7 +19,7 @@ function check_auto_login()
                 return;
             }
 
-            $stmt = $conn->prepare("SELECT * FROM users WHERE remember_token = ?");
+            $stmt = $conn->prepare("SELECT id, username, fullname, role, institution, remember_token FROM users WHERE remember_token = ?");
             if (!$stmt) {
                 $conn->close();
                 return;
@@ -83,62 +34,15 @@ function check_auto_login()
                 $_SESSION['user_id'] = $user_row['username'];
                 $_SESSION['username'] = $user_row['username'];
                 $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
-                $_SESSION['is_admin'] = ($user_row['username'] === 'admin');
+                $_SESSION['db_user_id'] = $user_row['id']; // 資料庫 ID
 
-                // 檢查是否為院區管理員
-                $is_hospital_admin = (isset($user_row['role']) && $user_row['role'] === 'hospital_admin');
-                $_SESSION['is_hospital_admin'] = $is_hospital_admin;
+                // 🚀 改用屬性判斷角色
+                set_session_from_attributes($user_row['id'], $conn);
 
-                // 如果是院區管理員，也視為管理員 (顯示管理介面)
-                if ($is_hospital_admin) {
-                    $_SESSION['is_admin'] = true;
-                }
-
-                // 檢測開課教師角色 (帶入現有連線)
-                $_SESSION['is_teacherplus'] = check_teacherplus_role($user_row['username'], $conn);
-
-                // 同步 Moodle 角色與權限
+                // 同步 Moodle 角色與權限（取得類別 ID）
                 $sync_result = sync_user_moodle_role($user_row['username'], $conn);
-                $new_role = $sync_result['portal_role'];
                 $_SESSION['management_category_id'] = $sync_result['category_id'];
-
-                // 更新 Session 中的角色狀態
-                // 注意: 這裡要使用同步回來的 new_role，而不是舊的 user_row['role']
-                $_SESSION['is_hospital_admin'] = ($new_role === 'hospital_admin');
-                if ($_SESSION['is_hospital_admin']) {
-                    $_SESSION['is_admin'] = true;
-                }
-
-                // TeacherPlus logic: also check if the synced role is teacherplus
-                // check_teacherplus_role 依然保留，用來做雙重確認或者是相容舊邏輯
-                // 但主要以 Moodle 同步結果為準
-                $_SESSION['is_coursecreator'] = ($new_role === 'coursecreator');
-
-                // 設定角色 Cookie
-                setcookie('portal_is_admin', $_SESSION['is_admin'] ? '1' : '0', 0, '/');
-                setcookie('portal_is_hospital_admin', $_SESSION['is_hospital_admin'] ? '1' : '0', 0, '/');
-                setcookie('portal_is_coursecreator', $_SESSION['is_coursecreator'] ? '1' : '0', 0, '/');
                 setcookie('portal_manage_cat_id', $_SESSION['management_category_id'], 0, '/');
-
-                // 🚀 關鍵新增: 自動登入時同步群組 (Cohort)
-                $institution = $user_row['institution'] ?? '';
-                $_SESSION['institution'] = $institution;
-
-                $cohort_map = [
-                    '台北' => 'cohort_taipei',
-                    '嘉義' => 'cohort_chiayi',
-                    '大林' => 'cohort_dalin',
-                    '花蓮' => 'cohort_hualien'
-                ];
-
-                if (array_key_exists($institution, $cohort_map)) {
-                    $cohort_id = $cohort_map[$institution];
-                    // 使用新 API 函式取代 exec
-                    if (!function_exists('moodle_add_cohort_member')) {
-                        require_once __DIR__ . '/moodle_api.php';
-                    }
-                    moodle_add_cohort_member($user_row['username'], $cohort_id);
-                }
             }
 
             $stmt->close();
@@ -281,7 +185,7 @@ function process_login()
         if ($soap_result) {
             $login_success = true;
             // 檢查本地資料庫是否已有此使用者
-            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt = $conn->prepare("SELECT id, username, fullname, password, role, institution FROM users WHERE username = ?");
             $stmt->bind_param("s", $input_user);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -314,7 +218,7 @@ function process_login()
                 $ins_stmt->close();
 
                 // 重新讀取剛建立的使用者
-                $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+                $stmt = $conn->prepare("SELECT id, username, fullname, password, role, institution FROM users WHERE username = ?");
                 $stmt->bind_param("s", $input_user);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -324,7 +228,7 @@ function process_login()
         }
     } else {
         // --- 本地模式 ---
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, fullname, password, role, institution FROM users WHERE username = ?");
         $stmt->bind_param("s", $input_user);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -354,40 +258,15 @@ function process_login()
     $_SESSION['user_id'] = $user_row['username'];
     $_SESSION['username'] = $user_row['username'];
     $_SESSION['fullname'] = !empty($user_row['fullname']) ? $user_row['fullname'] : $user_row['username'];
-    $_SESSION['is_admin'] = ($user_row['role'] === 'admin');
+    $_SESSION['db_user_id'] = $user_row['id']; // 資料庫 ID
 
-    // 同步 Moodle 角色與權限
+    // 🚀 改用屬性判斷角色
+    set_session_from_attributes($user_row['id'], $conn);
+
+    // 同步 Moodle 角色與權限（取得類別 ID）
     $sync_result = sync_user_moodle_role($user_row['username'], $conn);
-    $new_role = $sync_result['portal_role'];
     $_SESSION['management_category_id'] = $sync_result['category_id'];
-
-    // 更新 Session 中的角色狀態
-    $_SESSION['is_hospital_admin'] = ($new_role === 'hospital_admin');
-    if ($_SESSION['is_hospital_admin']) {
-        $_SESSION['is_admin'] = true;
-    }
-
-    // TeacherPlus logic
-    $_SESSION['is_coursecreator'] = ($new_role === 'coursecreator');
-
-    // 設定角色 Cookie (供 Moodle 前端判斷使用)
-    setcookie('portal_is_admin', $_SESSION['is_admin'] ? '1' : '0', 0, '/');
-    setcookie('portal_is_hospital_admin', $_SESSION['is_hospital_admin'] ? '1' : '0', 0, '/');
-    setcookie('portal_is_coursecreator', $_SESSION['is_coursecreator'] ? '1' : '0', 0, '/');
     setcookie('portal_manage_cat_id', $_SESSION['management_category_id'], 0, '/');
-
-    // 🚀 關鍵新增: 登入時自動同步群組 (Cohort)
-    $institution = $user_row['institution'] ?? '';
-    $_SESSION['institution'] = $institution; // 順便存進 Session 備用
-
-    $cohort_id = get_institution_cohort($institution);
-    if ($cohort_id) {
-        // 使用新 API 函式取代 exec
-        if (!function_exists('moodle_add_cohort_member')) {
-            require_once __DIR__ . '/moodle_api.php';
-        }
-        moodle_add_cohort_member($user_row['username'], $cohort_id);
-    }
 
     // 處理 Remember Me
     if ($remember_me) {

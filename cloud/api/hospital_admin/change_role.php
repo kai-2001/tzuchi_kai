@@ -35,6 +35,8 @@ if (!in_array($new_role, ['student', 'coursecreator'])) {
     die(json_encode(['success' => false, 'error' => '無效的角色']));
 }
 
+require_once '../../includes/attribute_helper.php';
+
 try {
     $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
     if ($conn->connect_error) {
@@ -42,34 +44,48 @@ try {
     }
     $conn->set_charset('utf8mb4');
 
-    // 確認成員存在且可操作
-    if (!empty($institution)) {
-        // hospital_admin 只能操作自己院區的成員
-        $stmt = $conn->prepare("
-            SELECT id, username, role FROM users 
-            WHERE id = ? AND institution = ? AND role IN ('student', 'coursecreator')
-        ");
-        $stmt->bind_param("is", $id, $institution);
-    } else {
-        // 系統管理員可以操作所有成員
-        $stmt = $conn->prepare("
-            SELECT id, username, role, institution FROM users 
-            WHERE id = ? AND role IN ('student', 'coursecreator')
-        ");
-        $stmt->bind_param("i", $id);
-    }
+    // 1. 取得成員資料
+    $stmt = $conn->prepare("SELECT id, username, role, institution FROM users WHERE id = ?");
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
         $stmt->close();
         $conn->close();
-        die(json_encode(['success' => false, 'error' => '成員不存在或無權限操作']));
+        die(json_encode(['success' => false, 'error' => '成員不存在']));
     }
     $member = $result->fetch_assoc();
     $username = $member['username'];
     $target_institution = $member['institution'];
     $stmt->close();
+
+    // 2. 檢查角色合法性（只允許操作一般學生和開課教師）
+    if (!in_array($member['role'], ['student', 'coursecreator', 'teacherplus'])) {
+        $conn->close();
+        die(json_encode(['success' => false, 'error' => '無權限操作此等級成員']));
+    }
+
+    // 3. 權限檢查：只能操作同院區的成員
+    $admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+    $is_super_admin = ($_SESSION['is_admin'] ?? false) && empty($admin_hospital_id);
+
+    if (!$is_super_admin && $admin_hospital_id) {
+        // 檢查成員是否具有目前管理員的院區屬性
+        $stmt_check = $conn->prepare("SELECT 1 FROM user_attributes WHERE user_id = ? AND attribute_value_id = ?");
+        $stmt_check->bind_param("ii", $id, $admin_hospital_id);
+        $stmt_check->execute();
+        if ($stmt_check->get_result()->num_rows === 0) {
+            // 如果不屬於該院區，檢查是否屬於其他院區
+            $target_hospital = get_user_hospital($id, $conn);
+            if ($target_hospital) {
+                $stmt_check->close();
+                $conn->close();
+                die(json_encode(['success' => false, 'error' => "無權限操作此成員 (成員屬於 {$target_hospital['name']})"]));
+            }
+        }
+        $stmt_check->close();
+    }
 
     // 更新 Portal 資料庫角色
     $stmt = $conn->prepare("UPDATE users SET role = ? WHERE id = ?");

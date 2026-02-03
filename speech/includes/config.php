@@ -94,6 +94,13 @@ define('REMOTE_WORKER_URL', env('REMOTE_WORKER_URL', 'http://kai/speech/worker_d
 define('WORKER_SECRET_TOKEN', env('WORKER_SECRET_TOKEN', 'YOUR_SUPER_SECRET_TOKEN_123'));
 
 // ============================================
+// Compression Settings
+// ============================================
+// Compression Mode ('enabled' or 'disabled')
+// When disabled, uploaded videos skip compression and go directly to 'ready' status
+define('COMPRESSION_MODE', env('COMPRESSION_MODE', 'enabled'));
+
+// ============================================
 // Load Models & Helpers
 // ============================================
 require_once __DIR__ . '/helpers.php';

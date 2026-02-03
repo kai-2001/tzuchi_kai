@@ -79,13 +79,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Handle Content (MP4 or ZIP)
+        // Handle Content (File Upload or Link)
         $content_path = '';
         $format = 'mp4';
         $metadata = null;
         $duration = 0;
+        $is_link_upload = false; // Track if using link
 
-        if (isset($_FILES['video_file'])) {
+        // Check if using link or file upload
+        $using_link = !empty($_POST['video_link']);
+        $using_file = isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK;
+
+        if ($using_link && $using_file) {
+            throw new Exception("請選擇檔案上傳或連結輸入其中一種方式。");
+        }
+
+        if (!$using_link && !$using_file) {
+            throw new Exception("請上傳影片檔案或提供影片連結。");
+        }
+
+        if ($using_link) {
+            // Handle link-based upload
+            $video_link = trim($_POST['video_link']);
+
+            // Validate URL format
+            if (!filter_var($video_link, FILTER_VALIDATE_URL)) {
+                throw new Exception("影片連結格式無效。");
+            }
+
+            // Ensure it's http or https
+            $scheme = parse_url($video_link, PHP_URL_SCHEME);
+            if (!in_array($scheme, ['http', 'https'])) {
+                throw new Exception("影片連結必須使用 http:// 或 https:// 協定。");
+            }
+
+            // Determine format based on URL
+            $url_path = parse_url($video_link, PHP_URL_PATH);
+            $basename = basename($url_path);
+
+            if (strtolower($basename) === 'index.html') {
+                // EverCam format with index.html
+                // Example: http://example.com/videos/abc123/index.html
+                // We store as: http://example.com/videos/abc123/media.mp4
+                // The actual filename will be determined by config.js at runtime
+                $directory = dirname($video_link);
+                $content_path = $directory . '/media.mp4'; // Placeholder
+                $format = 'evercam';
+                $metadata = null; // Will be loaded dynamically by watch.php from config.js
+                $duration = 0;
+            } else {
+                // Check file extension
+                $ext = strtolower(pathinfo($url_path, PATHINFO_EXTENSION));
+
+                if ($ext === 'mp4') {
+                    $content_path = $video_link;
+                    $format = 'mp4';
+                    $metadata = null;
+                    $duration = 0;
+                } else {
+                    // Assume EverCam if not .mp4 and not index.html
+                    // Direct link to media file (e.g., media.mp4, player.mp4)
+                    $content_path = $video_link;
+                    $format = 'evercam';
+                    $metadata = null; // Will be loaded dynamically by watch.php
+                    $duration = 0;
+                }
+            }
+
+            $is_link_upload = true;
+
+        } elseif ($using_file) {
+            // Handle file upload (existing logic)
             if ($_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
                 $ext = strtolower(pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION));
                 $temp_name = $_FILES['video_file']['tmp_name'];
@@ -117,39 +181,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Check Auto-Compression Setting (Campus Specific)
-        $auto_compression = '0';
-        // Check specific campus setting first
-        $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $campus_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
+        // Determine Status: Link uploads are ALWAYS ready
+        if ($is_link_upload) {
+            // Link-based uploads skip compression entirely
+            $status = 'ready';
+            $should_trigger = false;
+            $msg = "演講上傳成功！使用外部連結的影片已可立即觀看。";
+        } else {
+            // File uploads: Check compression mode and auto-compression settings
+            $auto_compression = '0';
+            // Check specific campus setting first
+            $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $campus_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
 
-        $settings = [];
-        while ($row = $res->fetch_assoc()) {
-            $settings[$row['campus_id']] = $row['setting_value'];
-        }
+            $settings = [];
+            while ($row = $res->fetch_assoc()) {
+                $settings[$row['campus_id']] = $row['setting_value'];
+            }
 
-        if (isset($settings[$campus_id])) {
-            $auto_compression = $settings[$campus_id];
-        } elseif (isset($settings[0])) {
-            $auto_compression = $settings[0];
+            if (isset($settings[$campus_id])) {
+                $auto_compression = $settings[$campus_id];
+            } elseif (isset($settings[0])) {
+                $auto_compression = $settings[0];
+            }
+
+            // Determine status based on compression mode
+            // Priority: COMPRESSION_MODE (global) > auto_compression (campus-specific)
+            if (COMPRESSION_MODE === 'disabled') {
+                // Skip compression entirely - go directly to ready
+                $status = 'ready';
+                $msg = "演講上傳成功！系統設為「無壓縮模式」，影片已可立即觀看。";
+                $should_trigger = false;
+            } elseif ($auto_compression === '1') {
+                // Compression enabled + auto mode
+                $status = 'pending';
+                $msg = "演講上傳成功！系統設為「自動壓縮」，已通知轉檔主機開始作業。";
+                $should_trigger = true;
+            } else {
+                // Compression enabled + manual mode
+                $status = 'waiting';
+                $msg = "演講上傳成功！已加入「待處理清單」。請前往佇列管理頁面手動啟動壓縮。";
+                $should_trigger = false;
+            }
         }
 
         // Save Video with ownership and new metadata
         $user_id = $_SESSION['user_id'];
-
-        // Determine status based on auto-compression setting
-        if ($auto_compression === '1') {
-            $status = 'pending';
-            $msg = "演講上傳成功！系統設為「自動壓縮」，已通知轉檔主機開始作業。";
-            $should_trigger = true;
-        } else {
-            $status = 'waiting';
-            $msg = "演講上傳成功！已加入「待處理清單」。請前往佇列管理頁面手動啟動壓縮。";
-            $should_trigger = false;
-        }
 
         $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssissiiis", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id, $status);

@@ -16,14 +16,14 @@ if (isset($_SESSION['management_category_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雲嘉學習網 | 大林慈濟教學部</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
+    <link rel="icon" href="assets/img/little_logo.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="assets/css/design-system.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -32,8 +32,7 @@ if (isset($_SESSION['management_category_id'])) {
         <nav id="portal-global-nav">
             <div style="display:flex; align-items:center;">
                 <a onclick="showHome()" class="pg-brand">
-                    <i class="fas fa-cloud"></i>
-                    <span>雲嘉學習網</span>
+                    <img src="assets/img/small_logo.svg" alt="雲嘉e學院" style="height: 55px; width: auto;">
                     <?php // if ($is_admin) echo '<span class="admin-badge">Admin</span>'; // 已停用 ?>
                 </a>
 
@@ -44,21 +43,21 @@ if (isset($_SESSION['management_category_id'])) {
                         </a>
 
                         <?php if ($is_hospital_admin): ?>
-                            <!-- 院區管理員專屬連結 -->
+                            <!-- 院區管理員專屬連結 - 簡化版 -->
                             <a onclick="showTab('member-management')" class="pg-link">
                                 <i class="fas fa-users-cog"></i> 成員管理
                             </a>
-                            <a onclick="showTab('category-management')" class="pg-link">
-                                <i class="fas fa-folder-tree"></i> 類別管理
+                            <a onclick="showTab('admin-settings')" class="pg-link">
+                                <i class="fas fa-cog"></i> 部門與職稱設定
+                            </a>
+                            <a onclick="showTab('admin-categories')" class="pg-link">
+                                <i class="fas fa-sitemap"></i> 管理類別
                             </a>
                             <a onclick="showTab('course-management')" class="pg-link">
-                                <i class="fas fa-chalkboard"></i> 課程管理
+                                <i class="fas fa-tasks"></i> 課程管理
                             </a>
-                            <a onclick="showTab('cohort-management')" class="pg-link">
-                                <i class="fas fa-users-class"></i> 群組管理
-                            </a>
-                            <a href="#" onclick="goToMoodle('<?php echo $moodle_url; ?>/report/log/index.php')" class="pg-link">
-                                <i class="fas fa-chart-line"></i> 報表
+                            <a onclick="showTab('course-packages')" class="pg-link">
+                                <i class="fas fa-box-open"></i> 課程包管理
                             </a>
                         <?php else: ?>
                             <!-- 系統管理員連結 -->

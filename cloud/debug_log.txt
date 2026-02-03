@@ -23,3 +23,45 @@
   -> [END] Shutdown process (+1.4988s)
 [2026-01-16 03:31:50] [GLOBAL] Duration: 0.6726s | Mem: 13.92MB | URL: /moodle/lib/requirejs.php/1768525125/core/first.js
   -> [END] Shutdown process (+0.6727s)
+[2026-01-30 02:06:09] Fetching assignments for Cat ID: 22
+[2026-01-30 02:06:09] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:10] Fetching assignments for Cat ID: 21
+[2026-01-30 02:06:10] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:11] Fetching assignments for Cat ID: 20
+[2026-01-30 02:06:11] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:11] Fetching assignments for Cat ID: 19
+[2026-01-30 02:06:11] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:12] Fetching assignments for Cat ID: 19
+[2026-01-30 02:06:12] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:12] Fetching assignments for Cat ID: 18
+[2026-01-30 02:06:13] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:06:13] Fetching assignments for Cat ID: 7
+[2026-01-30 02:06:13] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:08:03] Fetching assignments for Cat ID: 22
+[2026-01-30 02:08:04] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:36] Fetching assignments for Cat ID: 18 (contextlevel=40)
+[2026-01-30 02:09:36] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:37] Fetching assignments for Cat ID: 20 (contextlevel=40)
+[2026-01-30 02:09:37] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:37] Fetching assignments for Cat ID: 20 (contextlevel=40)
+[2026-01-30 02:09:37] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:38] Fetching assignments for Cat ID: 21 (contextlevel=40)
+[2026-01-30 02:09:38] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:39] Fetching assignments for Cat ID: 22 (contextlevel=40)
+[2026-01-30 02:09:39] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:09:44] Fetching assignments for Cat ID: 22 (contextlevel=40)
+[2026-01-30 02:09:44] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:43] Fetching assignments for Cat ID: 22 (contextlevel='coursecat')
+[2026-01-30 02:14:43] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:44] Fetching assignments for Cat ID: 21 (contextlevel='coursecat')
+[2026-01-30 02:14:44] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:44] Fetching assignments for Cat ID: 22 (contextlevel='coursecat')
+[2026-01-30 02:14:44] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:45] Fetching assignments for Cat ID: 21 (contextlevel='coursecat')
+[2026-01-30 02:14:45] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:46] Fetching assignments for Cat ID: 21 (contextlevel='coursecat')
+[2026-01-30 02:14:46] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:47] Fetching assignments for Cat ID: 22 (contextlevel='coursecat')
+[2026-01-30 02:14:47] Assignment Fetch Error: 在資料庫中找不到資料記錄。
+[2026-01-30 02:14:53] Fetching assignments for Cat ID: 22 (contextlevel='coursecat')
+[2026-01-30 02:14:53] Assignment Fetch Error: 在資料庫中找不到資料記錄。

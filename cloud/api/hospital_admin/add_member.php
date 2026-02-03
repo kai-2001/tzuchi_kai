@@ -10,6 +10,7 @@ ob_start();
 require_once '../../includes/config.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/moodle_api.php';
+require_once '../../includes/attribute_helper.php';
 header('Content-Type: application/json; charset=utf-8');
 
 // 權限檢查 - 允許 hospital_admin 或系統管理員
@@ -30,6 +31,12 @@ $fullname = trim($_POST['fullname'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $role = $_POST['role'] ?? 'student';
+$hospital_id = intval($_POST['hospital_id'] ?? 0);
+$department_id = intval($_POST['department_id'] ?? 0);
+$job_title_ids = $_POST['job_title_ids'] ?? []; // 多選職稱陣列
+if (!is_array($job_title_ids)) {
+    $job_title_ids = [];
+}
 
 if (empty($username) || empty($fullname)) {
     die(json_encode(['success' => false, 'error' => '帳號和姓名為必填']));
@@ -89,23 +96,44 @@ try {
 
     // 同步到 Moodle 建立用戶
     $moodle_user = null;
-    if (function_exists('ensure_moodle_user_exists')) {
-        $moodle_user = ensure_moodle_user_exists($username, $fullname, $email);
-        error_log("add_member debug: ensure_moodle_user_exists result for $username: " . print_r($moodle_user, true));
+    try {
+        if (function_exists('ensure_moodle_user_exists')) {
+            $moodle_user = ensure_moodle_user_exists($username, $fullname, $email);
+            // error_log("add_member debug: ensure_moodle_user_exists result: " . print_r($moodle_user, true));
+        }
+
+        // 同步到 Cohort
+        $cohort_id = get_institution_cohort($institution);
+        if ($cohort_id) {
+            moodle_add_cohort_member($username, $cohort_id);
+        }
+
+        // 🚀 如果是開課教師，同步 coursecreator 角色到 Moodle（類別層級）
+        if (($role === 'teacherplus' || $role === 'coursecreator') && $category_id > 0) {
+            moodle_assign_role($username, $category_id, 'coursecreator');
+        }
+    } catch (Exception $e) {
+        error_log("add_member Moodle sync warning: " . $e->getMessage());
+        // Moodle 同步失敗不應阻擋 Portal 本地建立成功
     }
 
-    // 同步到 Cohort
-    $cohort_id = get_institution_cohort($institution);
-    if ($cohort_id) {
-        // use API function
-        $res = moodle_add_cohort_member($username, $cohort_id);
+    // 儲存使用者屬性（院區、部門、職稱）
+    $attr_ids = [];
+    if ($hospital_id > 0) {
+        $attr_ids[] = $hospital_id;
     }
-
-    // 🚀 如果是開課教師，同步 coursecreator 角色到 Moodle（類別層級）
-    if (($role === 'teacherplus' || $role === 'coursecreator') && $category_id > 0) {
-        // use API function
-        $res = moodle_assign_role($username, $category_id, 'coursecreator');
-        error_log("add_member debug: role assign result: " . print_r($res, true));
+    if ($department_id > 0) {
+        $attr_ids[] = $department_id;
+    }
+    // 多選職稱
+    foreach ($job_title_ids as $jt_id) {
+        $jt_id = intval($jt_id);
+        if ($jt_id > 0) {
+            $attr_ids[] = $jt_id;
+        }
+    }
+    if (!empty($attr_ids)) {
+        set_user_attributes($new_id, $attr_ids);
     }
 
     // 清除前面的任何輸出，確保只回傳 JSON
@@ -115,7 +143,7 @@ try {
     echo json_encode([
         'success' => true,
         'message' => '成員已新增',
-        'id' => $new_id
+        'user_id' => $new_id
     ]);
 
 } catch (Throwable $e) { // 👈 改用 Throwable 以捕捉 Fatal Error

@@ -6,8 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雲嘉學習網 | 大林慈濟教學部</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
+    <link rel="icon" href="assets/img/little_logo.png" type="image/png">
     <meta name="description" content="雲嘉學習網 - 中南部地區醫院同仁雲端學習平台，提供專業醫療課程與學習資源。">
 
     <!-- Fonts -->
@@ -30,8 +29,7 @@
     <nav class="landing-nav" id="landingNav">
         <div class="nav-container">
             <a href="index.php" class="nav-brand">
-                <i class="fas fa-cloud"></i>
-                <span>雲嘉學習網</span>
+                <img src="assets/img/small_logo.svg" alt="雲嘉e學院" style="height: 55px; width: auto;">
             </a>
 
             <div class="nav-menu">
@@ -64,20 +62,15 @@
         </div>
 
         <div class="hero-content">
-            <div class="hero-badge scroll-animate fade-scale">
+            <!-- <div class="hero-badge scroll-animate fade-scale">
                 <i class="fas fa-star"></i>
                 大林慈濟教學部
+            </div> -->
+
+            <div class="hero-brand-wrapper" style="text-align: center; margin-bottom: 0px;">
+                <img src="assets/img/big_logo.svg" alt="雲嘉e學院" class="scroll-animate fade-scale"
+                    style="height: 300px; width: auto; padding-left: 285px;">
             </div>
-
-            <h1 class="hero-title scroll-animate slide-up">
-                <span class="title-main">雲嘉</span><span class="title-accent">學習網</span>
-            </h1>
-
-            <p class="hero-subtitle scroll-animate slide-up delay-1">
-                中南部地區醫院同仁的雲端學習平台<br>
-                分享專業課程，共創學習成長
-            </p>
-
             <div class="hero-buttons scroll-animate slide-up delay-2">
                 <a href="#login-section" class="btn-hero btn-hero-primary">
                     <i class="fas fa-rocket"></i>
@@ -364,8 +357,7 @@
     <footer class="landing-footer">
         <div class="footer-container">
             <div class="footer-brand">
-                <i class="fas fa-cloud"></i>
-                <span>雲嘉學習網</span>
+                <img src="assets/img/main_logo.png" alt="雲嘉學習網" style="height: 40px; width: auto;">
             </div>
             <p class="footer-copyright">
                 &copy; <?php echo date('Y'); ?> 大林慈濟醫院教學部. All rights reserved.

@@ -27,6 +27,8 @@ if ($id <= 0) {
     die(json_encode(['success' => false, 'error' => '無效的成員 ID']));
 }
 
+require_once '../../includes/attribute_helper.php'; // 引入屬性 helper
+
 try {
     $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
     if ($conn->connect_error) {
@@ -34,33 +36,50 @@ try {
     }
     $conn->set_charset('utf8mb4');
 
-    // 確認成員存在且可刪除（不能刪除管理員）
-    if (!empty($institution)) {
-        // hospital_admin 只能刪除自己院區的成員
-        $stmt = $conn->prepare("
-            SELECT id, username, role FROM users 
-            WHERE id = ? AND institution = ? AND role IN ('student', 'coursecreator')
-        ");
-        $stmt->bind_param("is", $id, $institution);
-    } else {
-        // 系統管理員可以刪除所有非管理員
-        $stmt = $conn->prepare("
-            SELECT id, username, role FROM users 
-            WHERE id = ? AND role IN ('student', 'coursecreator')
-        ");
-        $stmt->bind_param("i", $id);
-    }
+    // 1. 取得成員資料
+    $stmt = $conn->prepare("SELECT id, username, role FROM users WHERE id = ?");
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
         $stmt->close();
         $conn->close();
-        die(json_encode(['success' => false, 'error' => '成員不存在或無權限刪除']));
+        die(json_encode(['success' => false, 'error' => '成員不存在']));
     }
     $member = $result->fetch_assoc();
     $username = $member['username'];
     $stmt->close();
+
+    // 2. 檢查角色（禁止刪除管理員）
+    if (!in_array($member['role'], ['student', 'coursecreator', 'teacherplus'])) {
+        $conn->close();
+        die(json_encode(['success' => false, 'error' => '無法刪除管理員等級的成員']));
+    }
+
+    // 3. 權限檢查：只能刪除同院區的成員
+    $admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+    // 系統管理員 (is_admin 且沒有被限制在特定院區) 可以刪除任何人
+    $is_super_admin = ($_SESSION['is_admin'] ?? false) && empty($admin_hospital_id);
+
+    if (!$is_super_admin && $admin_hospital_id) {
+        // 檢查成員是否具有目前管理員的院區屬性
+        $stmt_check = $conn->prepare("SELECT 1 FROM user_attributes WHERE user_id = ? AND attribute_value_id = ?");
+        $stmt_check->bind_param("ii", $id, $admin_hospital_id);
+        $stmt_check->execute();
+        if ($stmt_check->get_result()->num_rows === 0) {
+            // 如果不屬於該院區，檢查是否屬於其他院區
+            $target_hospital = get_user_hospital($id, $conn);
+            if ($target_hospital) {
+                $check_check->close();
+                $conn->close();
+                die(json_encode(['success' => false, 'error' => "無權限操作此成員 (成員屬於 {$target_hospital['name']})"]));
+            }
+            // 如果沒有任何院區屬性，允許刪除
+        }
+        $stmt_check->close();
+    }
 
     // 執行 Portal 資料庫刪除
     $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");

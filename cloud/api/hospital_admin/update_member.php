@@ -10,6 +10,7 @@ ob_start();
 require_once '../../includes/config.php';
 require_once '../../includes/functions.php';  // call_moodle needed
 require_once '../../includes/moodle_api.php'; // moodle_assign_role needed
+require_once '../../includes/attribute_helper.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $log_file = __DIR__ . '/debug_log.txt';
@@ -33,6 +34,12 @@ $fullname = trim($_POST['fullname'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
 $role = $_POST['role'] ?? '';
+$hospital_id = intval($_POST['hospital_id'] ?? 0);
+$department_id = intval($_POST['department_id'] ?? 0);
+$job_title_ids = $_POST['job_title_ids'] ?? []; // 多選職稱陣列
+if (!is_array($job_title_ids)) {
+    $job_title_ids = [];
+}
 
 if ($id <= 0) {
     die(json_encode(['success' => false, 'error' => '無效的成員 ID']));
@@ -69,8 +76,27 @@ try {
     $stmt->close();
 
     // 2. 權限檢查：只能編輯同院區的成員
-    if ($target_member['institution'] !== $institution) {
-        throw new Exception('無權限操作此成員');
+    // 2. 權限檢查：只能編輯同院區的成員
+    $admin_hospital_id = $_SESSION['hospital_id'] ?? null;
+
+    // 系統管理員 (is_admin 且沒有被限制在特定院區) 可以編輯任何人
+    $is_super_admin = ($_SESSION['is_admin'] ?? false) && empty($admin_hospital_id);
+
+    if (!$is_super_admin && $admin_hospital_id) {
+        // 檢查成員是否具有目前管理員的院區屬性
+        $stmt_check = $conn->prepare("SELECT 1 FROM user_attributes WHERE user_id = ? AND attribute_value_id = ?");
+        $stmt_check->bind_param("ii", $id, $admin_hospital_id);
+        $stmt_check->execute();
+        if ($stmt_check->get_result()->num_rows === 0) {
+            // 如果不屬於該院區，檢查是否屬於其他院區
+            $target_hospital = get_user_hospital($id, $conn);
+            if ($target_hospital) {
+                $stmt_check->close();
+                throw new Exception("無權限操作此成員 (成員屬於 {$target_hospital['name']})");
+            }
+            // 如果沒有任何院區屬性，允許編輯（視為新成員認領）
+        }
+        $stmt_check->close();
     }
 
     // 3. 建構更新 SQL
@@ -140,6 +166,25 @@ try {
             $m_res = moodle_unassign_role($target_username, $category_id, 'coursecreator');
             file_put_contents($log_file, "moodle_unassign_role result: " . print_r($m_res, true) . "\n", FILE_APPEND);
         }
+    }
+
+    // 儲存使用者屬性（院區、部門、職稱）
+    $attr_ids = [];
+    if ($hospital_id > 0) {
+        $attr_ids[] = $hospital_id;
+    }
+    if ($department_id > 0) {
+        $attr_ids[] = $department_id;
+    }
+    // 多選職稱
+    foreach ($job_title_ids as $jt_id) {
+        $jt_id = intval($jt_id);
+        if ($jt_id > 0) {
+            $attr_ids[] = $jt_id;
+        }
+    }
+    if (!empty($attr_ids)) {
+        set_user_attributes($id, $attr_ids);
     }
 
     $conn->close();
