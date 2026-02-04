@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+﻿/* Google Fonts removed - loaded in header or locally */
 
 :root {
     --primary-color: #008491;
@@ -277,7 +277,7 @@ h1.logo-text {
     align-items: center;
     gap: 10px;
     font-size: 0.9rem;
-    transition: background 0.2s;
+    transition: background-color 0.2s;
 }
 
 .dropdown-item:hover {
@@ -317,27 +317,6 @@ h1.logo-text {
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.search-btn {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 65px;
-    border: 1px solid #ccc;
-    border-left: none;
-    background: #f8f8f8;
-    color: #333;
-    border-radius: 0 40px 40px 0;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-btn:hover {
-    background: #f0f0f0;
-}
 
 /* Login Prompt Modal */
 .modal-overlay {
@@ -1358,247 +1337,8 @@ select:focus {
     font-weight: 600;
 }
 
-/* Compact Immersive Hero Slider */
-/* Duplicate rule removed */
+/* Old Hero System Removed - Using New Hero Layout Below */
 
-.hero-full-slide {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    color: white;
-    overflow: hidden;
-}
-
-.hero-slide-container {
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 0 40px;
-    /* Aligns with header and content */
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-}
-
-.hero-slide-bg {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    z-index: 1;
-}
-
-.hero-slide-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.2;
-}
-
-.hero-slide-content {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    /* Reduced from 60px */
-    width: 100%;
-}
-
-.hero-badge-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    /* Reduced from 20px */
-}
-
-.hero-pill {
-    padding: 6px 18px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.hero-date-box {
-    width: 120px;
-    height: 130px;
-    background: white;
-    color: var(--primary-color);
-    border-radius: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
-
-.hero-date-box .day {
-    font-size: 3.2rem;
-    /* Balanced size */
-    font-weight: 900;
-    line-height: 0.9;
-}
-
-.hero-date-box .month {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-top: 2px;
-}
-
-.hero-info-area {
-    flex: 1;
-}
-
-.hero-main-title {
-    font-size: 3rem;
-    /* Scaled for 450px */
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 15px;
-    color: white;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.hero-meta-row {
-    font-size: 1.2rem;
-    font-weight: 500;
-    opacity: 0.9;
-    margin-bottom: 40px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.hero-meta-row .separator {
-    opacity: 0.5;
-}
-
-.hero-btns {
-    display: flex;
-    gap: 20px;
-}
-
-.btn-hero-primary {
-    padding: 16px 40px;
-    background: white;
-    color: var(--primary-color);
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.btn-hero-primary:hover {
-    transform: translateY(-5px);
-    background: #f8fafc;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-}
-
-.btn-hero-glass {
-    padding: 16px 40px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-}
-
-.btn-hero-glass:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: white;
-}
-
-.hero-minimal {
-    width: 100%;
-    height: 400px;
-    background: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.hero-swiper .swiper-pagination-bullet {
-    background: white;
-    opacity: 0.4;
-}
-
-.hero-swiper .swiper-pagination-bullet-active {
-    opacity: 1;
-    width: 20px;
-    border-radius: 5px;
-}
-
-.hero-swiper .swiper-button-next,
-.hero-swiper .swiper-button-prev {
-    color: white;
-    opacity: 0.3;
-    transition: opacity 0.3s;
-}
-
-.hero-swiper:hover .swiper-button-next,
-.hero-swiper:hover .swiper-button-prev {
-    opacity: 0.8;
-}
-
-@media (max-width: 1024px) {
-    .hero-main-title {
-        font-size: 2.5rem;
-    }
-
-    .hero-full-slide {
-        padding: 0 40px;
-    }
-
-    .hero-slide-content {
-        gap: 30px;
-    }
-}
-
-@media (max-width: 768px) {
-    .home-content-layout {
-        gap: 20px;
-    }
-
-    .upcoming-section.sidebar-style {
-        padding: 20px;
-    }
-
-    .month-group {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .month-label {
-        width: 60px;
-        height: 60px;
-    }
-
-    .month-text {
-        font-size: 1.4rem;
-    }
-
-    .upcoming-section.sidebar-style .month-content {
-        grid-template-columns: 1fr;
-    }
-
-    .upcoming-section {
-        padding: 25px;
-    }
-}
 
 /* =========================================
    New Hero Layout (Responsive)
@@ -1834,37 +1574,7 @@ select:focus {
     }
 }
 
-@media (max-width: 768px) {
-    .hero-slide-container {
-        padding: 90px 20px 30px 20px;
-        align-items: center;
-        text-align: center;
-    }
 
-    .hero-main-title {
-        font-size: 2.2rem;
-        line-height: 1.2;
-    }
-
-    .hero-speaker-row {
-        font-size: 1.15rem;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .hero-meta-top {
-        gap: 8px;
-    }
-
-    .btn-hero-primary,
-    .btn-hero-glass {
-        padding: 10px 24px;
-        font-size: 1rem;
-        width: 100%;
-        max-width: 280px;
-        justify-content: center;
-    }
-}
 
 /* Mobile Responsive Fixes */
 @media (max-width: 768px) {
@@ -2028,6 +1738,8 @@ select:focus {
         flex-direction: column;
         width: 100%;
         gap: 10px;
+        align-items: center;
+        /* Center buttons horizontally when in column layout */
     }
 
     .btn-hero-primary,

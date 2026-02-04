@@ -35,17 +35,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Image Upload
         $image_url = '';
         if (isset($_FILES['slide_image']) && $_FILES['slide_image']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = 'uploads/hero/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+            // Check image file size
+            if ($_FILES['slide_image']['size'] > MAX_IMAGE_SIZE) {
+                $error = "圖片檔案大小超過限制 (" . MAX_IMAGE_SIZE_MB . "MB)。";
+            } else {
+                $upload_dir = 'uploads/hero/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
 
-            $ext = pathinfo($_FILES['slide_image']['name'], PATHINFO_EXTENSION);
-            $filename = uniqid('hero_') . '.' . $ext;
-            $target_path = $upload_dir . $filename;
+                $ext = pathinfo($_FILES['slide_image']['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('hero_') . '.' . $ext;
+                $target_path = $upload_dir . $filename;
 
-            if (move_uploaded_file($_FILES['slide_image']['tmp_name'], $target_path)) {
-                $image_url = $target_path;
+                if (move_uploaded_file($_FILES['slide_image']['tmp_name'], $target_path)) {
+                    $image_url = $target_path;
+                }
             }
         }
 

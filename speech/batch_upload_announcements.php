@@ -14,7 +14,7 @@ if (!is_manager() && !is_campus_admin()) {
 // DEBUG: Enable Error Reporting
 // ini_set('display_errors', 1);
 // ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 $error = '';
 $success_msg = '';
@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileName = $_FILES['batch_file']['name'];
         $fileSize = $_FILES['batch_file']['size'];
         $fileType = $_FILES['batch_file']['type'];
+
+        // Check file size (configurable batch file limit)
+        if ($fileSize > MAX_BATCH_SIZE) {
+            throw new Exception("批次檔案大小超過限制 (" . MAX_BATCH_SIZE_MB . "MB)。");
+        }
         $fileNameCmps = explode(".", $fileName);
         $fileExtension = strtolower(end($fileNameCmps));
 

@@ -132,7 +132,10 @@ const FormValidator = {
                 }
                 break;
             case 'email':
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                // Safer regex to prevent ReDoS attacks
+                // Previous: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ (vulnerable to backtracking)
+                // Updated: Uses character classes and quantifiers to prevent exponential backtracking
+                if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
                     return `${label} Email 格式錯誤`;
                 }
                 break;

@@ -21,7 +21,7 @@
     </div>
 <?php endif; ?>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="assets/js/swiper-bundle.min.js"></script>
 <script src="assets/js/main.js"></script>
 <?php if (!empty($page_js)): ?>
     <script><?= $page_js ?></script>

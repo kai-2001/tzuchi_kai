@@ -101,6 +101,21 @@ define('WORKER_SECRET_TOKEN', env('WORKER_SECRET_TOKEN', 'YOUR_SUPER_SECRET_TOKE
 define('COMPRESSION_MODE', env('COMPRESSION_MODE', 'enabled'));
 
 // ============================================
+// Upload Settings
+// ============================================
+// Max video/ZIP upload size in bytes (400MB = 419430400 bytes)
+define('MAX_UPLOAD_SIZE', env('MAX_UPLOAD_SIZE', 419430400));
+define('MAX_UPLOAD_SIZE_MB', MAX_UPLOAD_SIZE / 1024 / 1024);
+
+// Max image upload size in bytes (10MB = 10485760 bytes)
+define('MAX_IMAGE_SIZE', env('MAX_IMAGE_SIZE', 10485760));
+define('MAX_IMAGE_SIZE_MB', MAX_IMAGE_SIZE / 1024 / 1024);
+
+// Max batch upload file size in bytes (5MB = 5242880 bytes)
+define('MAX_BATCH_SIZE', env('MAX_BATCH_SIZE', 5242880));
+define('MAX_BATCH_SIZE_MB', MAX_BATCH_SIZE / 1024 / 1024);
+
+// ============================================
 // Load Models & Helpers
 // ============================================
 require_once __DIR__ . '/helpers.php';

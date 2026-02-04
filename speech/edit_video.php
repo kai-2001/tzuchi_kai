@@ -91,6 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle Thumbnail Update
         $thumb_path = $video['thumbnail_path'];
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
+            // Check thumbnail file size
+            if ($_FILES['thumbnail']['size'] > MAX_IMAGE_SIZE) {
+                throw new Exception("縮圖檔案大小超過限制 (" . MAX_IMAGE_SIZE_MB . "MB)。");
+            }
+
             if (file_exists(__DIR__ . '/' . $thumb_path))
                 unlink(__DIR__ . '/' . $thumb_path);
 
@@ -167,6 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // This is acceptable as the path is being replaced
 
         } elseif ($using_file) {
+            // Check video/ZIP file size
+            if ($_FILES['video_file']['size'] > MAX_UPLOAD_SIZE) {
+                throw new Exception("影片檔案大小超過限制 (" . MAX_UPLOAD_SIZE_MB . "MB)。");
+            }
 
             // 1. Cleanup Old File/Directory logic (only for file replacements)
             $old_path_rel = $video['content_path'];

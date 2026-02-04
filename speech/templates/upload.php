@@ -100,6 +100,7 @@ include __DIR__ . '/partials/navbar.php';
                     margin-right: 4px;
                     font-size: 0.85rem;
                 }
+
                 @keyframes progress-stripe {
                     0% {
                         background-position: 1rem 0;
@@ -174,7 +175,96 @@ include __DIR__ . '/partials/navbar.php';
         }
     }
 
-    videoFile.addEventListener('change', updateLinkInput);
+    // File format validation with visual feedback
+    function validateVideoFile(fileInput) {
+        if (fileInput.files.length === 0) return true;
+
+        const file = fileInput.files[0];
+        const fileName = file.name.toLowerCase();
+        const allowedExtensions = ['.mp4', '.zip'];
+        const isValid = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+        // Remove any existing error message
+        const oldError = fileInput.parentElement.querySelector('.format-error');
+        if (oldError) oldError.remove();
+
+        if (!isValid) {
+            // Create visual error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'format-error';
+            errorDiv.style.cssText = `
+                background: #fee2e2;
+                border-left: 4px solid #ef4444;
+                color: #b91c1c;
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-top: 10px;
+                font-size: 0.9rem;
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+            `;
+            errorDiv.innerHTML = `
+                <div style="display: flex; align-items: start; gap: 10px;">
+                    <i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 1.1rem; margin-top: 2px;"></i>
+                    <div>
+                        <strong style="display: block; margin-bottom: 4px;">檔案格式錯誤</strong>
+                        <span>只接受 <code style="background: rgba(239,68,68,0.1); padding: 2px 6px; border-radius: 3px; font-size: 0.85rem;">MP4</code> 或 <code style="background: rgba(239,68,68,0.1); padding: 2px 6px; border-radius: 3px; font-size: 0.85rem;">ZIP</code> 格式</span>
+                        <br><span style="font-size: 0.85rem; opacity: 0.8;">您選擇的檔案：${file.name}</span>
+                    </div>
+                </div>
+            `;
+
+            // Insert error message after the file input
+            fileInput.parentElement.appendChild(errorDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (errorDiv.parentElement) {
+                    errorDiv.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => errorDiv.remove(), 300);
+                }
+            }, 5000);
+
+            // Clear the file input
+            fileInput.value = '';
+            return false;
+        }
+
+        return true;
+    }
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add event listeners with validation
+    videoFile.addEventListener('change', function () {
+        if (validateVideoFile(this)) {
+            updateLinkInput();
+        }
+    });
     videoLink.addEventListener('input', updateFileInput);
 
     // Form submit validation

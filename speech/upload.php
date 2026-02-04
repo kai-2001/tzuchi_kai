@@ -70,6 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thumb_path = '';
         if (isset($_FILES['thumbnail'])) {
             if ($_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
+                // Check thumbnail file size
+                if ($_FILES['thumbnail']['size'] > MAX_IMAGE_SIZE) {
+                    throw new Exception("縮圖檔案大小超過限制 (" . MAX_IMAGE_SIZE_MB . "MB)。");
+                }
                 $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
                 $filename = uniqid('thumb_') . '.' . $ext;
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], UPLOAD_DIR_THUMBS . $filename);
@@ -151,6 +155,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($using_file) {
             // Handle file upload (existing logic)
             if ($_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
+                // Check video/ZIP file size
+                if ($_FILES['video_file']['size'] > MAX_UPLOAD_SIZE) {
+                    throw new Exception("影片檔案大小超過限制 (" . MAX_UPLOAD_SIZE_MB . "MB)。");
+                }
+
                 $ext = strtolower(pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION));
                 $temp_name = $_FILES['video_file']['tmp_name'];
                 $file_id = uniqid('content_');
