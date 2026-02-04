@@ -10,6 +10,8 @@ require_once 'includes/auth.php';
 require_once 'includes/worker_trigger.php';
 require_once 'includes/helpers.php';
 require_once 'includes/Validator.php';
+require_once 'includes/compression_helper.php';
+require_once 'includes/models/Speaker.php';
 
 // ============================================
 // LOGIC: Access Control
@@ -47,24 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $campus_id = $_POST['campus_id'];
         $event_date = $_POST['event_date'];
 
-        // Speaker handling
+        // Speaker handling (using Speaker Model)
         $speaker_name = $_POST['speaker_name'];
         $affiliation = $_POST['affiliation'] ?? '';
         $position = $_POST['position'] ?? '';
 
-
-        $stmt = $conn->prepare("SELECT id FROM speakers WHERE name = ? AND affiliation = ?");
-        $stmt->bind_param("ss", $speaker_name, $affiliation);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $speaker_id = $result ? ($result->fetch_row()[0] ?? null) : null;
-
-        if (!$speaker_id) {
-            $stmt = $conn->prepare("INSERT INTO speakers (name, affiliation, position) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $speaker_name, $affiliation, $position);
-            $stmt->execute();
-            $speaker_id = $conn->insert_id;
-        }
+        $speaker_id = speaker_find_or_create($speaker_name, $affiliation, $position);
 
         // Handle Thumbnail
         $thumb_path = '';
@@ -74,6 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($_FILES['thumbnail']['size'] > MAX_IMAGE_SIZE) {
                     throw new Exception("縮圖檔案大小超過限制 (" . MAX_IMAGE_SIZE_MB . "MB)。");
                 }
+
+                // Validate MIME type (security: prevent fake extensions)
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime_type = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
+                finfo_close($finfo);
+
+                $allowed_image_mimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!in_array($mime_type, $allowed_image_mimes)) {
+                    throw new Exception("縮圖檔案類型無效，僅支援 JPG、PNG、GIF 或 WebP 格式。");
+                }
+
                 $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
                 $filename = uniqid('thumb_') . '.' . $ext;
                 move_uploaded_file($_FILES['thumbnail']['tmp_name'], UPLOAD_DIR_THUMBS . $filename);
@@ -164,12 +165,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $temp_name = $_FILES['video_file']['tmp_name'];
                 $file_id = uniqid('content_');
 
+                // Validate MIME type (security: prevent fake extensions)
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime_type = finfo_file($finfo, $temp_name);
+                finfo_close($finfo);
+
                 if ($ext === 'mp4') {
+                    // Validate MP4 MIME type
+                    $allowed_video_mimes = ['video/mp4', 'video/x-m4v', 'application/mp4'];
+                    if (!in_array($mime_type, $allowed_video_mimes)) {
+                        throw new Exception("檔案類型驗證失敗，請上傳有效的 MP4 影片檔案。");
+                    }
+
                     $filename = $file_id . '.mp4';
                     move_uploaded_file($temp_name, UPLOAD_DIR_VIDEOS . $filename);
                     $content_path = 'uploads/videos/' . $filename;
                     $format = 'mp4';
                 } elseif ($ext === 'zip') {
+                    // Validate ZIP MIME type
+                    $allowed_zip_mimes = ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip'];
+                    if (!in_array($mime_type, $allowed_zip_mimes)) {
+                        throw new Exception("檔案類型驗證失敗，請上傳有效的 ZIP 壓縮檔案。");
+                    }
+
                     // Use centralized EverCam ZIP processing helper
                     $result = process_evercam_zip($temp_name, $file_id);
                     $content_path = $result['content_path'];
@@ -197,44 +215,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $should_trigger = false;
             $msg = "演講上傳成功！使用外部連結的影片已可立即觀看。";
         } else {
-            // File uploads: Check compression mode and auto-compression settings
-            $auto_compression = '0';
-            // Check specific campus setting first
-            $sql = "SELECT campus_id, setting_value FROM system_settings WHERE setting_key = 'auto_compression' AND campus_id IN (?, 0)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $campus_id);
-            $stmt->execute();
-            $res = $stmt->get_result();
-
-            $settings = [];
-            while ($row = $res->fetch_assoc()) {
-                $settings[$row['campus_id']] = $row['setting_value'];
-            }
-
-            if (isset($settings[$campus_id])) {
-                $auto_compression = $settings[$campus_id];
-            } elseif (isset($settings[0])) {
-                $auto_compression = $settings[0];
-            }
-
-            // Determine status based on compression mode
-            // Priority: COMPRESSION_MODE (global) > auto_compression (campus-specific)
-            if (COMPRESSION_MODE === 'disabled') {
-                // Skip compression entirely - go directly to ready
-                $status = 'ready';
-                $msg = "演講上傳成功！系統設為「無壓縮模式」，影片已可立即觀看。";
-                $should_trigger = false;
-            } elseif ($auto_compression === '1') {
-                // Compression enabled + auto mode
-                $status = 'pending';
-                $msg = "演講上傳成功！系統設為「自動壓縮」，已通知轉檔主機開始作業。";
-                $should_trigger = true;
-            } else {
-                // Compression enabled + manual mode
-                $status = 'waiting';
-                $msg = "演講上傳成功！已加入「待處理清單」。請前往佇列管理頁面手動啟動壓縮。";
-                $should_trigger = false;
-            }
+            // File uploads: Use compression helper to determine status
+            $result = determine_video_status($campus_id, $conn);
+            $status = $result['status'];
+            $should_trigger = $result['trigger'];
+            $msg = $result['message'];
         }
 
         // Save Video with ownership and new metadata

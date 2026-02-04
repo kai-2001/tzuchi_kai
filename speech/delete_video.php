@@ -24,8 +24,23 @@ if (is_manager()) {
 $stmt->execute();
 $video = $stmt->get_result()->fetch_assoc();
 
-if ($video) {
-    // Delete files if they exist
+if (!$video) {
+    header('Location: manage_videos.php?error=not_found');
+    exit;
+}
+
+// Delete video with transaction protection
+try {
+    $conn->begin_transaction();
+
+    // 1. Delete database record first (with transaction)
+    $stmt = $conn->prepare("DELETE FROM videos WHERE id = ?");
+    $stmt->bind_param("i", $video_id);
+    $stmt->execute();
+
+    $conn->commit();
+
+    // 2. After successful DB deletion, delete files (file deletion failure doesn't affect data consistency)
     if (!empty($video['content_path'])) {
         $full_path = __DIR__ . '/' . $video['content_path'];
 
@@ -38,29 +53,40 @@ if ($video) {
             // Safety check: ensure we are inside uploads directory and not deleting system root
             // This prevents deleting outside of 'uploads'
             if (strpos(realpath($dir_path), realpath(__DIR__ . '/uploads')) === 0 && is_dir($dir_path)) {
-                deleteDirectory($dir_path);
+                if (!deleteDirectory($dir_path)) {
+                    error_log("Warning: Failed to delete Evercam directory: $dir_path");
+                }
             }
         }
         // Handle Single File (MP4) or other formats
         else {
             if (file_exists($full_path) && is_file($full_path)) {
-                unlink($full_path);
+                if (!unlink($full_path)) {
+                    error_log("Warning: Failed to delete video file: $full_path");
+                }
             }
         }
     }
 
-    if (!empty($video['thumbnail_path']) && file_exists(__DIR__ . '/' . $video['thumbnail_path'])) {
-        unlink(__DIR__ . '/' . $video['thumbnail_path']);
+    // Delete thumbnail
+    if (!empty($video['thumbnail_path'])) {
+        $thumb_full = __DIR__ . '/' . $video['thumbnail_path'];
+        if (file_exists($thumb_full)) {
+            if (!unlink($thumb_full)) {
+                error_log("Warning: Failed to delete thumbnail: $thumb_full");
+            }
+        }
     }
 
-    // Delete record
-    $stmt = $conn->prepare("DELETE FROM videos WHERE id = ?");
-    $stmt->bind_param("i", $video_id);
-    $stmt->execute();
-
     header("Location: manage_videos.php?msg=deleted");
-} else {
-    header('Location: manage_videos.php?error=not_found');
+    exit;
+
+} catch (Exception $e) {
+    if (isset($conn)) {
+        $conn->rollback();
+    }
+    error_log("Video deletion failed for ID $video_id: " . $e->getMessage());
+    header('Location: manage_videos.php?error=delete_failed');
     exit;
 }
 

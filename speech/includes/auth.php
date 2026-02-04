@@ -3,6 +3,7 @@
  * Authentication helper for SOAP
  */
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/Logger.php';
 
 /**
  * Unified login function with hybrid authentication support
@@ -102,7 +103,10 @@ function soap_login($username, $password)
         }
         return false;
     } catch (Exception $e) {
-        error_log("SOAP Login Error: " . $e->getMessage());
+        Logger::error('soap_login', 'SOAP login failed', [
+            'error' => $e->getMessage(),
+            'username' => $username
+        ]);
         return 'error'; // Indicate service unavailable
     }
 }

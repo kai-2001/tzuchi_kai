@@ -52,7 +52,15 @@ $db_name = env('DB_NAME', 'speech_db');
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
 if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
+    // Log the detailed error
+    error_log("Database connection failed: " . $conn->connect_error);
+
+    // Show error based on environment
+    if (defined('APP_ENV') && APP_ENV === 'development') {
+        die("Database connection failed: " . $conn->connect_error);
+    } else {
+        die("系統維護中，請稍後再試。如問題持續，請聯繫系統管理員。");
+    }
 }
 $conn->set_charset("utf8mb4");
 

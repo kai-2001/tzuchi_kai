@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$video_id = isset($_POST['video_id']) ? (int)$_POST['video_id'] : 0;
-$position = isset($_POST['position']) ? (int)$_POST['position'] : 0;
+$video_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+$position = isset($_POST['position']) ? (int) $_POST['position'] : 0;
 $user_id = $_SESSION['user_id'];
 
 if ($video_id <= 0 || $position < 0) {
@@ -56,7 +56,10 @@ $stmt->bind_param("iiii", $user_id, $video_id, $position, $position);
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'position' => $position]);
 } else {
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $conn->error]);
+    // Log detailed error for debugging
+    error_log("Video progress update failed for user $user_id, video $video_id: " . $conn->error);
+    // Return generic error message (don't expose DB details)
+    echo json_encode(['success' => false, 'error' => '儲存進度失敗，請稍後再試']);
 }
 
 $stmt->close();

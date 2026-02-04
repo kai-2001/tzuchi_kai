@@ -21,8 +21,28 @@ if (!is_logged_in()) {
 // ============================================
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
+// Increment view count with rate limiting (prevent refresh spam)
 if ($id > 0) {
-    $conn->query("UPDATE videos SET views = views + 1 WHERE id = $id");
+    $view_key = "video_viewed_{$id}";
+    // Only count if user hasn't viewed this video recently
+    if (!isset($_SESSION[$view_key])) {
+        $stmt = $conn->prepare("UPDATE videos SET views = views + 1 WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        // Mark as viewed (prevents duplicate counting during session)
+        $_SESSION[$view_key] = time();
+    }
+
+    // Optional: Cleanup old view markers (once per hour)
+    if (!isset($_SESSION['last_view_cleanup']) || time() - $_SESSION['last_view_cleanup'] > 3600) {
+        foreach ($_SESSION as $key => $value) {
+            if (strpos($key, 'video_viewed_') === 0 && time() - $value > 3600) {
+                unset($_SESSION[$key]);
+            }
+        }
+        $_SESSION['last_view_cleanup'] = time();
+    }
 }
 
 // ============================================

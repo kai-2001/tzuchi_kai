@@ -31,6 +31,7 @@ try {
     }
 
     require_once $config_path;
+    require_once __DIR__ . '/../../includes/Logger.php';
 
     // Clear buffer before outputting anything
     ob_clean();
@@ -158,10 +159,25 @@ try {
     echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
+    // Log detailed error for debugging
+    Logger::error('api_videos', 'API error occurred', [
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString(),
+        'request_params' => $_GET
+    ]);
+
+    // Clear any buffered output
+    if (ob_get_length()) {
+        ob_clean();
+    }
+
+    // Return generic error to client (don't expose internal details)
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => '系統錯誤，請稍後再試'
     ], JSON_UNESCAPED_UNICODE);
 }
 

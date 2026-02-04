@@ -4,7 +4,8 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/auth.php';
-require_once 'includes/SimpleXLSX.php'; // Include our new helper
+require_once 'includes/SimpleXLSX.php';
+require_once 'includes/Logger.php';
 
 if (!is_manager() && !is_campus_admin()) {
     header("Location: login.php");
@@ -155,11 +156,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $success_count++;
                         } else {
                             $fail_count++;
-                            $fail_reasons[] = "第 " . ($index + 2) . " 列：資料庫錯誤 (" . $stmt->error . ")";
+                            // Log detailed DB error for debugging
+                            Logger::error('batch_upload', 'Database error during batch insert', [
+                                'row' => $index + 2,
+                                'error' => $stmt->error,
+                                'title' => $title
+                            ]);
+                            // Show user-friendly message (don't expose DB details)
+                            $fail_reasons[] = "第 " . ($index + 2) . " 列：資料格式錯誤，請檢查內容";
                         }
                     } catch (Exception $e) {
                         $fail_count++;
-                        $fail_reasons[] = "第 " . ($index + 2) . " 列：系統錯誤 (" . $e->getMessage() . ")";
+                        Logger::error('batch_upload', 'Exception during batch insert', [
+                            'row' => $index + 2,
+                            'exception' => $e->getMessage()
+                        ]);
+                        $fail_reasons[] = "第 " . ($index + 2) . " 列：處理失敗，請檢查資料格式";
                     }
                 }
                 $stmt->close();

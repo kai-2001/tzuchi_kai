@@ -48,8 +48,6 @@ if (isset($_GET['data']) && isset($_GET['sig'])) {
 
                     $_SESSION['user_id'] = $user_id;
                     $_SESSION['username'] = $username;
-                    $_SESSION['user_id'] = $user_id;
-                    $_SESSION['username'] = $username;
                     $_SESSION['role'] = $role;
                     $_SESSION['campus_id'] = $user['campus_id'] ?? null;
 
@@ -88,8 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $role = $user['role'];
         }
 
-        $_SESSION['user_id'] = $user_id;
-        $_SESSION['username'] = $username;
         $_SESSION['user_id'] = $user_id;
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $role;

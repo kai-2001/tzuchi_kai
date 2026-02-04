@@ -18,15 +18,19 @@ if (isset($_GET['action'])) {
     if ($_GET['action'] === 'delete' && isset($_GET['id'])) {
         $id = (int) $_GET['id'];
 
-        $sql = "DELETE FROM announcements WHERE id = $id";
+        // Use prepared statement for security
         if (is_campus_admin()) {
-            $sql .= " AND campus_id = " . (int) $_SESSION['campus_id'];
+            $stmt = $conn->prepare("DELETE FROM announcements WHERE id = ? AND campus_id = ?");
+            $stmt->bind_param("ii", $id, $_SESSION['campus_id']);
+        } else {
+            $stmt = $conn->prepare("DELETE FROM announcements WHERE id = ?");
+            $stmt->bind_param("i", $id);
         }
 
-        $conn->query($sql);
+        $stmt->execute();
 
         // Check if deletion actually happened (to give better feedback if permission denied or not found)
-        if ($conn->affected_rows > 0) {
+        if ($stmt->affected_rows > 0) {
             header("Location: manage_announcements.php?msg=deleted");
             exit;
         } else {
@@ -38,7 +42,10 @@ if (isset($_GET['action'])) {
     // Toggle Hero Status
     if ($_GET['action'] === 'toggle_hero' && isset($_GET['id'])) {
         $id = (int) $_GET['id'];
-        $conn->query("UPDATE announcements SET is_hero = 1 - is_hero WHERE id = $id");
+        // Use prepared statement for security
+        $stmt = $conn->prepare("UPDATE announcements SET is_hero = 1 - is_hero WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
         header("Location: manage_announcements.php?msg=updated");
         exit;
     }
