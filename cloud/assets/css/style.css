@@ -109,7 +109,8 @@ body::before {
         radial-gradient(ellipse 500px 350px at 85% 25%, rgba(167, 139, 250, 0.2) 0%, transparent 70%),
         radial-gradient(ellipse 450px 300px at 75% 80%, rgba(236, 72, 153, 0.12) 0%, transparent 70%),
         radial-gradient(ellipse 550px 400px at 25% 75%, rgba(52, 211, 153, 0.15) 0%, transparent 70%);
-    animation: bgGradientFloat 25s ease-in-out infinite;
+    /* 已停用動畫以提升頁面載入流暢度 */
+    /* animation: bgGradientFloat 25s ease-in-out infinite; */
 }
 
 /* 浮游粒子 */
@@ -129,7 +130,8 @@ body::after {
         radial-gradient(3px 3px at 180px 90px, rgba(6, 182, 212, 0.2), transparent),
         radial-gradient(2px 2px at 50px 120px, rgba(37, 99, 235, 0.15), transparent);
     background-size: 200px 150px;
-    animation: bodyParticleFloat 30s linear infinite;
+    /* 已停用動畫以提升頁面載入流暢度 */
+    /* animation: bodyParticleFloat 30s linear infinite; */
 }
 
 @keyframes bgGradientFloat {
@@ -167,7 +169,8 @@ body::after {
    ========================================== */
 .scroll-animate {
     opacity: 0;
-    transition: all var(--transition-slow);
+    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .scroll-animate.slide-left {

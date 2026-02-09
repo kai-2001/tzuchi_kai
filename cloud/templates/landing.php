@@ -22,6 +22,9 @@
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="assets/css/landing.css?v=<?php echo time(); ?>">
+
+    <!-- Particle Attraction Effect -->
+    <script src="assets/js/particle-attraction.js?v=<?php echo time(); ?>" defer></script>
 </head>
 
 <body class="landing-page">
@@ -453,20 +456,7 @@
         });
 
     </script>
-    <!-- 游標跟隨暗色光暈 -->
-    <div class="mouse-follow-glow" id="mouse-glow"></div>
-
-    <script>
-        (function () {
-            const glow = document.getElementById('mouse-glow');
-            if (!glow) return;
-
-            document.addEventListener('mousemove', function (e) {
-                // 使用 requestAnimationFrame 或直接更新 (CSS transition 會處理平滑)
-                glow.style.transform = `translate(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%))`;
-            });
-        })();
-    </script>
+    <!-- 已移除游標跟隨光暈效果以提升效能 -->
 </body>
 
 </html>

@@ -1,0 +1,578 @@
+{
+  "version": "2.7",
+  "children": [
+    {
+      "type": "frame",
+      "id": "CEs5S",
+      "x": 0,
+      "y": 0,
+      "name": "院區管理員儀表板 - shadcn",
+      "width": 1440,
+      "height": 900,
+      "fill": "#ffffff",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "wieyc",
+          "name": "topNav",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "#ffffff",
+          "gap": 32,
+          "padding": [
+            0,
+            32
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "1JvBI",
+              "name": "brand",
+              "width": 150,
+              "height": 32,
+              "fill": "transparent",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Xxwb8",
+                  "name": "brandIcon",
+                  "content": "☁️",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "8wg9u",
+                  "name": "brandText",
+                  "fill": "#18181b",
+                  "content": "雲嘉e學院",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "W0txA",
+              "name": "navLinks",
+              "width": "fill_container",
+              "height": 40,
+              "fill": "transparent",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mOR5d",
+                  "name": "link1",
+                  "height": 36,
+                  "fill": "transparent",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aqJ8F",
+                      "name": "link1Text",
+                      "fill": "#71717a",
+                      "content": "📋 課程列表",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "h4Jgu",
+                  "name": "link2",
+                  "height": 36,
+                  "fill": "transparent",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YLkhM",
+                      "name": "link2Text",
+                      "fill": "#71717a",
+                      "content": "📊 院區管理",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uPKUv",
+                  "name": "link3",
+                  "height": 36,
+                  "fill": "transparent",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "25CEA",
+                      "name": "link3Text",
+                      "fill": "#71717a",
+                      "content": "⚙️ 系統設定",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xnMUl",
+              "name": "userArea",
+              "height": 40,
+              "fill": "transparent",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "4Ge3v",
+                  "name": "userName",
+                  "fill": "#18181b",
+                  "content": "台北測試管理員",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "ellipse",
+                  "id": "3GikN",
+                  "name": "userAvatar",
+                  "fill": "#3b82f6",
+                  "width": 32,
+                  "height": 32
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NPcpe",
+          "name": "mainContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#fafafa",
+          "layout": "vertical",
+          "gap": 48,
+          "padding": [
+            48,
+            80
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "koUjR",
+              "name": "headerSection",
+              "width": "fill_container",
+              "fill": "transparent",
+              "layout": "vertical",
+              "gap": 4,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lUaqo",
+                  "name": "mainTitle",
+                  "fill": "#18181b",
+                  "content": "早安，台北測試管理員",
+                  "fontFamily": "Inter",
+                  "fontSize": 32,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "GH56o",
+                  "name": "subtitle",
+                  "fill": "#71717a",
+                  "content": "台北慈濟醫院 院區管理控制台",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "gQ46E",
+                  "name": "dateLabel",
+                  "fill": "#a1a1aa",
+                  "content": "2026年2月5日 星期四",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QZp64",
+              "name": "statsContainer",
+              "width": 800,
+              "fill": "transparent",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "R7Et6",
+                  "name": "statsRow1",
+                  "width": "fill_container",
+                  "fill": "transparent",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dnbUw",
+                      "name": "card1",
+                      "width": "fill_container",
+                      "height": 140,
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ERknf",
+                          "name": "label1",
+                          "fill": "#71717a",
+                          "content": "院區成員",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "oNfqv",
+                          "name": "value1",
+                          "fill": "#18181b",
+                          "content": "5",
+                          "fontFamily": "Inter",
+                          "fontSize": 36,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yeEB2",
+                      "name": "card2",
+                      "width": "fill_container",
+                      "height": 140,
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hPGeb",
+                          "name": "label2",
+                          "fill": "#71717a",
+                          "content": "開課教師",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "VFIUW",
+                          "name": "value2",
+                          "fill": "#18181b",
+                          "content": "3",
+                          "fontFamily": "Inter",
+                          "fontSize": 36,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OYICO",
+                  "name": "statsRow2",
+                  "width": "fill_container",
+                  "fill": "transparent",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "bfN1J",
+                      "name": "card3",
+                      "width": "fill_container",
+                      "height": 140,
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fubwd",
+                          "name": "label3",
+                          "fill": "#71717a",
+                          "content": "學員人數",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "1McUR",
+                          "name": "value3",
+                          "fill": "#18181b",
+                          "content": "2",
+                          "fontFamily": "Inter",
+                          "fontSize": 36,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u1EXo",
+                      "name": "card4",
+                      "width": "fill_container",
+                      "height": 140,
+                      "fill": "#ffffff",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "gap": 8,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NNf9V",
+                          "name": "label4",
+                          "fill": "#71717a",
+                          "content": "課程數",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "cvjDu",
+                          "name": "value4",
+                          "fill": "#18181b",
+                          "content": "0",
+                          "fontFamily": "Inter",
+                          "fontSize": 36,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "DHmux",
+              "name": "quickSection",
+              "width": 800,
+              "fill": "transparent",
+              "layout": "vertical",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Z0dcY",
+                  "name": "quickTitle",
+                  "fill": "#18181b",
+                  "content": "快捷操作",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "mylGs",
+                  "name": "action1",
+                  "width": "fill_container",
+                  "height": 80,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "gap": 16,
+                  "padding": 20,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "0mNvy",
+                      "name": "icon1Bg",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#eff6ff",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YTAgZ",
+                          "name": "icon1",
+                          "content": "👥",
+                          "fontFamily": "Inter",
+                          "fontSize": 24,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zQ3PY",
+                      "name": "textArea1",
+                      "width": "fill_container",
+                      "fill": "transparent",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ndtEj",
+                          "name": "title1",
+                          "fill": "#18181b",
+                          "content": "成員管理",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ap7zS",
+                          "name": "desc1",
+                          "fill": "#71717a",
+                          "content": "新增或編輯院區成員帳號",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "iGoei",
+                      "name": "arrow1",
+                      "fill": "#a1a1aa",
+                      "content": "›",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "z7pQn",
+                  "name": "action2",
+                  "width": "fill_container",
+                  "height": 80,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "gap": 16,
+                  "padding": 20,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "PUwlU",
+                      "name": "icon2Bg",
+                      "width": 48,
+                      "height": 48,
+                      "fill": "#f0fdf4",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fV0Sy",
+                          "name": "icon2",
+                          "content": "⚙️",
+                          "fontFamily": "Inter",
+                          "fontSize": 24,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JxDaF",
+                      "name": "textArea2",
+                      "width": "fill_container",
+                      "fill": "transparent",
+                      "layout": "vertical",
+                      "gap": 4,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mBzcx",
+                          "name": "title2",
+                          "fill": "#18181b",
+                          "content": "系統設定",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rOOKP",
+                          "name": "desc2",
+                          "fill": "#71717a",
+                          "content": "醫院、部門、職稱管理",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "I1FYZ",
+                      "name": "arrow2",
+                      "fill": "#a1a1aa",
+                      "content": "›",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
