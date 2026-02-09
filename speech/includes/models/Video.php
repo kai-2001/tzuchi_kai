@@ -8,10 +8,16 @@ function video_get_ready($campus_id = 0, $search = '', $limit = 10, $offset = 0)
 {
     global $conn;
 
-    $query = "SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name 
+    $query = "SELECT v.*, 
+                     c.name as campus_name,
+                     GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names,
+                     GROUP_CONCAT(DISTINCT s.affiliation ORDER BY vs.display_order SEPARATOR ', ') as speaker_affiliations,
+                     GROUP_CONCAT(DISTINCT s.position ORDER BY vs.display_order SEPARATOR ', ') as speaker_positions,
+                     GROUP_CONCAT(DISTINCT CONCAT(s.id, ':', s.name, ':', IFNULL(s.affiliation, '')) ORDER BY vs.display_order SEPARATOR '|') as speakers_detail
               FROM videos v
-              LEFT JOIN speakers s ON v.speaker_id = s.id
               LEFT JOIN campuses c ON v.campus_id = c.id
+              LEFT JOIN video_speakers vs ON v.id = vs.video_id
+              LEFT JOIN speakers s ON vs.speaker_id = s.id
               WHERE v.status = 'ready'";
 
     $params = [];
@@ -23,13 +29,17 @@ function video_get_ready($campus_id = 0, $search = '', $limit = 10, $offset = 0)
         $types .= "i";
     }
 
+    $query .= " GROUP BY v.id";
+
+    // 講者搜尋使用 HAVING（包含姓名、單位、職位）
     if (!empty($search)) {
-        $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ?)";
+        $query .= " HAVING v.title LIKE ? OR speaker_names LIKE ? OR speaker_affiliations LIKE ? OR speaker_positions LIKE ?";
         $search_param = "%$search%";
         $params[] = $search_param;
         $params[] = $search_param;
         $params[] = $search_param;
-        $types .= "sss";
+        $params[] = $search_param;
+        $types .= "ssss";
     }
 
     $query .= " ORDER BY v.created_at DESC LIMIT ? OFFSET ?";
@@ -49,8 +59,9 @@ function video_count_ready($campus_id = 0, $search = '')
 {
     global $conn;
 
-    $query = "SELECT COUNT(*) FROM videos v
-              LEFT JOIN speakers s ON v.speaker_id = s.id
+    $query = "SELECT COUNT(DISTINCT v.id) FROM videos v
+              LEFT JOIN video_speakers vs ON v.id = vs.video_id
+              LEFT JOIN speakers s ON vs.speaker_id = s.id
               WHERE v.status = 'ready'";
 
     $params = [];
@@ -63,11 +74,13 @@ function video_count_ready($campus_id = 0, $search = '')
     }
 
     if (!empty($search)) {
-        $query .= " AND (v.title LIKE ? OR s.name LIKE ?)";
+        $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ? OR s.position LIKE ?)";
         $search_param = "%$search%";
         $params[] = $search_param;
         $params[] = $search_param;
-        $types .= "ss";
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $types .= "ssss";
     }
 
     $stmt = $conn->prepare($query);
@@ -81,11 +94,16 @@ function video_count_ready($campus_id = 0, $search = '')
 function video_get_by_id($id)
 {
     global $conn;
-    $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position, c.name as campus_name 
+    $stmt = $conn->prepare("SELECT v.*, 
+                          c.name as campus_name,
+                          GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names,
+                          GROUP_CONCAT(DISTINCT CONCAT(s.id, ':', s.name, ':', IFNULL(s.affiliation, ''), ':', IFNULL(s.position, '')) ORDER BY vs.display_order SEPARATOR '|') as speakers_detail
                           FROM videos v
-                          LEFT JOIN speakers s ON v.speaker_id = s.id
                           LEFT JOIN campuses c ON v.campus_id = c.id
-                          WHERE v.id = ?");
+                          LEFT JOIN video_speakers vs ON v.id = vs.video_id
+                          LEFT JOIN speakers s ON vs.speaker_id = s.id
+                          WHERE v.id = ?
+                          GROUP BY v.id");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc();

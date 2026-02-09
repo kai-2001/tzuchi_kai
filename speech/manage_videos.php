@@ -39,9 +39,10 @@ $offset = ($page - 1) * $limit;
 // ============================================
 // LOGIC: Get total count for pagination
 // ============================================
-$count_query = "SELECT COUNT(*) as total 
+$count_query = "SELECT COUNT(DISTINCT v.id) as total 
                FROM videos v
-               LEFT JOIN speakers s ON v.speaker_id = s.id
+               LEFT JOIN video_speakers vs ON v.id = vs.video_id
+               LEFT JOIN speakers s ON vs.speaker_id = s.id
                WHERE (1=1)";
 
 if (is_campus_admin()) {
@@ -69,9 +70,14 @@ $total_pages = ceil($total_items / $limit);
 // ============================================
 // LOGIC: Fetch records for current page
 // ============================================
-$query = "SELECT v.*, s.name as speaker_name, c.name as campus_name, v.status, v.process_msg 
+$query = "SELECT v.*, 
+                 GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names, 
+                 c.name as campus_name, 
+                 v.status, 
+                 v.process_msg 
           FROM videos v
-          LEFT JOIN speakers s ON v.speaker_id = s.id
+          LEFT JOIN video_speakers vs ON v.id = vs.video_id
+          LEFT JOIN speakers s ON vs.speaker_id = s.id
           LEFT JOIN campuses c ON v.campus_id = c.id
           WHERE (1=1)";
 
@@ -90,13 +96,12 @@ if (!empty($search)) {
     $types .= "ss";
 }
 
-$query .= " ORDER BY v.created_at DESC LIMIT ? OFFSET ?";
-$params[] = $limit;
-$params[] = $offset;
-$types .= "ii";
+$query .= " GROUP BY v.id ORDER BY v.created_at DESC LIMIT $limit OFFSET $offset";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param($types, ...$params);
+if (!empty($types)) {
+    $stmt->bind_param($types, ...$params);
+}
 $stmt->execute();
 $videos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 

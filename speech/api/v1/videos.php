@@ -57,11 +57,15 @@ try {
     if (isset($_GET['id'])) {
         $id = (int) $_GET['id'];
         $stmt = $conn->prepare("
-            SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name 
+            SELECT v.*, 
+                   c.name as campus_name,
+                   GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names
             FROM videos v
-            LEFT JOIN speakers s ON v.speaker_id = s.id
             LEFT JOIN campuses c ON v.campus_id = c.id
-            WHERE v.id = ?
+            LEFT JOIN video_speakers vs ON v.id = vs.video_id
+            LEFT JOIN speakers s ON vs.speaker_id = s.id
+            WHERE v.id = ? AND v.status = 'ready'
+            GROUP BY v.id
         ");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -91,11 +95,15 @@ try {
             $types = str_repeat('i', count($ids));
 
             $sql = "
-                SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name 
+                SELECT v.*, 
+                       c.name as campus_name,
+                       GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names
                 FROM videos v
-                LEFT JOIN speakers s ON v.speaker_id = s.id
                 LEFT JOIN campuses c ON v.campus_id = c.id
-                WHERE v.id IN ($placeholders)
+                LEFT JOIN video_speakers vs ON v.id = vs.video_id
+                LEFT JOIN speakers s ON vs.speaker_id = s.id
+                WHERE v.id IN ($placeholders) AND v.status = 'ready'
+                GROUP BY v.id
                 ORDER BY FIELD(v.id, " . implode(',', $ids) . ")
             ";
 
@@ -127,10 +135,15 @@ try {
 
         // Get Data
         $stmt = $conn->prepare("
-            SELECT v.*, s.name as speaker_name, s.affiliation, c.name as campus_name 
+            SELECT v.*, 
+                   c.name as campus_name,
+                   GROUP_CONCAT(DISTINCT s.name ORDER BY vs.display_order SEPARATOR ', ') as speaker_names
             FROM videos v
-            LEFT JOIN speakers s ON v.speaker_id = s.id
             LEFT JOIN campuses c ON v.campus_id = c.id
+            LEFT JOIN video_speakers vs ON v.id = vs.video_id
+            LEFT JOIN speakers s ON vs.speaker_id = s.id
+            WHERE v.status = 'ready'
+            GROUP BY v.id
             ORDER BY v.created_at DESC
             LIMIT ? OFFSET ?
         ");

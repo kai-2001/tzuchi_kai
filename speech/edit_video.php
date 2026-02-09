@@ -26,17 +26,11 @@ $video_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $user_id = $_SESSION['user_id'];
 
 if (is_manager()) {
-    $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position 
-                           FROM videos v 
-                           LEFT JOIN speakers s ON v.speaker_id = s.id 
-                           WHERE v.id = ?");
+    $stmt = $conn->prepare("SELECT v.* FROM videos v WHERE v.id = ?");
     $stmt->bind_param("i", $video_id);
 } else {
     // Campus Admin: Must match campus
-    $stmt = $conn->prepare("SELECT v.*, s.name as speaker_name, s.affiliation, s.position 
-                           FROM videos v 
-                           LEFT JOIN speakers s ON v.speaker_id = s.id 
-                           WHERE v.id = ? AND v.campus_id = ?");
+    $stmt = $conn->prepare("SELECT v.* FROM videos v WHERE v.id = ? AND v.campus_id = ?");
     $stmt->bind_param("ii", $video_id, $_SESSION['campus_id']);
 }
 $stmt->execute();
@@ -68,12 +62,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $campus_id = $_POST['campus_id'];
         }
         $event_date = $_POST['event_date'];
-        $speaker_name = $_POST['speaker_name'];
-        $affiliation = $_POST['affiliation'] ?? '';
-        $position = $_POST['position'] ?? '';
 
-        // Update Speaker (using Speaker Model)
-        $speaker_id = speaker_find_or_create($speaker_name, $affiliation, $position);
+        // Speaker handling - 處理多位講者
+        $speakers_data = $_POST['speakers'] ?? [];
+        if (empty($speakers_data)) {
+            throw new Exception("至少需要一位講者。");
+        }
+
+        // 處理每位講者，建立或找到 speaker_id
+        $speaker_ids = [];
+        foreach ($speakers_data as $speaker) {
+            $name = trim($speaker['name'] ?? '');
+            $affiliation = trim($speaker['affiliation'] ?? '');
+            $position = trim($speaker['position'] ?? '');
+
+            if (empty($name)) {
+                throw new Exception("講者姓名不能為空。");
+            }
+
+            $speaker_id = speaker_find_or_create($name, $affiliation, $position);
+            $speaker_ids[] = $speaker_id;
+        }
 
         // Handle Thumbnail Update
         $thumb_path = $video['thumbnail_path'];
@@ -256,11 +265,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $should_trigger = false;
         }
 
-        // Update Video Record
-        // We update format, metadata, duration, status as well
-        $stmt = $conn->prepare("UPDATE videos SET title = ?, thumbnail_path = ?, content_path = ?, format = ?, metadata = ?, duration = ?, event_date = ?, campus_id = ?, speaker_id = ?, status = ? WHERE id = ?");
-        $stmt->bind_param("sssssisiisi", $title, $thumb_path, $content_path, $format, $metadata, $duration, $event_date, $campus_id, $speaker_id, $status, $video_id);
+        // Update Video Record (移除 speaker_id)
+        $stmt = $conn->prepare("UPDATE videos SET title = ?, thumbnail_path = ?, content_path = ?, format = ?, metadata = ?, duration = ?, event_date = ?, campus_id = ?, status = ? WHERE id = ?");
+        $stmt->bind_param("sssssisisi", $title, $thumb_path, $content_path, $format, $metadata, $duration, $event_date, $campus_id, $status, $video_id);
         $stmt->execute();
+
+        // 更新所有講者關聯（多對多）
+        require_once 'includes/models/VideoSpeaker.php';
+        video_speaker_remove_all($video_id);
+        foreach ($speaker_ids as $index => $speaker_id) {
+            video_speaker_add($video_id, $speaker_id, 'speaker', $index);
+        }
 
         $conn->commit();
 

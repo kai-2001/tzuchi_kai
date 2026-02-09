@@ -49,12 +49,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $campus_id = $_POST['campus_id'];
         $event_date = $_POST['event_date'];
 
-        // Speaker handling (using Speaker Model)
-        $speaker_name = $_POST['speaker_name'];
-        $affiliation = $_POST['affiliation'] ?? '';
-        $position = $_POST['position'] ?? '';
+        // Speaker handling - 處理多位講者
+        $speakers_data = $_POST['speakers'] ?? [];
+        if (empty($speakers_data)) {
+            throw new Exception("至少需要一位講者。");
+        }
 
-        $speaker_id = speaker_find_or_create($speaker_name, $affiliation, $position);
+        // 處理每位講者，建立或找到 speaker_id
+        $speaker_ids = [];
+        foreach ($speakers_data as $speaker) {
+            $name = trim($speaker['name'] ?? '');
+            $affiliation = trim($speaker['affiliation'] ?? '');
+            $position = trim($speaker['position'] ?? '');
+
+            if (empty($name)) {
+                throw new Exception("講者姓名不能為空。");
+            }
+
+            $speaker_id = speaker_find_or_create($name, $affiliation, $position);
+            $speaker_ids[] = $speaker_id;
+        }
 
         // Handle Thumbnail
         $thumb_path = '';
@@ -225,12 +239,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Save Video with ownership and new metadata
         $user_id = $_SESSION['user_id'];
 
-        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, speaker_id, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssissiiis", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $speaker_id, $user_id, $status);
+        $stmt = $conn->prepare("INSERT INTO videos (title, content_path, format, metadata, duration, thumbnail_path, event_date, campus_id, user_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssissiis", $title, $content_path, $format, $metadata, $duration, $thumb_path, $event_date, $campus_id, $user_id, $status);
         $stmt->execute();
 
         // Capture ID
         $video_id = $conn->insert_id;
+
+        // 建立所有講者關聯（多對多）
+        require_once 'includes/models/VideoSpeaker.php';
+        foreach ($speaker_ids as $index => $speaker_id) {
+            video_speaker_add($video_id, $speaker_id, 'speaker', $index);
+        }
 
         $conn->commit();
 

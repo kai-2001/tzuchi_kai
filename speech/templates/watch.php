@@ -38,12 +38,12 @@ $s = $last_position % 60;
 $time_fmt = sprintf('%02d:%02d', $m, $s);
 ?>
 <div id="resumePrompt" class="resume-prompt-overlay" style="display: none;">
-  <div class="prompt-content">
-      <i class="fa-solid fa-clock-rotate-left"></i>
-      <span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
-      <button id="btnResume" class="btn-resume-action">繼續觀看</button>
-      <button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
-  </div>
+<div class="prompt-content">
+<i class="fa-solid fa-clock-rotate-left"></i>
+<span>上次觀看到 <strong><?= $time_fmt ?></strong></span>
+<button id="btnResume" class="btn-resume-action">繼續觀看</button>
+<button id="btnSkipResume" class="btn-resume-close"><i class="fa-solid fa-xmark"></i></button>
+</div>
 </div>
 <?php endif; ?>
 */ ?>
@@ -142,11 +142,27 @@ $time_fmt = sprintf('%02d:%02d', $m, $s);
         <h2 class="video-title-main"><?= htmlspecialchars($video['title']) ?></h2>
 
         <ul class="meta-info-list">
+
             <li>
                 <i class="fa-solid fa-user"></i>
-                <span><strong>主講人：</strong><?= htmlspecialchars($video['speaker_name']) ?>
-                    <small>(<?= htmlspecialchars($video['affiliation']) ?> -
-                        <?= htmlspecialchars($video['position']) ?>)</small></span>
+                <span class="speaker-info">
+                    <strong>主講人：</strong>
+                    <?php if (!empty($speakers)): ?>
+                        <?php foreach ($speakers as $index => $speaker): ?>
+                            <?php if ($index > 0)
+                                echo '<br>'; ?>
+                            <span class="speaker-name"><?= htmlspecialchars($speaker['name']) ?></span>
+                            <?php if (!empty($speaker['affiliation']) || !empty($speaker['position'])): ?>
+                                <span class="speaker-details">
+                                    (<?= htmlspecialchars($speaker['affiliation']) ?><?php if (!empty($speaker['affiliation']) && !empty($speaker['position']))
+                                          echo ' - '; ?><?= htmlspecialchars($speaker['position']) ?>)
+                                </span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <span class="no-data">未指定</span>
+                    <?php endif; ?>
+                </span>
             </li>
             <li>
                 <i class="fa-solid fa-calendar"></i>
@@ -171,7 +187,7 @@ $time_fmt = sprintf('%02d:%02d', $m, $s);
 <script src="assets/js/player.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        initPlayer(<?= (int)$video['id'] ?>, <?= (int)$last_position ?>);
+        initPlayer(<?= (int) $video['id'] ?>, <?= (int) $last_position ?>);
     });
 </script>
 

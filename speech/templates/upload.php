@@ -17,10 +17,16 @@ include __DIR__ . '/partials/navbar.php';
 <div class="container" style="padding-top: 120px; margin-bottom: 60px;">
     <div class="upload-form">
         <?php if ($msg): ?>
-            <div style="color: #4ade80; margin-bottom: 20px;"><?= $msg ?></div>
+            <div class="alert alert-success"
+                style="color: #4ade80; margin-bottom: 20px; background: #022c22; padding: 15px; border-radius: 8px; border-left: 4px solid #4ade80;">
+                <i class="fas fa-check-circle"></i> <?= $msg ?>
+            </div>
         <?php endif; ?>
         <?php if ($error): ?>
-            <div style="color: #f87171; margin-bottom: 20px;"><?= $error ?></div>
+            <div class="alert alert-danger error-msg"
+                style="color: #f87171; margin-bottom: 20px; background: #2d1517; padding: 15px; border-radius: 8px; border-left: 4px solid #f87171;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>錯誤：</strong><?= htmlspecialchars($error) ?>
+            </div>
         <?php endif; ?>
 
         <form action="upload.php" method="POST" enctype="multipart/form-data" id="uploadForm">
@@ -51,19 +57,18 @@ include __DIR__ . '/partials/navbar.php';
                     <input type="date" name="event_date" required>
                 </div>
 
-                <div class="form-group">
-                    <label>講者姓名</label>
-                    <input type="text" name="speaker_name" required>
-                </div>
+                <div class="form-group full-width">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 500; color: #334155;">講者資訊</span>
+                        <button type="button" class="btn-add-speaker" id="addSpeaker">
+                            <i class="fas fa-plus"></i> 新增講者
+                        </button>
+                    </div>
 
-                <div class="form-group">
-                    <label>服務單位</label>
-                    <input type="text" name="affiliation">
-                </div>
-
-                <div class="form-group">
-                    <label>職務 (如醫師、護理師)</label>
-                    <input type="text" name="position">
+                    <div id="speakers-container" class="speakers-container">
+                        <!-- 講者項目將由 JavaScript 插入 -->
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -85,41 +90,9 @@ include __DIR__ . '/partials/navbar.php';
                     </small>
                 </div>
             </div>
-            <style>
-                .form-hint {
-                    display: block;
-                    color: #64748b;
-                    font-size: 0.875rem;
-                    margin-top: 8px;
-                    line-height: 1.5;
-                    padding-left: 5px;
-                }
-
-                .form-hint i {
-                    color: var(--primary-color);
-                    margin-right: 4px;
-                    font-size: 0.85rem;
-                }
-
-                @keyframes progress-stripe {
-                    0% {
-                        background-position: 1rem 0;
-                    }
-
-                    100% {
-                        background-position: 0 0;
-                    }
-                }
-
-                .progress-bar-animated {
-                    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-                    background-size: 1rem 1rem;
-                    animation: progress-stripe 1s linear infinite;
-                }
-            </style>
             <div id="progress-container" style="display:none; margin-top: 20px;">
                 <div style="background: #e5e7eb; border-radius: 8px; height: 14px; overflow: hidden;">
-                    <div id="progress-bar" class="progress-bar-animated"
+                    <div id="progress-bar"
                         style="background-color: var(--primary-color, #008491); width: 0%; height: 100%; transition: width 0.2s;">
                     </div>
                 </div>
@@ -133,10 +106,12 @@ include __DIR__ . '/partials/navbar.php';
     </div>
 </div>
 
-<script src="assets/js/validators.js"></script>
-<script src="assets/js/upload.js"></script>
+<script src="assets/js/validators.js?v=<?= time() ?>"></script>
+<script src="assets/js/upload.js?v=<?= time() ?>"></script>
 <script>
+    // ==========================================
     // Mutual exclusion and conditional required validation
+    // ==========================================
     const videoFile = document.getElementById('video_file');
     const videoLink = document.getElementById('video_link');
     const form = document.getElementById('uploadForm');

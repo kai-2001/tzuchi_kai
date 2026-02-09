@@ -23,7 +23,7 @@ include __DIR__ . '/partials/navbar.php';
             <div style="color: #f87171; margin-bottom: 20px;"><?= $error ?></div>
         <?php endif; ?>
 
-        <form action="edit_video.php?id=<?= $video_id ?>" method="POST" enctype="multipart/form-data">
+        <form id="uploadForm" action="edit_video.php?id=<?= $video_id ?>" method="POST" enctype="multipart/form-data">
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label>演講標題</label>
@@ -51,20 +51,18 @@ include __DIR__ . '/partials/navbar.php';
                     <input type="date" name="event_date" value="<?= $video['event_date'] ?>" required>
                 </div>
 
-                <div class="form-group">
-                    <label>講者姓名</label>
-                    <input type="text" name="speaker_name" value="<?= htmlspecialchars($video['speaker_name']) ?>"
-                        required>
-                </div>
+                <div class="form-group full-width">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: 500; color: #334155;">講者資訊</span>
+                        <button type="button" class="btn-add-speaker" id="addSpeaker">
+                            <i class="fas fa-plus"></i> 新增講者
+                        </button>
+                    </div>
 
-                <div class="form-group">
-                    <label>服務單位</label>
-                    <input type="text" name="affiliation" value="<?= htmlspecialchars($video['affiliation']) ?>">
-                </div>
-
-                <div class="form-group">
-                    <label>職務</label>
-                    <input type="text" name="position" value="<?= htmlspecialchars($video['position']) ?>">
+                    <div id="speakers-container" class="speakers-container">
+                        <!-- 講者項目將由 JavaScript 插入 -->
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -90,38 +88,6 @@ include __DIR__ . '/partials/navbar.php';
                     </small>
                 </div>
             </div>
-            <style>
-                .form-hint {
-                    display: block;
-                    color: #64748b;
-                    font-size: 0.875rem;
-                    margin-top: 8px;
-                    line-height: 1.5;
-                    padding-left: 5px;
-                }
-
-                .form-hint i {
-                    color: var(--primary-color);
-                    margin-right: 4px;
-                    font-size: 0.85rem;
-                }
-
-                @keyframes progress-stripe {
-                    0% {
-                        background-position: 1rem 0;
-                    }
-
-                    100% {
-                        background-position: 0 0;
-                    }
-                }
-
-                .progress-bar-animated {
-                    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-                    background-size: 1rem 1rem;
-                    animation: progress-stripe 1s linear infinite;
-                }
-            </style>
             <div id="progress-container" style="display:none; margin-top: 20px;">
                 <div style="background: #e5e7eb; border-radius: 8px; height: 14px; overflow: hidden;">
                     <div id="progress-bar" class="progress-bar-animated"
@@ -138,9 +104,37 @@ include __DIR__ . '/partials/navbar.php';
     </div>
 </div>
 
-<script src="assets/js/upload.js"></script>
+<script src="assets/js/validators.js?v=<?= time() ?>"></script>
+<script src="assets/js/upload.js?v=<?= time() ?>"></script>
 <script>
-    // Mutual exclusion for file and link inputs in edit form
+    // ==========================================
+    // Load existing speakers for edit mode
+    // ==========================================
+    <?php
+    require_once __DIR__ . '/../includes/models/VideoSpeaker.php';
+    $existing_speakers = video_speaker_get_by_video($video_id);
+    ?>
+
+    const existingSpeakers = <?= json_encode($existing_speakers, JSON_UNESCAPED_UNICODE) ?>;
+
+    // Wait for upload.js to define addSpeaker function
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof window.addSpeaker === 'function' && existingSpeakers && existingSpeakers.length > 0) {
+                existingSpeakers.forEach(speaker => {
+                    window.addSpeaker({
+                        name: speaker.name,
+                        affiliation: speaker.affiliation || '',
+                        position: speaker.position || ''
+                    });
+                });
+            }
+        }, 100);
+    });
+
+    // ==========================================
+    // Mutual exclusion and conditional required validation
+    // ==========================================
     document.addEventListener('DOMContentLoaded', function () {
         const videoFile = document.getElementById('video_file');
         const videoLink = document.getElementById('video_link');
@@ -275,6 +269,13 @@ include __DIR__ . '/partials/navbar.php';
                 return false;
             }
         });
+
+        // ==========================================
+        // Initialize Form Validator
+        // ==========================================
+        <?php require_once __DIR__ . '/../includes/Validator.php'; ?>
+        const editVideoRules = <?= Validator::getRulesJson('edit_video') ?>;
+        FormValidator.init('uploadForm', editVideoRules);
     });
 </script>
 

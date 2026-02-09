@@ -159,14 +159,22 @@ const FormValidator = {
         const formGroup = input.closest('.form-group');
         if (!formGroup) return;
 
-        // Find or create feedback element in form-group (not input-wrapper)
-        let feedback = formGroup.querySelector('.invalid-feedback');
-        if (!feedback) {
-            feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback';
-            // Insert after input-wrapper, not inside it
-            const inputWrapper = input.parentElement;
-            inputWrapper.parentElement.insertBefore(feedback, inputWrapper.nextSibling);
+        // Remove existing error messages to prevent duplicates
+        const existingFeedbacks = formGroup.querySelectorAll('.invalid-feedback');
+        existingFeedbacks.forEach(fb => fb.remove());
+
+        // Create new feedback element
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+
+        // Smart insertion: check if input is wrapped in .input-wrapper
+        const inputWrapper = input.closest('.input-wrapper');
+        if (inputWrapper) {
+            // Login page structure: insert after input-wrapper
+            inputWrapper.parentNode.insertBefore(feedback, inputWrapper.nextSibling);
+        } else {
+            // Upload page structure: insert directly after input
+            input.parentNode.insertBefore(feedback, input.nextSibling);
         }
         feedback.textContent = message;
         feedback.style.display = 'block';

@@ -55,10 +55,28 @@ if (!$video) {
 }
 
 // ============================================
+// LOGIC: Parse Multi-Speaker Data
+// ============================================
+$speakers = [];
+if (!empty($video['speakers_detail'])) {
+    $speakers_raw = explode('|', $video['speakers_detail']);
+    foreach ($speakers_raw as $speaker_str) {
+        $parts = explode(':', $speaker_str);
+        if (count($parts) >= 2) {
+            $speakers[] = [
+                'id' => $parts[0],
+                'name' => $parts[1],
+                'affiliation' => $parts[2] ?? '',
+                'position' => $parts[3] ?? ''
+            ];
+        }
+    }
+}
+
+
+// ============================================
 // LOGIC: Dynamic Chapter Loading (EverCam)
 // ============================================
-// ============================================
-// LOGIC: Dynamic Chapter Loading (EverCam)
 // ============================================
 if ($video['format'] === 'evercam') {
     // Unified Logic: Replace "filename.mp4" with "config.js"

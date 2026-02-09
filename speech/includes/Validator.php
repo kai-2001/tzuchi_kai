@@ -36,23 +36,9 @@ class Validator
                 'required' => true,
                 'type' => 'date',
                 'label' => '演講日期'
-            ],
-            'speaker_name' => [
-                'required' => true,
-                'min' => 2,
-                'max' => 255,
-                'label' => '講者姓名'
-            ],
-            'affiliation' => [
-                'required' => false,
-                'max' => 255,
-                'label' => '服務單位'
-            ],
-            'position' => [
-                'required' => false,
-                'max' => 255,
-                'label' => '職務'
             ]
+            // Note: Speaker validation (speakers[0][name], etc.) is handled in PHP backend
+            // due to dynamic array structure
         ],
 
         // 編輯影片表單 (與上傳類似，但影片檔案非必填)
@@ -72,13 +58,8 @@ class Validator
                 'required' => true,
                 'type' => 'date',
                 'label' => '演講日期'
-            ],
-            'speaker_name' => [
-                'required' => true,
-                'min' => 2,
-                'max' => 255,
-                'label' => '講者姓名'
             ]
+            // Note: Speaker validation is handled in PHP backend (multi-speaker array)
         ],
 
         // 新增公告表單
