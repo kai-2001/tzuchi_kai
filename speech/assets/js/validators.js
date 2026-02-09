@@ -155,12 +155,18 @@ const FormValidator = {
         input.classList.add('is-invalid');
         input.classList.remove('is-valid');
 
-        // Find or create feedback element
-        let feedback = input.parentElement.querySelector('.invalid-feedback');
+        // Find the form-group container (parent of input-wrapper)
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        // Find or create feedback element in form-group (not input-wrapper)
+        let feedback = formGroup.querySelector('.invalid-feedback');
         if (!feedback) {
             feedback = document.createElement('div');
             feedback.className = 'invalid-feedback';
-            input.parentElement.appendChild(feedback);
+            // Insert after input-wrapper, not inside it
+            const inputWrapper = input.parentElement;
+            inputWrapper.parentElement.insertBefore(feedback, inputWrapper.nextSibling);
         }
         feedback.textContent = message;
         feedback.style.display = 'block';
@@ -171,9 +177,12 @@ const FormValidator = {
      */
     clearError(input) {
         input.classList.remove('is-invalid');
-        const feedback = input.parentElement.querySelector('.invalid-feedback');
-        if (feedback) {
-            feedback.style.display = 'none';
+        const formGroup = input.closest('.form-group');
+        if (formGroup) {
+            const feedback = formGroup.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+            }
         }
     }
 };

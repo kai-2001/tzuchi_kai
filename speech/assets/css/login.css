@@ -112,6 +112,16 @@ body.login-page {
     color: var(--primary-color);
     opacity: 0.6;
     font-size: 1.1rem;
+    pointer-events: none;
+}
+
+/* 錯誤訊息樣式 */
+.invalid-feedback {
+    color: #e63946;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    margin-left: 5px;
+    display: none;
 }
 
 /* Specific overrides for login inputs */
