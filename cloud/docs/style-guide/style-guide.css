@@ -1,0 +1,523 @@
+/* ==========================================
+   Style Guide 樣板頁專屬樣式
+   ========================================== */
+
+/* 覆蓋 design-system.css 的一些設定 */
+.sg-nav-override {
+    height: var(--nav-height) !important;
+    background: var(--bg-surface) !important;
+    border-bottom: 1px solid var(--border-default) !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* — pg- 導覽列類名（從 style.css 抽取） — */
+.pg-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pg-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 24px;
+}
+
+.pg-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease-out;
+}
+
+.pg-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-muted);
+}
+
+.pg-link--active {
+    color: var(--brand-primary);
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.pg-link i {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.pg-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* — Outline 鏤空按鈕（課程包管理用） — */
+.btn-v2--outline-primary {
+    background: transparent;
+    color: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+}
+
+.btn-v2--outline-primary:hover:not(:disabled) {
+    background: var(--brand-primary);
+    color: white;
+}
+
+.btn-v2--outline-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+}
+
+.btn-v2--outline-secondary:hover:not(:disabled) {
+    background: var(--bg-muted);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.btn-v2--outline-info {
+    background: transparent;
+    color: var(--brand-accent);
+    border: 1px solid var(--brand-accent);
+}
+
+.btn-v2--outline-info:hover:not(:disabled) {
+    background: var(--brand-accent);
+    color: white;
+}
+
+.btn-v2--outline-danger {
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+.btn-v2--outline-danger:hover:not(:disabled) {
+    background: var(--error);
+    color: white;
+}
+
+.btn-v2--outline-success {
+    background: transparent;
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.btn-v2--outline-success:hover:not(:disabled) {
+    background: var(--success);
+    color: white;
+}
+
+
+/* — Hero 區塊 — */
+.sg-hero {
+    text-align: center;
+    padding: var(--space-8) 0 var(--space-6);
+    margin-bottom: var(--space-8);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.sg-hero__title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.sg-hero__desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-5);
+    line-height: 1.8;
+}
+
+.sg-hero__desc code {
+    background: var(--bg-muted);
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    color: var(--brand-primary);
+}
+
+.sg-hero__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+
+/* — Section — */
+.sg-section {
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border-default);
+    scroll-margin-top: calc(var(--nav-height) + 16px);
+}
+
+.sg-section__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.sg-section__title::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+}
+
+.sg-section__desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-5);
+    line-height: 1.7;
+}
+
+.sg-section__desc code {
+    background: var(--bg-muted);
+    padding: 2px 6px;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    color: var(--brand-primary);
+}
+
+.sg-subsection__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: var(--space-5) 0 var(--space-3);
+}
+
+
+/* — Demo Row — */
+.sg-demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--space-4);
+}
+
+
+/* — 顏色色票 — */
+.sg-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: var(--space-4);
+}
+
+.sg-color-swatch {
+    height: 72px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8px 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sg-color-swatch small {
+    opacity: 0.8;
+    font-size: 11px;
+}
+
+
+/* — Preview Box — */
+.sg-preview-box {
+    width: 48px;
+    height: 24px;
+    border-radius: var(--radius-xs);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+
+/* — Token Table — */
+.sg-token-table {
+    margin-bottom: var(--space-4);
+}
+
+.sg-token-table .table-v2 {
+    font-size: 13px;
+}
+
+.sg-token-table code {
+    background: var(--bg-muted);
+    padding: 2px 6px;
+    border-radius: var(--radius-xs);
+    font-size: 12px;
+    color: var(--brand-primary);
+}
+
+
+/* — Code Block — */
+.sg-code-block {
+    margin-top: var(--space-5);
+    background: #1a1a2e;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.sg-code-block h4 {
+    padding: var(--space-2) var(--space-4);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.sg-code-block pre {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+}
+
+.sg-code-block code {
+    color: #a5d6ff;
+    font-size: 13px;
+    line-height: 1.7;
+    font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+
+/* — Tab 導航（從 admin_settings.php 行內 CSS 抽取） — */
+.tab-nav-v2 {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--bg-muted);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
+}
+
+.tab-nav-v2__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-nav-v2__item:hover {
+    color: var(--text-primary);
+}
+
+.tab-nav-v2__item.is-active {
+    background: var(--bg-surface);
+    color: var(--brand-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-content-v2 {
+    display: none;
+}
+
+.tab-content-v2.is-active {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+
+
+/* — 歡迎區塊（從 hospital_admin_home.php 行內 CSS 抽取） — */
+.welcome-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-6);
+}
+
+.welcome-header__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.welcome-header__subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.welcome-header__date {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+
+/* — 快捷操作卡片（從 hospital_admin_home.php 行內 CSS 抽取） — */
+.quick-actions__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-bottom: var(--space-4);
+}
+
+.quick-action-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.quick-action-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+    transform: translateY(-1px);
+}
+
+.quick-action-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.quick-action-card__icon--teal {
+    background: rgba(6, 182, 212, 0.1);
+    color: var(--brand-accent);
+}
+
+.quick-action-card__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.quick-action-card__title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.quick-action-card__desc {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.quick-action-card__arrow {
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.quick-action-card:hover .quick-action-card__arrow {
+    transform: translateX(4px);
+    color: var(--brand-primary);
+}
+
+
+/* — 粒子展示區 — */
+.sg-particle-demo {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    cursor: default;
+}
+
+.sg-particle-demo canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.sg-particle-demo__overlay {
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 13px;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+.sg-particle-demo:hover .sg-particle-demo__overlay {
+    opacity: 0;
+}

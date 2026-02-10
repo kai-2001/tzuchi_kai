@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雲嘉學習網 — UI 設計樣板</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 直接引用專案的設計系統 CSS -->
+    <link rel="stylesheet" href="../../assets/css/design-system.css">
+    <!-- 樣板頁專屬樣式 -->
+    <link rel="stylesheet" href="style-guide.css">
+</head>
+
+<body>
+    <!-- ==========================================
+         1. 導覽列 Navigation (nav-v2)
+         ========================================== -->
+    <nav id="portal-global-nav" class="sg-nav-override">
+        <div style="display:flex; align-items:center;">
+            <a class="pg-brand" href="#">
+                <img src="../../assets/img/small_logo.svg" alt="雲嘉e學院" style="height: 55px; width: auto;">
+            </a>
+            <div class="pg-menu">
+                <a class="pg-link pg-link--active"><i class="fas fa-home"></i> 首頁</a>
+                <a class="pg-link"><i class="fas fa-users-cog"></i> 成員管理</a>
+                <a class="pg-link"><i class="fas fa-cog"></i> 部門與職稱設定</a>
+                <a class="pg-link"><i class="fas fa-sitemap"></i> 管理類別</a>
+                <a class="pg-link"><i class="fas fa-tasks"></i> 課程管理</a>
+                <a class="pg-link"><i class="fas fa-box-open"></i> 課程包管理</a>
+            </div>
+        </div>
+        <div class="pg-user">
+            <span style="font-size:14px; color: var(--text-secondary);">台北測試管理員</span>
+            <div class="pg-avatar">台</div>
+        </div>
+    </nav>
+
+    <!-- 主內容區 -->
+    <div class="main-content">
+        <div class="page-section active">
+
+            <!-- 樣板頁標題 -->
+            <div class="sg-hero">
+                <h1 class="sg-hero__title">🎨 UI 設計樣板庫</h1>
+                <p class="sg-hero__desc">
+                    雲嘉學習網的所有 UI 元件一覽。開發者可直接複製 HTML 搭配
+                    <code>design-system.css</code> 使用。
+                </p>
+                <div class="sg-hero__nav">
+                    <a href="#section-tokens" class="btn-v2 btn-v2--secondary btn-v2--sm">Design Tokens</a>
+                    <a href="#section-buttons" class="btn-v2 btn-v2--secondary btn-v2--sm">按鈕</a>
+                    <a href="#section-cards" class="btn-v2 btn-v2--secondary btn-v2--sm">卡片</a>
+                    <a href="#section-forms" class="btn-v2 btn-v2--secondary btn-v2--sm">表單</a>
+                    <a href="#section-tables" class="btn-v2 btn-v2--secondary btn-v2--sm">表格</a>
+                    <a href="#section-modals" class="btn-v2 btn-v2--secondary btn-v2--sm">Modal</a>
+                    <a href="#section-badges" class="btn-v2 btn-v2--secondary btn-v2--sm">Badge</a>
+                    <a href="#section-stats" class="btn-v2 btn-v2--secondary btn-v2--sm">統計卡片</a>
+                    <a href="#section-toolbar" class="btn-v2 btn-v2--secondary btn-v2--sm">工具列</a>
+                    <a href="#section-tabs" class="btn-v2 btn-v2--secondary btn-v2--sm">Tab 導航</a>
+                    <a href="#section-welcome" class="btn-v2 btn-v2--secondary btn-v2--sm">歡迎區塊</a>
+                    <a href="#section-quick-actions" class="btn-v2 btn-v2--secondary btn-v2--sm">快捷操作</a>
+                    <a href="#section-empty" class="btn-v2 btn-v2--secondary btn-v2--sm">空狀態</a>
+                    <a href="#section-toast" class="btn-v2 btn-v2--secondary btn-v2--sm">Toast</a>
+                    <a href="#section-page-header" class="btn-v2 btn-v2--secondary btn-v2--sm">頁面標題</a>
+                </div>
+            </div>
+
+
+            <!-- ==========================================
+                 2. Design Tokens
+                 ========================================== -->
+            <section id="section-tokens" class="sg-section">
+                <h2 class="sg-section__title">Design Tokens</h2>
+                <p class="sg-section__desc">
+                    所有顏色、間距、圓角、陰影等變數定義，統一使用 CSS 自訂屬性。
+                    <br>檔案來源：<code>assets/css/design-system.css :root { ... }</code>
+                </p>
+
+                <!-- 顏色 -->
+                <h3 class="sg-subsection__title">品牌色</h3>
+                <div class="sg-color-grid">
+                    <div class="sg-color-swatch" style="background: var(--brand-primary);">
+                        <span>--brand-primary</span><small>#2563eb</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--brand-primary-light);">
+                        <span>--brand-primary-light</span><small>#3b82f6</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--brand-primary-dark);">
+                        <span>--brand-primary-dark</span><small>#1d4ed8</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--brand-accent);">
+                        <span>--brand-accent</span><small>#06b6d4</small>
+                    </div>
+                </div>
+
+                <h3 class="sg-subsection__title">語意色</h3>
+                <div class="sg-color-grid">
+                    <div class="sg-color-swatch" style="background: var(--success);">
+                        <span>--success</span><small>#22c55e</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--warning); color: var(--gray-900);">
+                        <span>--warning</span><small>#f59e0b</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--error);">
+                        <span>--error</span><small>#ef4444</small>
+                    </div>
+                    <div class="sg-color-swatch" style="background: var(--info);">
+                        <span>--info</span><small>#3b82f6</small>
+                    </div>
+                </div>
+
+                <h3 class="sg-subsection__title">背景 / 邊框 / 文字</h3>
+                <div class="sg-token-table">
+                    <table class="table-v2">
+                        <thead>
+                            <tr>
+                                <th>變數</th>
+                                <th>用途</th>
+                                <th>預覽</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>--bg-body</code></td>
+                                <td>頁面背景</td>
+                                <td>
+                                    <div class="sg-preview-box" style="background: var(--bg-body);"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>--bg-surface</code></td>
+                                <td>卡片 / Modal 背景</td>
+                                <td>
+                                    <div class="sg-preview-box" style="background: var(--bg-surface);"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>--bg-muted</code></td>
+                                <td>輸入框底色 / 表頭</td>
+                                <td>
+                                    <div class="sg-preview-box" style="background: var(--bg-muted);"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>--border-default</code></td>
+                                <td>一般邊框</td>
+                                <td>
+                                    <div class="sg-preview-box" style="border: 2px solid var(--border-default);"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>--border-strong</code></td>
+                                <td>Hover 邊框</td>
+                                <td>
+                                    <div class="sg-preview-box" style="border: 2px solid var(--border-strong);"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>--text-primary</code></td>
+                                <td>主要文字</td>
+                                <td><span style="color: var(--text-primary); font-weight: 600;">文字範例</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>--text-secondary</code></td>
+                                <td>次要文字</td>
+                                <td><span style="color: var(--text-secondary);">文字範例</span></td>
+                            </tr>
+                            <tr>
+                                <td><code>--text-muted</code></td>
+                                <td>輔助文字</td>
+                                <td><span style="color: var(--text-muted);">文字範例</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="sg-subsection__title">間距 / 圓角</h3>
+                <div class="sg-token-table">
+                    <table class="table-v2">
+                        <thead>
+                            <tr>
+                                <th>變數</th>
+                                <th>值</th>
+                                <th>變數</th>
+                                <th>值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>--space-1</code></td>
+                                <td>4px</td>
+                                <td><code>--radius-xs</code></td>
+                                <td>4px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-2</code></td>
+                                <td>8px</td>
+                                <td><code>--radius-sm</code></td>
+                                <td>6px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-3</code></td>
+                                <td>12px</td>
+                                <td><code>--radius-md</code></td>
+                                <td>8px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-4</code></td>
+                                <td>16px</td>
+                                <td><code>--radius-lg</code></td>
+                                <td>12px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-5</code></td>
+                                <td>20px</td>
+                                <td><code>--radius-xl</code></td>
+                                <td>16px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-6</code></td>
+                                <td>24px</td>
+                                <td><code>--radius-full</code></td>
+                                <td>9999px</td>
+                            </tr>
+                            <tr>
+                                <td><code>--space-8</code></td>
+                                <td>32px</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 3. 按鈕 Buttons (btn-v2)
+                 ========================================== -->
+            <section id="section-buttons" class="sg-section">
+                <h2 class="sg-section__title">按鈕 Buttons</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.btn-v2</code> 搭配修飾類名。
+                    <br>檔案來源：<code>design-system.css → .btn-v2</code>
+                </p>
+
+                <h3 class="sg-subsection__title">樣式變體</h3>
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--primary"><i class="fas fa-plus"></i> Primary</button>
+                    <button class="btn-v2 btn-v2--secondary"><i class="fas fa-edit"></i> Secondary</button>
+                    <button class="btn-v2 btn-v2--ghost"><i class="fas fa-eye"></i> Ghost</button>
+                    <button class="btn-v2 btn-v2--danger"><i class="fas fa-trash"></i> Danger</button>
+                    <button class="btn-v2 btn-v2--primary" disabled>Disabled</button>
+                </div>
+
+                <h3 class="sg-subsection__title">尺寸</h3>
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--primary btn-v2--sm">Small</button>
+                    <button class="btn-v2 btn-v2--primary">Default (36px)</button>
+                    <button class="btn-v2 btn-v2--primary btn-v2--lg">Large</button>
+                </div>
+
+                <h3 class="sg-subsection__title">Icon Only</h3>
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--primary btn-v2--icon btn-v2--sm"><i class="fas fa-plus"></i></button>
+                    <button class="btn-v2 btn-v2--ghost btn-v2--icon btn-v2--sm"><i class="fas fa-edit"></i></button>
+                    <button class="btn-v2 btn-v2--ghost btn-v2--icon btn-v2--sm" style="color: var(--error);"><i
+                            class="fas fa-trash"></i></button>
+                </div>
+
+                <h3 class="sg-subsection__title">Outline 鏤空按鈕</h3>
+                <p style="font-size:14px; color: var(--text-secondary); margin-bottom: 12px;">
+                    來源：課程包管理頁。透明背景 + 彩色邊框，Hover 時填滿。
+                </p>
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--outline-primary btn-v2--sm">Outline Primary</button>
+                    <button class="btn-v2 btn-v2--outline-info btn-v2--sm">檢視課程</button>
+                    <button class="btn-v2 btn-v2--outline-secondary btn-v2--sm">編輯</button>
+                    <button class="btn-v2 btn-v2--outline-danger btn-v2--sm">刪除</button>
+                    <button class="btn-v2 btn-v2--outline-success btn-v2--sm">Outline Success</button>
+                </div>
+                <div class="sg-demo-row" style="margin-top: 8px;">
+                    <button class="btn-v2 btn-v2--outline-primary">Default 尺寸</button>
+                    <button class="btn-v2 btn-v2--outline-primary btn-v2--lg">Large 尺寸</button>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;button class="btn-v2 btn-v2--primary"&gt;
+   &lt;i class="fas fa-plus"&gt;&lt;/i&gt; 新增
+&lt;/button&gt;
+
+&lt;!-- 實心: btn-v2--primary | --secondary | --ghost | --danger --&gt;
+&lt;!-- 鏤空: btn-v2--outline-primary | --outline-info | --outline-secondary | --outline-danger | --outline-success --&gt;
+&lt;!-- 尺寸: btn-v2--sm | (default) | btn-v2--lg --&gt;
+&lt;!-- Icon only: 加上 btn-v2--icon --&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 4. 卡片 Cards (card-v2)
+                 ========================================== -->
+            <section id="section-cards" class="sg-section">
+                <h2 class="sg-section__title">卡片 Cards</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.card-v2</code>，可搭配 header / body / footer。
+                    <br>檔案來源：<code>design-system.css → .card-v2</code>
+                </p>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- 基本卡片 -->
+                    <div class="card-v2">
+                        <div class="card-v2__header">
+                            <span class="card-v2__title"><i class="fas fa-database"></i> 基本卡片</span>
+                            <button class="btn-v2 btn-v2--ghost btn-v2--sm"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                        <div class="card-v2__body">
+                            <p style="color: var(--text-secondary); font-size:14px;">
+                                卡片的基本結構：header + body + footer。header 和 footer 可選擇使用。
+                            </p>
+                        </div>
+                        <div class="card-v2__footer">
+                            <span style="font-size:13px; color: var(--text-muted);">Footer 區塊</span>
+                        </div>
+                    </div>
+
+                    <!-- Elevated 卡片 -->
+                    <div class="card-v2 card-v2--elevated">
+                        <div class="card-v2__header">
+                            <span class="card-v2__title"><i class="fas fa-star"></i> Elevated 卡片</span>
+                        </div>
+                        <div class="card-v2__body">
+                            <p style="color: var(--text-secondary); font-size:14px;">
+                                使用 <code>.card-v2--elevated</code> 加上陰影，無邊框。適合高亮顯示的內容。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="card-v2"&gt;
+   &lt;div class="card-v2__header"&gt;
+      &lt;span class="card-v2__title"&gt;&lt;i class="fas fa-icon"&gt;&lt;/i&gt; 標題&lt;/span&gt;
+   &lt;/div&gt;
+   &lt;div class="card-v2__body"&gt;內容&lt;/div&gt;
+   &lt;div class="card-v2__footer"&gt;Footer（可選）&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 5. 表單 Forms (form-*-v2)
+                 ========================================== -->
+            <section id="section-forms" class="sg-section">
+                <h2 class="sg-section__title">表單 Forms</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.form-group-v2</code> / <code>.form-label-v2</code> / <code>.form-input-v2</code>。
+                    <br>檔案來源：<code>design-system.css → .form-*</code>
+                </p>
+
+                <div class="card-v2" style="max-width: 480px;">
+                    <div class="card-v2__header">
+                        <span class="card-v2__title">表單示範</span>
+                    </div>
+                    <div class="card-v2__body">
+                        <div class="form-group-v2">
+                            <label class="form-label-v2 form-label-v2--required">帳號</label>
+                            <input type="text" class="form-input-v2" placeholder="英文、數字或底線">
+                        </div>
+
+                        <div class="form-group-v2">
+                            <label class="form-label-v2 form-label-v2--required">姓名</label>
+                            <input type="text" class="form-input-v2" placeholder="請輸入真實姓名">
+                        </div>
+
+                        <div class="form-group-v2">
+                            <label class="form-label-v2">Email</label>
+                            <input type="email" class="form-input-v2" placeholder="選填">
+                        </div>
+
+                        <div class="form-group-v2">
+                            <label class="form-label-v2">角色</label>
+                            <select class="form-input-v2 form-select-v2">
+                                <option>一般學員</option>
+                                <option>開課教師</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-v2">
+                            <label class="form-label-v2">停用的輸入框</label>
+                            <input type="text" class="form-input-v2" value="唯讀內容" disabled>
+                        </div>
+
+                        <div class="form-group-v2">
+                            <label class="form-checkbox-v2">
+                                <input type="checkbox" checked>
+                                <span>我同意使用條款</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-v2__footer" style="display:flex; justify-content:flex-end; gap:12px;">
+                        <button class="btn-v2 btn-v2--secondary">取消</button>
+                        <button class="btn-v2 btn-v2--primary">儲存</button>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="form-group-v2"&gt;
+   &lt;label class="form-label-v2 form-label-v2--required"&gt;帳號&lt;/label&gt;
+   &lt;input type="text" class="form-input-v2" placeholder="..."&gt;
+&lt;/div&gt;
+
+&lt;!-- Select --&gt;
+&lt;select class="form-input-v2 form-select-v2"&gt;...&lt;/select&gt;
+
+&lt;!-- Checkbox --&gt;
+&lt;label class="form-checkbox-v2"&gt;
+   &lt;input type="checkbox"&gt; &lt;span&gt;文字&lt;/span&gt;
+&lt;/label&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 6. 表格 Tables (table-v2)
+                 ========================================== -->
+            <section id="section-tables" class="sg-section">
+                <h2 class="sg-section__title">表格 Tables</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.table-v2</code>，通常放在 <code>.card-v2</code> 內（padding: 0）。
+                    <br>檔案來源：<code>design-system.css → .table-v2</code>
+                </p>
+
+                <div class="card-v2">
+                    <div class="card-v2__body" style="padding:0;">
+                        <table class="table-v2">
+                            <thead>
+                                <tr>
+                                    <th>帳號</th>
+                                    <th>姓名</th>
+                                    <th>Email</th>
+                                    <th>角色</th>
+                                    <th style="text-align:right;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code
+                                            style="background: var(--bg-muted); padding: 2px 6px; border-radius: 4px; font-size: 13px;">admin001</code>
+                                    </td>
+                                    <td><strong>王大明</strong></td>
+                                    <td style="color: var(--text-secondary); font-size:13px;">wang@example.com</td>
+                                    <td><span class="badge-v2 badge-v2--primary"><i
+                                                class="fas fa-chalkboard-teacher"></i> 開課教師</span></td>
+                                    <td style="text-align:right;">
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"><i
+                                                class="fas fa-edit"></i></button>
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"
+                                            style="color:var(--error);"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code
+                                            style="background: var(--bg-muted); padding: 2px 6px; border-radius: 4px; font-size: 13px;">student01</code>
+                                    </td>
+                                    <td><strong>李小華</strong></td>
+                                    <td style="color: var(--text-secondary); font-size:13px;">li@example.com</td>
+                                    <td><span class="badge-v2 badge-v2--default"><i class="fas fa-user"></i> 學員</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"><i
+                                                class="fas fa-edit"></i></button>
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"
+                                            style="color:var(--error);"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code
+                                            style="background: var(--bg-muted); padding: 2px 6px; border-radius: 4px; font-size: 13px;">nurse03</code>
+                                        <span class="badge-v2 badge-v2--warning"
+                                            style="margin-left:8px; font-size:11px;">未分配</span>
+                                    </td>
+                                    <td><strong>張美美</strong></td>
+                                    <td style="color: var(--text-muted);">—</td>
+                                    <td><span class="badge-v2 badge-v2--default"><i class="fas fa-user"></i> 學員</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"><i
+                                                class="fas fa-edit"></i></button>
+                                        <button class="btn-v2 btn-v2--ghost btn-v2--sm btn-v2--icon"
+                                            style="color:var(--error);"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 7. Modal (modal-v2)
+                 ========================================== -->
+            <section id="section-modals" class="sg-section">
+                <h2 class="sg-section__title">Modal 彈窗</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.modal-v2</code>，加上 <code>.is-open</code> 類名來控制顯示。
+                    <br>檔案來源：<code>design-system.css → .modal-v2</code>
+                </p>
+
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--primary"
+                        onclick="document.getElementById('demo-modal').classList.add('is-open')">
+                        <i class="fas fa-external-link-alt"></i> 開啟 Modal
+                    </button>
+                    <button class="btn-v2 btn-v2--danger"
+                        onclick="document.getElementById('demo-delete-modal').classList.add('is-open')">
+                        <i class="fas fa-trash"></i> 刪除確認 Modal
+                    </button>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div id="my-modal" class="modal-v2"&gt;
+  &lt;div class="modal-v2__backdrop" onclick="..."&gt;&lt;/div&gt;
+  &lt;div class="modal-v2__content"&gt;
+    &lt;div class="modal-v2__header"&gt;
+      &lt;h3 class="modal-v2__title"&gt;標題&lt;/h3&gt;
+      &lt;button class="modal-v2__close"&gt;&lt;i class="fas fa-times"&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-v2__body"&gt;內容&lt;/div&gt;
+    &lt;div class="modal-v2__footer"&gt;
+      &lt;button class="btn-v2 btn-v2--secondary"&gt;取消&lt;/button&gt;
+      &lt;button class="btn-v2 btn-v2--primary"&gt;儲存&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 開啟: element.classList.add('is-open') --&gt;
+&lt;!-- 關閉: element.classList.remove('is-open') --&gt;</code></pre>
+                </div>
+            </section>
+
+            <!-- Demo Modal -->
+            <div id="demo-modal" class="modal-v2">
+                <div class="modal-v2__backdrop" onclick="this.parentElement.classList.remove('is-open')"></div>
+                <div class="modal-v2__content">
+                    <div class="modal-v2__header">
+                        <h3 class="modal-v2__title">新增成員</h3>
+                        <button class="modal-v2__close"
+                            onclick="document.getElementById('demo-modal').classList.remove('is-open')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-v2__body">
+                        <div class="form-group-v2">
+                            <label class="form-label-v2 form-label-v2--required">帳號</label>
+                            <input type="text" class="form-input-v2" placeholder="英文、數字或底線">
+                        </div>
+                        <div class="form-group-v2">
+                            <label class="form-label-v2 form-label-v2--required">姓名</label>
+                            <input type="text" class="form-input-v2" placeholder="請輸入真實姓名">
+                        </div>
+                        <div class="form-group-v2">
+                            <label class="form-label-v2">Email</label>
+                            <input type="email" class="form-input-v2" placeholder="選填">
+                        </div>
+                    </div>
+                    <div class="modal-v2__footer">
+                        <button class="btn-v2 btn-v2--secondary"
+                            onclick="document.getElementById('demo-modal').classList.remove('is-open')">取消</button>
+                        <button class="btn-v2 btn-v2--primary">儲存</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirm Modal -->
+            <div id="demo-delete-modal" class="modal-v2">
+                <div class="modal-v2__backdrop" onclick="this.parentElement.classList.remove('is-open')"></div>
+                <div class="modal-v2__content" style="max-width: 400px;">
+                    <div class="modal-v2__header">
+                        <h3 class="modal-v2__title">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--error);"></i> 確認刪除
+                        </h3>
+                        <button class="modal-v2__close"
+                            onclick="document.getElementById('demo-delete-modal').classList.remove('is-open')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-v2__body" style="text-align: center;">
+                        <p style="margin-bottom: var(--space-3);">
+                            確定要刪除成員 <strong>王大明</strong> 嗎？
+                        </p>
+                        <p style="color: var(--error); font-size: 13px;">
+                            此操作將同時刪除 Moodle 帳號，無法復原！
+                        </p>
+                    </div>
+                    <div class="modal-v2__footer">
+                        <button class="btn-v2 btn-v2--secondary"
+                            onclick="document.getElementById('demo-delete-modal').classList.remove('is-open')">取消</button>
+                        <button class="btn-v2 btn-v2--danger">確認刪除</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ==========================================
+                 8. Badge (badge-v2)
+                 ========================================== -->
+            <section id="section-badges" class="sg-section">
+                <h2 class="sg-section__title">Badge 標籤</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.badge-v2</code> 搭配修飾類名。
+                    <br>檔案來源：<code>design-system.css → .badge-v2</code>
+                </p>
+
+                <div class="sg-demo-row">
+                    <span class="badge-v2 badge-v2--default"><i class="fas fa-user"></i> Default</span>
+                    <span class="badge-v2 badge-v2--primary"><i class="fas fa-chalkboard-teacher"></i> Primary</span>
+                    <span class="badge-v2 badge-v2--success"><i class="fas fa-check"></i> Success</span>
+                    <span class="badge-v2 badge-v2--warning"><i class="fas fa-exclamation-triangle"></i> Warning</span>
+                    <span class="badge-v2 badge-v2--error"><i class="fas fa-times-circle"></i> Error</span>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;span class="badge-v2 badge-v2--primary"&gt;
+   &lt;i class="fas fa-chalkboard-teacher"&gt;&lt;/i&gt; 開課教師
+&lt;/span&gt;
+
+&lt;!-- 變體: badge-v2--default | --primary | --success | --warning | --error --&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 9. 統計卡片 (stats-grid-v2 / stat-card-v2)
+                 ========================================== -->
+            <section id="section-stats" class="sg-section">
+                <h2 class="sg-section__title">統計卡片 Stats</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.stats-grid-v2</code> 搭配 <code>.stat-card-v2</code>。自動響應式排列。
+                    <br>檔案來源：<code>design-system.css → .stats-grid-v2 / .stat-card-v2</code>
+                </p>
+
+                <div class="stats-grid-v2">
+                    <div class="stat-card-v2">
+                        <div class="stat-card-v2__label">院區成員</div>
+                        <div class="stat-card-v2__value">5</div>
+                    </div>
+                    <div class="stat-card-v2">
+                        <div class="stat-card-v2__label">開課教師</div>
+                        <div class="stat-card-v2__value">3</div>
+                    </div>
+                    <div class="stat-card-v2">
+                        <div class="stat-card-v2__label">學員人數</div>
+                        <div class="stat-card-v2__value">2</div>
+                    </div>
+                    <div class="stat-card-v2">
+                        <div class="stat-card-v2__label">課程數</div>
+                        <div class="stat-card-v2__value">0</div>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="stats-grid-v2"&gt;
+   &lt;div class="stat-card-v2"&gt;
+      &lt;div class="stat-card-v2__label"&gt;院區成員&lt;/div&gt;
+      &lt;div class="stat-card-v2__value"&gt;5&lt;/div&gt;
+   &lt;/div&gt;
+   &lt;!-- 重複更多 stat-card-v2 ... --&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 10. 工具列 Toolbar (toolbar-v2)
+                 ========================================== -->
+            <section id="section-toolbar" class="sg-section">
+                <h2 class="sg-section__title">工具列 Toolbar</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.toolbar-v2</code>，搜尋框 + 操作按鈕。
+                    <br>檔案來源：<code>design-system.css → .toolbar-v2</code>
+                </p>
+
+                <div class="toolbar-v2">
+                    <div class="toolbar-v2__search">
+                        <i class="fas fa-search toolbar-v2__search-icon"></i>
+                        <input type="text" class="toolbar-v2__search-input" placeholder="搜尋成員姓名或帳號...">
+                    </div>
+                    <div class="toolbar-v2__actions">
+                        <button class="btn-v2 btn-v2--primary"><i class="fas fa-plus"></i> 新增成員</button>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="toolbar-v2"&gt;
+   &lt;div class="toolbar-v2__search"&gt;
+      &lt;i class="fas fa-search toolbar-v2__search-icon"&gt;&lt;/i&gt;
+      &lt;input type="text" class="toolbar-v2__search-input" placeholder="搜尋..."&gt;
+   &lt;/div&gt;
+   &lt;div class="toolbar-v2__actions"&gt;
+      &lt;button class="btn-v2 btn-v2--primary"&gt;
+         &lt;i class="fas fa-plus"&gt;&lt;/i&gt; 新增
+      &lt;/button&gt;
+   &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 11. Tab 導航 (tab-nav-v2)
+                 ========================================== -->
+            <section id="section-tabs" class="sg-section">
+                <h2 class="sg-section__title">Tab 導航</h2>
+                <p class="sg-section__desc">
+                    使用 <code>.tab-nav-v2</code> 搭配 <code>.tab-content-v2</code>。
+                    <br>檔案來源：<code>admin_settings.php → &lt;style&gt;</code>（行內 CSS）
+                </p>
+
+                <div class="tab-nav-v2">
+                    <button class="tab-nav-v2__item is-active" onclick="switchDemoTab(this, 'demo-tab-1')">
+                        <i class="fas fa-sitemap"></i> 部門
+                    </button>
+                    <button class="tab-nav-v2__item" onclick="switchDemoTab(this, 'demo-tab-2')">
+                        <i class="fas fa-id-badge"></i> 職稱
+                    </button>
+                    <button class="tab-nav-v2__item" onclick="switchDemoTab(this, 'demo-tab-3')">
+                        <i class="fas fa-cog"></i> 設定
+                    </button>
+                </div>
+
+                <div id="demo-tab-1" class="tab-content-v2 is-active">
+                    <div class="card-v2">
+                        <div class="card-v2__body">
+                            <p style="color: var(--text-secondary);">這是「部門」Tab 的內容。</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="demo-tab-2" class="tab-content-v2">
+                    <div class="card-v2">
+                        <div class="card-v2__body">
+                            <p style="color: var(--text-secondary);">這是「職稱」Tab 的內容。</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="demo-tab-3" class="tab-content-v2">
+                    <div class="card-v2">
+                        <div class="card-v2__body">
+                            <p style="color: var(--text-secondary);">這是「設定」Tab 的內容。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="tab-nav-v2"&gt;
+   &lt;button class="tab-nav-v2__item is-active" data-tab="tab-id"&gt;
+      &lt;i class="fas fa-sitemap"&gt;&lt;/i&gt; 部門
+   &lt;/button&gt;
+   ...
+&lt;/div&gt;
+
+&lt;div id="tab-id" class="tab-content-v2 is-active"&gt;
+   內容...
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 12. 歡迎區塊 (welcome-header)
+                 ========================================== -->
+            <section id="section-welcome" class="sg-section">
+                <h2 class="sg-section__title">歡迎區塊</h2>
+                <p class="sg-section__desc">
+                    首頁專用，顯示使用者名稱和日期。
+                    <br>檔案來源：<code>hospital_admin_home.php → &lt;style&gt;</code>（行內 CSS）
+                </p>
+
+                <div class="welcome-header">
+                    <div class="welcome-header__content">
+                        <h1 class="welcome-header__title">早安，台北測試管理員</h1>
+                        <p class="welcome-header__subtitle">台北慈濟醫院 院區管理控制台</p>
+                    </div>
+                    <div class="welcome-header__date">2026年2月10日 星期二</div>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 13. 快捷操作 (quick-action-card)
+                 ========================================== -->
+            <section id="section-quick-actions" class="sg-section">
+                <h2 class="sg-section__title">快捷操作卡片</h2>
+                <p class="sg-section__desc">
+                    首頁專用的操作入口卡片。
+                    <br>檔案來源：<code>hospital_admin_home.php → &lt;style&gt;</code>（行內 CSS）
+                </p>
+
+                <div class="quick-actions__grid">
+                    <button class="quick-action-card">
+                        <div class="quick-action-card__icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="quick-action-card__content">
+                            <span class="quick-action-card__title">成員管理</span>
+                            <span class="quick-action-card__desc">新增或編輯院區成員帳號</span>
+                        </div>
+                        <i class="fas fa-chevron-right quick-action-card__arrow"></i>
+                    </button>
+
+                    <button class="quick-action-card">
+                        <div class="quick-action-card__icon quick-action-card__icon--teal">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="quick-action-card__content">
+                            <span class="quick-action-card__title">系統設定</span>
+                            <span class="quick-action-card__desc">醫院、部門、職稱管理</span>
+                        </div>
+                        <i class="fas fa-chevron-right quick-action-card__arrow"></i>
+                    </button>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 14. 空狀態 (empty-state-v2)
+                 ========================================== -->
+            <section id="section-empty" class="sg-section">
+                <h2 class="sg-section__title">空狀態 Empty State</h2>
+                <p class="sg-section__desc">
+                    當列表或內容為空時的佔位元件。
+                    <br>檔案來源：<code>design-system.css → .empty-state-v2</code>
+                </p>
+
+                <div class="card-v2">
+                    <div class="card-v2__body" style="padding:0;">
+                        <div class="empty-state-v2">
+                            <div class="empty-state-v2__icon"><i class="fas fa-users"></i></div>
+                            <div class="empty-state-v2__title">尚無成員資料</div>
+                            <div class="empty-state-v2__desc">點擊「新增成員」開始建立帳號</div>
+                            <button class="btn-v2 btn-v2--primary"><i class="fas fa-plus"></i> 新增第一位成員</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="empty-state-v2"&gt;
+   &lt;div class="empty-state-v2__icon"&gt;&lt;i class="fas fa-users"&gt;&lt;/i&gt;&lt;/div&gt;
+   &lt;div class="empty-state-v2__title"&gt;尚無資料&lt;/div&gt;
+   &lt;div class="empty-state-v2__desc"&gt;說明文字&lt;/div&gt;
+   &lt;button class="btn-v2 btn-v2--primary"&gt;操作按鈕&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 15. Toast 提示
+                 ========================================== -->
+            <section id="section-toast" class="sg-section">
+                <h2 class="sg-section__title">Toast 提示</h2>
+                <p class="sg-section__desc">
+                    操作回饋提示，從右下角滑入。使用 JavaScript 動態建立。
+                    <br>檔案來源：<code>design-system.css → .toast-v2</code>
+                </p>
+
+                <div class="sg-demo-row">
+                    <button class="btn-v2 btn-v2--primary" onclick="showDemoToast('操作成功！', 'success')">
+                        <i class="fas fa-check"></i> Success Toast
+                    </button>
+                    <button class="btn-v2 btn-v2--danger" onclick="showDemoToast('操作失敗！', 'error')">
+                        <i class="fas fa-times"></i> Error Toast
+                    </button>
+                    <button class="btn-v2 btn-v2--secondary" onclick="showDemoToast('請注意！', 'warning')">
+                        <i class="fas fa-exclamation-triangle"></i> Warning Toast
+                    </button>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>JavaScript</h4>
+                    <pre><code>function showToast(message, type = 'info') {
+    const existing = document.querySelector('.toast-v2');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast-v2 toast-v2--${type}`;
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle'
+    };
+    toast.innerHTML = `&lt;i class="fas fa-${icons[type]}"&gt;&lt;/i&gt; ${message}`;
+    document.body.appendChild(toast);
+
+    setTimeout(() =&gt; {
+        toast.style.animation = 'slideInRight 0.3s reverse forwards';
+        setTimeout(() =&gt; toast.remove(), 300);
+    }, 3000);
+}</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 16. 頁面標題 (page-header-v2)
+                 ========================================== -->
+            <section id="section-page-header" class="sg-section">
+                <h2 class="sg-section__title">頁面標題 Page Header</h2>
+                <p class="sg-section__desc">
+                    每個子頁面頂部的標題區塊。
+                    <br>檔案來源：<code>design-system.css → .page-header-v2</code>
+                </p>
+
+                <div class="page-header-v2">
+                    <h1 class="page-header-v2__title">成員管理</h1>
+                    <p class="page-header-v2__subtitle">管理 台北慈濟醫院 院區的成員帳號與權限</p>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>HTML</h4>
+                    <pre><code>&lt;div class="page-header-v2"&gt;
+   &lt;h1 class="page-header-v2__title"&gt;成員管理&lt;/h1&gt;
+   &lt;p class="page-header-v2__subtitle"&gt;管理院區的成員帳號與權限&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+
+            <!-- ==========================================
+                 17. 粒子效果 Particle Attraction
+                 ========================================== -->
+            <section id="section-particles" class="sg-section">
+                <h2 class="sg-section__title">粒子吸引效果 Particle Attraction</h2>
+                <p class="sg-section__desc">
+                    未登入頁面專用的背景粒子效果。粒子會緩慢浮動，游標接近時被吸引。
+                    <br>檔案來源：<code>assets/js/particle-attraction.js</code>
+                </p>
+
+                <div class="sg-particle-demo" id="particle-demo-container">
+                    <canvas id="particle-demo-canvas"></canvas>
+                    <div class="sg-particle-demo__overlay">
+                        <i class="fas fa-mouse-pointer" style="font-size: 24px; margin-bottom: 8px;"></i>
+                        <span>移動游標試試看</span>
+                    </div>
+                </div>
+
+                <div class="sg-code-block">
+                    <h4>JavaScript</h4>
+                    <pre><code>// 引入 particle-attraction.js 後自動初始化
+// 僅在 desktop + body.landing-page 時啟用
+
+&lt;script src="assets/js/particle-attraction.js"&gt;&lt;/script&gt;
+
+// 或手動初始化：
+new ParticleAttraction({
+    particleCount: 60,    // 粒子數量
+    attractionRadius: 200, // 吸引範圍 (px)
+    attractionForce: 0.12, // 吸引力
+    friction: 0.93,        // 摩擦力
+    returnForce: 0.03      // 回歸力
+});</code></pre>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="style-guide.js"></script>
+</body>
+
+</html>

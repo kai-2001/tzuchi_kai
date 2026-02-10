@@ -8,14 +8,14 @@ class ParticleAttraction {
     constructor(options = {}) {
         this.config = {
             particleCount: options.particleCount || 60,
-            minSize: 1.5,
-            maxSize: 3,
+            minSize: 1.2,
+            maxSize: 2.5,
             attractionRadius: 200,
             attractionForce: 0.12,
             friction: 0.93,
             returnForce: 0.03,
             colors: ['#2563eb', '#06b6d4', '#6366f1', '#3b82f6', '#22d3ee'],
-            opacityRange: [0.25, 0.45]
+            opacityRange: [0.15, 0.3]
         };
 
         this.canvas = null;
@@ -76,19 +76,31 @@ class ParticleAttraction {
         const { particleCount, minSize, maxSize, colors, opacityRange } = this.config;
 
         for (let i = 0; i < particleCount; i++) {
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
+            const baseX = Math.random() * window.innerWidth;
+            const baseY = Math.random() * window.innerHeight;
+
+            // 浮動屬性
+            const floatSpeed = 0.15 + Math.random() * 0.25;
+            const floatAngle = Math.random() * Math.PI * 2;
+            const floatRange = 15 + Math.random() * 20;
+
+            // 計算初始浮動偏移，讓粒子一開始就在浮動軌跡上
+            const initialFloatX = Math.cos(floatAngle) * floatRange;
+            const initialFloatY = Math.sin(floatAngle * 0.7) * floatRange * 0.6;
 
             this.particles.push({
-                x: x,
-                y: y,
-                baseX: x,
-                baseY: y,
+                x: baseX + initialFloatX,  // 初始位置在浮動軌跡上
+                y: baseY + initialFloatY,
+                baseX: baseX,
+                baseY: baseY,
                 vx: 0,
                 vy: 0,
                 size: Math.random() * (maxSize - minSize) + minSize,
                 color: colors[Math.floor(Math.random() * colors.length)],
-                opacity: Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0]
+                opacity: Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0],
+                floatSpeed: floatSpeed,
+                floatAngle: floatAngle,
+                floatRange: floatRange
             });
         }
     }
@@ -123,27 +135,34 @@ class ParticleAttraction {
     }
 
     updateParticle(particle) {
+        // 持續更新浮動角度（不論是否被吸引）
+        particle.floatAngle += particle.floatSpeed * 0.01;
+        const floatX = Math.cos(particle.floatAngle) * particle.floatRange;
+        const floatY = Math.sin(particle.floatAngle * 0.7) * particle.floatRange * 0.6;
+        const targetX = particle.baseX + floatX;
+        const targetY = particle.baseY + floatY;
+
         const dx = this.mouse.x - particle.x;
         const dy = this.mouse.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // 只對範圍內的粒子應用吸引力
         if (this.mouse.active && distance < this.config.attractionRadius) {
+            // 吸引力（越近越強）
             const force = (1 - distance / this.config.attractionRadius) * this.config.attractionForce;
             const angle = Math.atan2(dy, dx);
 
             particle.vx += Math.cos(angle) * force;
             particle.vy += Math.sin(angle) * force;
         } else {
-            // 回到原始位置
-            const returnDx = particle.baseX - particle.x;
-            const returnDy = particle.baseY - particle.y;
+            // 柔和回歸：用小力量慢慢拉回，不會彈射
+            const returnDx = targetX - particle.x;
+            const returnDy = targetY - particle.y;
 
-            particle.vx += returnDx * this.config.returnForce;
-            particle.vy += returnDy * this.config.returnForce;
+            particle.vx += returnDx * 0.015;
+            particle.vy += returnDy * 0.015;
         }
 
-        // 應用摩擦力
+        // 應用摩擦力（減速，防止過衝彈射）
         particle.vx *= this.config.friction;
         particle.vy *= this.config.friction;
 
@@ -189,13 +208,12 @@ class ParticleAttraction {
     }
 }
 
-// 自動初始化（僅在 desktop 且 landing page）
+// 自動初始化（desktop 端啟用）
 document.addEventListener('DOMContentLoaded', () => {
     // 檢查是否為移動裝置
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isLandingPage = document.body.classList.contains('landing-page');
 
-    if (!isMobile && isLandingPage) {
+    if (!isMobile) {
         // 延遲啟動確保頁面載入完成
         setTimeout(() => {
             window.particleAttraction = new ParticleAttraction({
@@ -206,9 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 returnForce: 0.03
             });
 
-            // 隱藏原本的 CSS 背景粒子
+            // 隱藏原本的 CSS 背景粒子（避免與 Canvas 粒子重疊）
             const style = document.createElement('style');
-            style.textContent = '.landing-page::before { display: none !important; }';
+            style.textContent = '.landing-page::before, body::after { display: none !important; }';
             document.head.appendChild(style);
         }, 200);
     }
