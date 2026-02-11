@@ -1,0 +1,16 @@
+# ============================================
+# 1. 禁止訪問 .env 檔案（保護資料庫密碼等敏感資訊）
+# ============================================
+<Files ".env">
+    Require all denied
+</Files>
+<Files ".env.example">
+    Require all denied
+</Files>
+
+# ============================================
+# 2. 禁止訪問設定腳本（防止被外部執行）
+# ============================================
+<FilesMatch "^(setup_|check_|temp_|show_campus)">
+    Require all denied
+</FilesMatch>

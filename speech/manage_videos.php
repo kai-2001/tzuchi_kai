@@ -43,6 +43,7 @@ $count_query = "SELECT COUNT(DISTINCT v.id) as total
                FROM videos v
                LEFT JOIN video_speakers vs ON v.id = vs.video_id
                LEFT JOIN speakers s ON vs.speaker_id = s.id
+               LEFT JOIN campuses c ON v.campus_id = c.id
                WHERE (1=1)";
 
 if (is_campus_admin()) {
@@ -52,11 +53,16 @@ $count_params = [];
 $count_types = "";
 
 if (!empty($search)) {
-    $count_query .= " AND (v.title LIKE ? OR s.name LIKE ?)";
+    $count_query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ? OR s.position LIKE ? OR v.event_date LIKE ? OR v.status LIKE ? OR c.name LIKE ?)";
     $search_param = "%$search%";
     $count_params[] = $search_param;
     $count_params[] = $search_param;
-    $count_types .= "ss";
+    $count_params[] = $search_param;
+    $count_params[] = $search_param;
+    $count_params[] = $search_param;
+    $count_params[] = $search_param;
+    $count_params[] = $search_param;
+    $count_types .= "sssssss";
 }
 
 $stmt_count = $conn->prepare($count_query);
@@ -89,14 +95,19 @@ $params = [];
 $types = "";
 
 if (!empty($search)) {
-    $query .= " AND (v.title LIKE ? OR s.name LIKE ?)";
+    $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ? OR s.position LIKE ? OR v.event_date LIKE ? OR v.status LIKE ? OR c.name LIKE ?)";
     $search_param = "%$search%";
     $params[] = $search_param;
     $params[] = $search_param;
-    $types .= "ss";
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $types .= "sssssss";
 }
 
-$query .= " GROUP BY v.id ORDER BY v.created_at DESC LIMIT $limit OFFSET $offset";
+$query .= " GROUP BY v.id ORDER BY v.event_date DESC LIMIT $limit OFFSET $offset";
 
 $stmt = $conn->prepare($query);
 if (!empty($types)) {

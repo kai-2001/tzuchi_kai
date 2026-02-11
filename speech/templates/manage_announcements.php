@@ -29,7 +29,8 @@ include __DIR__ . '/partials/navbar.php';
 
         <div class="search-bar">
             <form action="manage_announcements.php" method="GET">
-                <input type="text" name="q" placeholder="搜尋標題、講者或地點..." value="<?= htmlspecialchars($search ?? '') ?>">
+                <input type="text" name="q" placeholder="搜尋標題、講者、院區、日期..."
+                    value="<?= htmlspecialchars($search ?? '') ?>">
                 <button type="submit" class="btn-admin"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
             <a href="batch_upload_announcements.php" class="btn-batch" title="批次上傳公告資料 (CSV/Excel)">

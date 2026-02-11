@@ -19,13 +19,13 @@ include __DIR__ . '/partials/navbar.php';
     <div class="upload-form">
         <div class="search-bar">
             <form action="manage_videos.php" method="GET">
-                <input type="text" name="q" placeholder="搜尋影片標題或講者..." value="<?= htmlspecialchars($search) ?>">
+                <input type="text" name="q" placeholder="搜尋標題、講者、日期..." value="<?= htmlspecialchars($search) ?>">
                 <button type="submit" class="btn-admin"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
 
-            <a href="process_queue.php" class="btn-queue" title="轉檔排程管理">
+            <!-- <a href="process_queue.php" class="btn-queue" title="轉檔排程管理">
                 <i class="fa-solid fa-list-check"></i> <span>轉檔排程管理</span>
-            </a>
+            </a> -->
 
             <a href="upload.php" class="btn-add-video">
                 <i class="fa-solid fa-plus"></i> 新增影片

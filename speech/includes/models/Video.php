@@ -33,16 +33,18 @@ function video_get_ready($campus_id = 0, $search = '', $limit = 10, $offset = 0)
 
     // 講者搜尋使用 HAVING（包含姓名、單位、職位）
     if (!empty($search)) {
-        $query .= " HAVING v.title LIKE ? OR speaker_names LIKE ? OR speaker_affiliations LIKE ? OR speaker_positions LIKE ?";
+        $query .= " HAVING v.title LIKE ? OR speaker_names LIKE ? OR speaker_affiliations LIKE ? OR speaker_positions LIKE ? OR v.event_date LIKE ? OR c.name LIKE ?";
         $search_param = "%$search%";
         $params[] = $search_param;
         $params[] = $search_param;
         $params[] = $search_param;
         $params[] = $search_param;
-        $types .= "ssss";
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $types .= "ssssss";
     }
 
-    $query .= " ORDER BY v.created_at DESC LIMIT ? OFFSET ?";
+    $query .= " ORDER BY v.event_date DESC LIMIT ? OFFSET ?";
     $params[] = (int) $limit;
     $params[] = (int) $offset;
     $types .= "ii";
@@ -74,13 +76,15 @@ function video_count_ready($campus_id = 0, $search = '')
     }
 
     if (!empty($search)) {
-        $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ? OR s.position LIKE ?)";
+        $query .= " AND (v.title LIKE ? OR s.name LIKE ? OR s.affiliation LIKE ? OR s.position LIKE ? OR v.event_date LIKE ? OR c.name LIKE ?)";
         $search_param = "%$search%";
         $params[] = $search_param;
         $params[] = $search_param;
         $params[] = $search_param;
         $params[] = $search_param;
-        $types .= "ssss";
+        $params[] = $search_param;
+        $params[] = $search_param;
+        $types .= "ssssss";
     }
 
     $stmt = $conn->prepare($query);

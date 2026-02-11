@@ -539,8 +539,8 @@ h1.logo-text {
 }
 
 .speaker-avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #e5e7eb;
     color: #4b5563;
@@ -548,7 +548,7 @@ h1.logo-text {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     flex-shrink: 0;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -797,6 +797,14 @@ select:focus {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 132, 145, 0.2);
+}
+
+.pagination .page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Avatar / User Info */

@@ -90,16 +90,21 @@ $params = [];
 $types = "";
 
 if (!empty($search)) {
-    $where_sql .= " AND (a.title LIKE ? OR a.speaker_name LIKE ? OR a.location LIKE ?)";
+    $where_sql .= " AND (a.title LIKE ? OR a.speaker_name LIKE ? OR a.location LIKE ? OR a.affiliation LIKE ? OR a.position LIKE ? OR a.event_date LIKE ? OR c.name LIKE ? OR a.description LIKE ?)";
     $search_param = "%$search%";
     $params[] = $search_param;
     $params[] = $search_param;
     $params[] = $search_param;
-    $types .= "sss";
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $params[] = $search_param;
+    $types .= "ssssssss";
 }
 
 // Count total
-$count_query = "SELECT COUNT(*) as total FROM announcements a WHERE $where_sql";
+$count_query = "SELECT COUNT(*) as total FROM announcements a LEFT JOIN campuses c ON a.campus_id = c.id WHERE $where_sql";
 $stmt_count = $conn->prepare($count_query);
 if (!empty($params)) {
     $stmt_count->bind_param($types, ...$params);

@@ -148,18 +148,23 @@ $show_hero = (!isset($_GET['campus']) && empty($search) && !empty($display_slide
                             </div>
                             <div class="video-card-body">
                                 <div class="speaker-avatar">
-                                    <?= mb_substr($v['speaker_name'], 0, 1) ?>
+                                    <?= mb_substr($v['campus_name'] ?? '', 0, 2) ?>
                                 </div>
                                 <div class="video-info">
                                     <div class="video-title" title="<?= htmlspecialchars($v['title']) ?>">
                                         <?= htmlspecialchars($v['title']) ?>
                                     </div>
                                     <div class="video-meta-yt">
-                                        <div class="speaker-name"><?= htmlspecialchars($v['speaker_name']) ?></div>
                                         <div class="stats">
-                                            <span><?= number_format($v['views']) ?> 次觀看</span>
-                                            <span class="dot">•</span>
                                             <span><?= htmlspecialchars($v['event_date']) ?></span>
+                                            <span class="dot">•</span>
+                                            <span><?php
+                                            $names = $v['speaker_names'] ?? '';
+                                            $first = explode(',', $names)[0];
+                                            echo htmlspecialchars(trim($first));
+                                            ?></span>
+                                            <span class="dot">•</span>
+                                            <span><?= number_format($v['views']) ?> 次觀看</span>
                                         </div>
                                     </div>
                                 </div>
