@@ -26,7 +26,7 @@
             </div>
 
             <!-- 快速統計 -->
-            <div class="stats-grid-v2" style="margin-bottom: var(--space-6);">
+            <div class="stats-grid-v2 mb-6">
                 <div class="stat-card-v2">
                     <div class="stat-card-v2__label">修習中</div>
                     <div class="stat-card-v2__value">3</div>
@@ -58,32 +58,26 @@
             </div>
 
             <!-- 搜尋和篩選 -->
-            <div class="card-v2"
-                style="margin-bottom: var(--space-5); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                <div class="card-v2__body" style="padding: var(--space-5);">
-                    <div style="display: flex; gap: var(--space-4); align-items: stretch; flex-wrap: wrap;">
+            <div class="card-v2 mb-5 search-card">
+                <div class="card-v2__body p-5">
+                    <div class="d-flex gap-4 align-stretch flex-wrap">
                         <!-- 搜尋框 -->
-                        <div style="flex: 1; min-width: 320px; display: flex; gap: var(--space-2);">
+                        <div class="flex-1 d-flex gap-2" style="min-width: 320px;">
                             <div style="flex: 1; position: relative;">
-                                <input type="text" class="input-v2" placeholder="搜尋課程名稱、代碼或教授..."
-                                    style="width: 100%; padding: 0 20px; height: 44px; font-size: 14px; border-radius: var(--radius-md); border: 1.5px solid var(--border-default); transition: all 0.2s;"
-                                    id="courseSearch"
-                                    onfocus="this.style.borderColor='var(--brand-primary)'; this.style.boxShadow='0 0 0 3px rgba(37, 99, 235, 0.1)'"
-                                    onblur="this.style.borderColor='var(--border-default)'; this.style.boxShadow='none'">
+                                <input type="text" class="input-v2 search-input" placeholder="搜尋課程名稱、代碼或教授..."
+                                    id="courseSearch">
                             </div>
-                            <button class="btn-v2 btn-v2--outline-primary"
-                                style="height: 44px; padding: 0 24px; font-size: 14px; font-weight: 600; border-radius: var(--radius-md); white-space: nowrap;">
+                            <button class="btn-v2 btn-v2--outline-primary search-btn">
                                 <i class="fas fa-search" style="margin-right: 6px;"></i>
                                 搜尋
                             </button>
                         </div>
 
                         <!-- 篩選器容器 -->
-                        <div style="display: flex; gap: var(--space-3); align-items: center;">
+                        <div class="d-flex gap-3 align-center">
                             <!-- 學期篩選 -->
                             <div style="min-width: 140px;">
-                                <select class="input-v2" id="semesterFilter"
-                                    style="height: 44px; padding-left: 12px; padding-right: 36px; font-size: 14px; border-radius: var(--radius-md); border: 1.5px solid var(--border-default); cursor: pointer; background-position: right 12px center;">
+                                <select class="input-v2 search-select" id="semesterFilter">
                                     <option value="">全部學期</option>
                                     <option value="113-1">113-1 學期</option>
                                     <option value="112-2">112-2 學期</option>
@@ -94,8 +88,7 @@
 
                             <!-- 類型篩選 -->
                             <div style="min-width: 120px;">
-                                <select class="input-v2" id="typeFilter"
-                                    style="height: 44px; padding-left: 12px; padding-right: 36px; font-size: 14px; border-radius: var(--radius-md); border: 1.5px solid var(--border-default); cursor: pointer; background-position: right 12px center;">
+                                <select class="input-v2 search-select" id="typeFilter">
                                     <option value="">全部類型</option>
                                     <option value="required">必修</option>
                                     <option value="domain">領域</option>
@@ -107,8 +100,7 @@
                             <div style="width: 1px; height: 24px; background: var(--border-default);"></div>
 
                             <!-- 清除篩選 -->
-                            <button class="btn-v2 btn-v2--ghost" onclick="clearFilters()"
-                                style="height: 44px; padding: 0 var(--space-4); white-space: nowrap; border-radius: var(--radius-md); font-size: 14px;">
+                            <button class="btn-v2 btn-v2--ghost search-btn" onclick="clearFilters()">
                                 <i class="fas fa-times" style="margin-right: 6px;"></i>
                                 清除
                             </button>
@@ -171,8 +163,7 @@
                                 <div class="progress-bar__fill" style="width: 65%;"></div>
                             </div>
                         </div>
-                        <div
-                            style="padding: var(--space-2) var(--space-3); background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-sm); font-size: 12px; color: var(--warning); margin-top: var(--space-3);">
+                        <div class="status-label--warning mt-3">
                             <i class="fas fa-exclamation-circle"></i>
                             <strong>下次截止：</strong>作業二 (2/18 23:59)
                         </div>

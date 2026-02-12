@@ -21,60 +21,58 @@
         <div class="container">
             <!-- 頁面標題 -->
             <div class="page-header-v2">
-                <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+                <div class="page-header-v2__actions">
                     <a href="student-degree-audit.html" class="btn-v2 btn-v2--ghost btn-v2--sm">
                         <i class="fas fa-arrow-left"></i>
                         返回修課進度
                     </a>
-                    <h1 class="page-header-v2__title" style="margin: 0;">電機核心領域選修</h1>
+                    <h1 class="page-header-v2__title m-0">電機核心領域選修</h1>
                 </div>
                 <p class="page-header-v2__subtitle">探索並選擇符合學位要求的領域課程</p>
             </div>
 
             <!-- 進度卡片 -->
-            <div class="card-v2 card-v2--elevated" style="margin-bottom: var(--space-6);">
+            <div class="card-v2 card-v2--elevated mb-6">
                 <div class="card-v2__body">
-                    <div style="display: flex; align-items: center; gap: var(--space-6);">
-                        <div style="flex: 1;">
+                    <div class="domain-progress-summary">
+                        <div class="flex-1">
                             <h2 style="font-size: 20px; font-weight: 600; margin-bottom: var(--space-2);">電機核心領域</h2>
                             <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-4);">
                                 <i class="fas fa-info-circle"></i>
                                 必修課程不重複計算 • 至少需完成 4 門課程
                             </p>
-                            <div class="progress-bar progress-bar--lg" style="margin-bottom: var(--space-2);">
+                            <div class="progress-bar progress-bar--lg mb-2">
                                 <div class="progress-bar__fill" style="width: 50%;"></div>
                             </div>
-                            <div
-                                style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary);">
+                            <div class="domain-progress-details">
                                 <span>已完成 2 門</span>
                                 <span>50%</span>
                             </div>
                         </div>
-                        <div
-                            style="text-align: center; padding: var(--space-4); background: var(--bg-muted); border-radius: var(--radius-lg);">
-                            <div style="font-size: 48px; font-weight: 700; color: var(--error); margin-bottom: 4px;">2
+                        <div class="stat-box">
+                            <div class="stat-box__value stat-box__value--error">2
                             </div>
-                            <div style="font-size: 14px; color: var(--text-secondary);">還需課程數</div>
+                            <div class="stat-box__label">還需課程數</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 篩選工具列 -->
-            <div class="card-v2" style="margin-bottom: var(--space-5);">
+            <div class="card-v2 mb-5">
                 <div class="card-v2__body">
-                    <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
-                        <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">
+                    <div class="filter-bar">
+                        <div class="filter-bar__label">
                             <i class="fas fa-filter"></i>
                             篩選：
                         </div>
-                        <select class="form-control-v2" style="width: auto; min-width: 140px;">
+                        <select class="form-control-v2 w-auto" style="min-width: 140px;">
                             <option>所有學期</option>
                             <option>113-1</option>
                             <option>112-2</option>
                             <option>112-1</option>
                         </select>
-                        <select class="form-control-v2" style="width: auto; min-width: 140px;">
+                        <select class="form-control-v2 w-auto" style="min-width: 140px;">
                             <option>所有時段</option>
                             <option>週一</option>
                             <option>週二</option>
@@ -82,15 +80,15 @@
                             <option>週四</option>
                             <option>週五</option>
                         </select>
-                        <label class="form-checkbox-v2" style="margin: 0;">
+                        <label class="form-checkbox-v2 m-0">
                             <input type="checkbox" checked>
                             <span>僅顯示有名額</span>
                         </label>
-                        <label class="form-checkbox-v2" style="margin: 0;">
+                        <label class="form-checkbox-v2 m-0">
                             <input type="checkbox">
                             <span>無先修條件</span>
                         </label>
-                        <div style="margin-left: auto;">
+                        <div class="filter-bar__actions">
                             <button class="btn-v2 btn-v2--ghost btn-v2--sm">
                                 <i class="fas fa-redo"></i>
                                 重置篩選
@@ -127,19 +125,18 @@
                             週一 5-6
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: var(--bg-muted); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                    <div class="course-card__details">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-users"></i>
                             選課人數：<strong>28 / 60</strong>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-clipboard-list"></i>
                             先修：無
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--outline-info" style="flex: 1;">
+                        <button class="btn-v2 btn-v2--outline-info flex-1">
                             <i class="fas fa-plus"></i>
                             加入課程
                         </button>
@@ -150,7 +147,7 @@
                 </div>
 
                 <!-- 課程卡片 2 - 已修習（提示不計入） -->
-                <div class="course-card" style="opacity: 0.6;">
+                <div class="course-card course-card--opacity-60">
                     <div class="course-card__header">
                         <div class="course-card__tags">
                             <span class="course-tag course-tag--required">必修</span>
@@ -175,15 +172,14 @@
                             週二 3-4
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--error);">
+                    <div class="course-card__details course-card__details--error">
+                        <div class="text-error">
                             <i class="fas fa-exclamation-triangle"></i>
                             <strong>此課程為必修，不會重複計入領域選修</strong>
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--secondary" style="flex: 1;" disabled>
+                        <button class="btn-v2 btn-v2--secondary flex-1" disabled>
                             <i class="fas fa-check-circle"></i>
                             已完成（B+）
                         </button>
@@ -215,19 +211,18 @@
                             週三 2-3
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--warning); margin-bottom: 8px;">
+                    <div class="course-card__details course-card__details--warning">
+                        <div class="course-card__detail-row text-warning">
                             <i class="fas fa-users"></i>
                             選課人數：<strong>60 / 60</strong> （已額滿）
                         </div>
-                        <div style="font-size: 12px; color: var(--warning);">
+                        <div class="course-card__detail-row text-warning">
                             <i class="fas fa-list-ol"></i>
                             候補順位：<strong>#3</strong>
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--warning" style="flex: 1;">
+                        <button class="btn-v2 btn-v2--warning flex-1">
                             <i class="fas fa-clock"></i>
                             候補中 (#3)
                         </button>
@@ -262,19 +257,18 @@
                             週四 3-4
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: var(--bg-muted); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                    <div class="course-card__details">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-users"></i>
                             選課人數：<strong>32 / 50</strong>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-clipboard-list"></i>
                             先修：<strong>積體電路設計</strong>
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--outline-info" style="flex: 1;">
+                        <button class="btn-v2 btn-v2--outline-info flex-1">
                             <i class="fas fa-plus"></i>
                             加入課程
                         </button>
@@ -309,19 +303,18 @@
                             週五 2-3
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: var(--bg-muted); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                    <div class="course-card__details">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-users"></i>
                             選課人數：<strong>18 / 45</strong>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-clipboard-list"></i>
                             先修：無
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--outline-info" style="flex: 1;">
+                        <button class="btn-v2 btn-v2--outline-info flex-1">
                             <i class="fas fa-plus"></i>
                             加入課程
                         </button>
@@ -356,19 +349,18 @@
                             週一 3-4
                         </span>
                     </div>
-                    <div
-                        style="padding: var(--space-3); background: var(--bg-muted); border-radius: var(--radius-sm); margin-top: var(--space-3);">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                    <div class="course-card__details">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-users"></i>
                             選課人數：<strong>25 / 50</strong>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">
+                        <div class="course-card__detail-row">
                             <i class="fas fa-clipboard-list"></i>
                             先修：無
                         </div>
                     </div>
                     <div class="course-card__actions">
-                        <button class="btn-v2 btn-v2--outline-info" style="flex: 1;">
+                        <button class="btn-v2 btn-v2--outline-info flex-1">
                             <i class="fas fa-plus"></i>
                             加入課程
                         </button>
@@ -380,7 +372,7 @@
             </div>
 
             <!-- 查看更多 -->
-            <div style="text-align: center; margin-top: var(--space-6);">
+            <div class="text-center mt-6">
                 <button class="btn-v2 btn-v2--secondary">
                     載入更多課程
                     <i class="fas fa-arrow-down"></i>
@@ -388,16 +380,15 @@
             </div>
 
             <!-- 底部說明 -->
-            <div class="card-v2"
-                style="margin-top: var(--space-6); background: rgba(59, 130, 246, 0.02); border-color: var(--brand-primary);">
+            <div class="card-v2 alert-box mt-6">
                 <div class="card-v2__body">
-                    <div style="display: flex; gap: var(--space-3);">
-                        <div style="color: var(--brand-primary); font-size: 24px;">
+                    <div class="alert-box__content">
+                        <div class="alert-box__icon">
                             <i class="fas fa-lightbulb"></i>
                         </div>
                         <div>
-                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">選課提示</div>
-                            <ul style="font-size: 13px; color: var(--text-secondary); margin: 0; padding-left: 20px;">
+                            <div class="alert-box__title">選課提示</div>
+                            <ul class="alert-box__list">
                                 <li>已標示為「必修」的課程，若已在必修清單中，將不會重複計入領域選修</li>
                                 <li>請注意先修條件，確保您符合修課資格</li>
                                 <li>候補中的課程若有名額釋出，系統會依序通知</li>

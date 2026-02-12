@@ -712,3 +712,363 @@
     background: var(--brand-accent);
     color: white;
 }
+
+/* ==========================================
+   通用工具類 (Utilities)
+   ========================================== */
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.w-auto {
+    width: auto !important;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-6 {
+    margin-top: var(--space-6);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-2);
+}
+
+.mb-4 {
+    margin-bottom: var(--space-4);
+}
+
+.mb-5 {
+    margin-bottom: var(--space-5);
+}
+
+.mb-6 {
+    margin-bottom: var(--space-6);
+}
+
+/* ==========================================
+   頁面標頭擴充
+   ========================================== */
+.page-header-v2__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+/* ==========================================
+   進度統計區塊
+   ========================================== */
+.domain-progress-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.domain-progress-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.stat-box {
+    text-align: center;
+    padding: var(--space-4);
+    background: var(--bg-muted);
+    border-radius: var(--radius-lg);
+}
+
+.stat-box__value {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-box__label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.stat-box__value--error {
+    color: var(--error);
+}
+
+.stat-box__value--success {
+    color: var(--success);
+}
+
+.stat-box__value--warning {
+    color: var(--warning);
+}
+
+.stat-box__value--primary {
+    color: var(--brand-primary);
+}
+
+/* ==========================================
+   篩選工具列
+   ========================================== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.filter-bar__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.filter-bar__actions {
+    margin-left: auto;
+}
+
+/* ==========================================
+   課程卡片擴充
+   ========================================== */
+.course-card--opacity-60 {
+    opacity: 0.6;
+}
+
+.course-card__details {
+    padding: var(--space-3);
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+}
+
+.course-card__details--error {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.course-card__details--warning {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.course-card__detail-row {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.course-card__detail-row:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+/* 顏色變異 */
+.text-error {
+    color: var(--error);
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.text-primary {
+    color: var(--brand-primary);
+}
+
+/* ==========================================
+   提示訊息區塊 (Alert Box)
+   ========================================== */
+.alert-box {
+    background: rgba(59, 130, 246, 0.02);
+    border-color: var(--brand-primary);
+}
+
+.alert-box__content {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.alert-box__icon {
+    font-size: 24px;
+    color: var(--brand-primary);
+}
+
+.alert-box__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+
+.alert-box__list {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* ==========================================
+   學位審核頁面擴充
+   ========================================== */
+.domain-summary-card {
+    padding: var(--space-5);
+    background: var(--bg-muted);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-5);
+}
+
+.domain-summary-card--success {
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.domain-summary-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+/* 更多工具類 */
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-sm {
+    font-size: 13px;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+
+.gap-2 {
+    gap: var(--space-2);
+}
+
+.gap-3 {
+    gap: var(--space-3);
+}
+
+
+.d-flex {
+    display: flex;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.pl-4 {
+    padding-left: var(--space-4);
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-4 {
+    gap: var(--space-4);
+}
+
+.status-label--warning {
+    padding: var(--space-2) var(--space-3);
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--warning);
+}
+
+.mt-3 {
+    margin-top: var(--space-3);
+}
+
+.align-stretch {
+    align-items: stretch;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.search-card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0 20px;
+    height: 44px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-default);
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-select {
+    height: 44px;
+    padding-left: 12px;
+    padding-right: 36px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-default);
+    cursor: pointer;
+    background-position: right 12px center;
+}
+
+.search-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+}
+
+.p-5 {
+    padding: var(--space-5);
+}
