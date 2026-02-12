@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修課進度 - 雲嘉學習網</title>
+    <link rel="stylesheet" href="../docs/style-guide/design-system.css">
+    <link rel="stylesheet" href="student-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 導覽列 -->
+    <!-- 導覽列 -->
+    <script src="components/student-nav.js"></script>
+    <student-nav active="progress"></student-nav>
+
+    <!-- 主內容 -->
+    <main class="layout-main">
+        <div class="container">
+            <!-- 頁面標題 -->
+            <div class="page-header-v2">
+                <h1 class="page-header-v2__title">修課進度</h1>
+                <p class="page-header-v2__subtitle">追蹤學位完成進度並快速選修所需課程</p>
+            </div>
+
+            <!-- 總覽統計 -->
+            <div class="card-v2 card-v2--elevated" style="margin-bottom: var(--space-6);">
+                <div class="card-v2__body">
+                    <div class="grid-3">
+                        <div style="text-align: center; padding: var(--space-4);">
+                            <div
+                                style="font-size: 48px; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: var(--space-2);">
+                                72%</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">學位完成度</div>
+                        </div>
+                        <div
+                            style="text-align: center; padding: var(--space-4); border-left: 1px solid var(--border-default); border-right: 1px solid var(--border-default);">
+                            <div
+                                style="font-size: 48px; font-weight: 700; color: var(--brand-primary); margin-bottom: var(--space-2);">
+                                96 / 132</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">已修 / 總學分</div>
+                        </div>
+                        <div style="text-align: center; padding: var(--space-4);">
+                            <div
+                                style="font-size: 48px; font-weight: 700; color: var(--error); margin-bottom: var(--space-2);">
+                                36</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">還需學分</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁籤 -->
+            <div class="tabs-v2" style="margin-bottom: var(--space-6);">
+                <button class="tabs-v2__tab tabs-v2__tab--active" data-tab="required">
+                    <i class="fas fa-bookmark"></i>
+                    必修課程
+                    <span class="badge-v2 badge-v2--sm badge-v2--primary"
+                        style="margin-left: var(--space-2);">5/8</span>
+                </button>
+                <button class="tabs-v2__tab" data-tab="domains">
+                    <i class="fas fa-layer-group"></i>
+                    必修領域
+                    <span class="badge-v2 badge-v2--sm badge-v2--info" style="margin-left: var(--space-2);">6/11</span>
+                </button>
+                <button class="tabs-v2__tab" data-tab="electives">
+                    <i class="fas fa-star"></i>
+                    自由選修
+                    <span class="badge-v2 badge-v2--sm badge-v2--default" style="margin-left: var(--space-2);">3</span>
+                </button>
+            </div>
+
+            <!-- 必修課程區塊 -->
+            <div id="required-content" class="tab-content tab-content--active">
+
+                <!-- 必修課程清單 -->
+                <div class="card-v2" style="margin-bottom: var(--space-6);">
+                    <div class="card-v2__header">
+                        <h2 class="card-v2__title">
+                            <i class="fas fa-bookmark"></i>
+                            必修課程清單
+                        </h2>
+                        <span class="badge-v2 badge-v2--primary">5 / 8 門</span>
+                    </div>
+                    <div class="card-v2__body" style="padding: 0;">
+                        <table class="table-v2">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">狀態</th>
+                                    <th>課程名稱</th>
+                                    <th style="width: 80px;">學分</th>
+                                    <th style="width: 120px;">修課學期</th>
+                                    <th style="width: 80px;">成績</th>
+                                    <th style="width: 120px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--completed">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>電子電路</strong></td>
+                                    <td>3</td>
+                                    <td>112-2</td>
+                                    <td><span class="badge-v2 badge-v2--success">A</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--completed">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>數位邏輯設計</strong></td>
+                                    <td>3</td>
+                                    <td>112-2</td>
+                                    <td><span class="badge-v2 badge-v2--success">A+</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--completed">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>計算機組織</strong></td>
+                                    <td>3</td>
+                                    <td>112-1</td>
+                                    <td><span class="badge-v2 badge-v2--success">B+</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--completed">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>工程數學(一)</strong></td>
+                                    <td>3</td>
+                                    <td>111-1</td>
+                                    <td><span class="badge-v2 badge-v2--success">A-</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--completed">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>工程數學(二)</strong></td>
+                                    <td>3</td>
+                                    <td>111-2</td>
+                                    <td><span class="badge-v2 badge-v2--success">B</span></td>
+                                    <td>-</td>
+                                </tr>
+                                <tr style="background: rgba(59, 130, 246, 0.02);">
+                                    <td>
+                                        <span class="course-status course-status--in-progress">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td><strong>電磁學</strong></td>
+                                    <td>3</td>
+                                    <td>113-1</td>
+                                    <td><span class="badge-v2 badge-v2--default">進行中</span></td>
+                                    <td>
+                                        <a href="student-courses.html" class="btn-v2 btn-v2--ghost btn-v2--sm">
+                                            <i class="fas fa-arrow-right"></i>
+                                            進入
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--not-started">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td>訊號與系統</td>
+                                    <td>3</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <a href="student-course-catalog.html"
+                                            class="btn-v2 btn-v2--outline-info btn-v2--sm">
+                                            <i class="fas fa-plus"></i>
+                                            選課
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="course-status course-status--not-started">
+                                            <span class="course-status__dot"></span>
+                                        </span>
+                                    </td>
+                                    <td>控制系統</td>
+                                    <td>3</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <a href="student-course-catalog.html"
+                                            class="btn-v2 btn-v2--outline-info btn-v2--sm">
+                                            <i class="fas fa-plus"></i>
+                                            選課
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 領域必修區塊 -->
+            <div id="domains-content" class="tab-content" style="display: none;">
+                <!-- 領域必修 -->
+                <div class="card-v2">
+                    <div class="card-v2__header">
+                        <h2 class="card-v2__title">
+                            <i class="fas fa-layer-group"></i>
+                            必修領域進度
+                        </h2>
+                        <p class="card-v2__subtitle"
+                            style="margin-top: var(--space-1); font-size: 13px; color: var(--text-secondary);">
+                            每個領域需完成指定學分數，為畢業必要條件
+                        </p>
+                    </div>
+                    <div class="card-v2__body">
+                        <!-- 電機核心領域 -->
+                        <div
+                            style="padding: var(--space-5); background: var(--bg-muted); border-radius: var(--radius-lg); margin-bottom: var(--space-5);">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">電機核心領域</h3>
+                                    <p style="font-size: 13px; color: var(--text-muted);">
+                                        <i class="fas fa-info-circle"></i>
+                                        必修課程不重複計算
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 32px; font-weight: 700; color: var(--brand-primary);">
+                                        1 <span style="font-size: 20px; color: var(--text-muted);">/ 4 門</span>
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">還需 3 門</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar progress-bar--lg" style="margin-bottom: var(--space-4);">
+                                <div class="progress-bar__fill" style="width: 25%;"></div>
+                            </div>
+
+                            <div style="margin-bottom: var(--space-4);">
+                                <div
+                                    style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2);">
+                                    已計入課程：</div>
+                                <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                                    <div class="course-list-item">
+                                        <div
+                                            class="course-list-item__status-icon course-list-item__status-icon--in-progress">
+                                            <i class="fas fa-spinner"></i>
+                                        </div>
+                                        <div class="course-list-item__content">
+                                            <div class="course-list-item__title">電力系統</div>
+                                            <div class="course-list-item__meta">3 學分 • 張教授 • 113-1</div>
+                                        </div>
+                                        <span class="badge-v2 badge-v2--primary">進行中</span>
+                                    </div>
+                                    <div class="course-list-item">
+                                        <div
+                                            class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="course-list-item__content">
+                                            <div class="course-list-item__title">電機機械</div>
+                                            <div class="course-list-item__meta">3 學分 • 劉教授 • 112-1</div>
+                                        </div>
+                                        <div class="course-list-item__grade">B+</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="student-domain-courses.html" class="btn-v2 btn-v2--primary">
+                                <i class="fas fa-search"></i>
+                                瀏覽電機核心領域課程
+                            </a>
+                        </div>
+
+                        <!-- 資訊技術領域 -->
+                        <div
+                            style="padding: var(--space-5); background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: var(--radius-lg); margin-bottom: var(--space-5);">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">資訊技術領域</h3>
+                                    <p style="font-size: 13px; color: var(--text-muted);">
+                                        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                        已完成所需課程
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 32px; font-weight: 700; color: var(--success);">
+                                        3 <span style="font-size: 20px; color: var(--text-muted);">/ 3 門</span>
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--success); font-weight: 600;">✓ 已完成</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar progress-bar--lg" style="margin-bottom: var(--space-4);">
+                                <div class="progress-bar__fill progress-bar__fill--success" style="width: 100%;"></div>
+                            </div>
+
+                            <div>
+                                <div
+                                    style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2);">
+                                    已計入課程：</div>
+                                <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                                    <div class="course-list-item">
+                                        <div
+                                            class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="course-list-item__content">
+                                            <div class="course-list-item__title">資料結構</div>
+                                            <div class="course-list-item__meta">3 學分 • 周教授 • 112-1</div>
+                                        </div>
+                                        <div class="course-list-item__grade">A-</div>
+                                    </div>
+                                    <div class="course-list-item">
+                                        <div
+                                            class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="course-list-item__content">
+                                            <div class="course-list-item__title">演算法</div>
+                                            <div class="course-list-item__meta">3 學分 • 吳教授 • 112-2</div>
+                                        </div>
+                                        <div class="course-list-item__grade">A</div>
+                                    </div>
+                                    <div class="course-list-item">
+                                        <div
+                                            class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="course-list-item__content">
+                                            <div class="course-list-item__title">資料庫系統</div>
+                                            <div class="course-list-item__meta">3 學分 • 黃教授 • 111-2</div>
+                                        </div>
+                                        <div class="course-list-item__grade">B+</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 通訊系統領域 -->
+                        <div
+                            style="padding: var(--space-5); background: var(--bg-muted); border-radius: var(--radius-lg);">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">通訊系統領域</h3>
+                                    <p style="font-size: 13px; color: var(--text-muted);">
+                                        <i class="fas fa-info-circle"></i>
+                                        必修課程不重複計算
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 32px; font-weight: 700; color: var(--warning);">
+                                        1 <span style="font-size: 20px; color: var(--text-muted);">/ 4 門</span>
+                                    </div>
+                                    <div style="font-size: 13px; color: var(--error); font-weight: 600;">還需 3 門</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar progress-bar--lg" style="margin-bottom: var(--space-4);">
+                                <div class="progress-bar__fill progress-bar__fill--warning" style="width: 25%;"></div>
+                            </div>
+
+                            <div style="margin-bottom: var(--space-4);">
+                                <div
+                                    style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2);">
+                                    已計入課程：</div>
+                                <div class="course-list-item">
+                                    <div class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="course-list-item__content">
+                                        <div class="course-list-item__title">數位通訊</div>
+                                        <div class="course-list-item__meta">3 學分 • 李教授 • 112-2</div>
+                                    </div>
+                                    <div class="course-list-item__grade">A</div>
+                                </div>
+                            </div>
+
+                            <a href="student-domain-courses.html" class="btn-v2 btn-v2--primary">
+                                <i class="fas fa-search"></i>
+                                瀏覽通訊系統領域課程
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自由選修區塊 -->
+            <div id="electives-content" class="tab-content" style="display: none;">
+                <div class="card-v2">
+                    <div class="card-v2__header">
+                        <h2 class="card-v2__title">
+                            <i class="fas fa-star"></i>
+                            自由選修課程
+                        </h2>
+                        <p class="card-v2__subtitle"
+                            style="margin-top: var(--space-1); font-size: 13px; color: var(--text-secondary);">
+                            這些課程不計入學位學分，但可以豐富您的學習經驗
+                        </p>
+                    </div>
+                    <div class="card-v2__body">
+                        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                            <!-- 自由選修課程列表 -->
+                            <div class="course-list-item">
+                                <div class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="course-list-item__content" style="flex: 1;">
+                                    <div style="display: flex; gap: var(--space-2); margin-bottom: 4px;">
+                                        <span class="course-tag course-tag--elective">開放課程</span>
+                                    </div>
+                                    <div class="course-list-item__title">機器學習概論</div>
+                                    <div class="course-list-item__meta">3 學分 • 吳教授 • 111-2 學期</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        不計入學位學分
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="course-list-item__grade">A</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">90分</div>
+                                </div>
+                            </div>
+
+                            <div class="course-list-item">
+                                <div class="course-list-item__status-icon course-list-item__status-icon--in-progress">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="course-list-item__content" style="flex: 1;">
+                                    <div style="display: flex; gap: var(--space-2); margin-bottom: 4px;">
+                                        <span class="course-tag course-tag--elective">興趣選修</span>
+                                        <span class="badge-v2 badge-v2--info">修習中</span>
+                                    </div>
+                                    <div class="course-list-item__title">藝術與設計思考</div>
+                                    <div class="course-list-item__meta">2 學分 • 林教授 • 112-2 學期</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        不計入學位學分
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 13px; color: var(--text-secondary);">進度 65%</div>
+                                </div>
+                            </div>
+
+                            <div class="course-list-item">
+                                <div class="course-list-item__status-icon course-list-item__status-icon--completed">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="course-list-item__content" style="flex: 1;">
+                                    <div style="display: flex; gap: var(--space-2); margin-bottom: 4px;">
+                                        <span class="course-tag course-tag--elective">線上課程</span>
+                                    </div>
+                                    <div class="course-list-item__title">資料視覺化實務</div>
+                                    <div class="course-list-item__meta">2 學分 • 張教授 • 111-1 學期</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        不計入學位學分
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="course-list-item__grade">B+</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">87分</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 提示訊息 -->
+                        <div
+                            style="margin-top: var(--space-5); padding: var(--space-4); background: rgba(59, 130, 246, 0.05); border-radius: var(--radius-md); border-left: 3px solid var(--brand-primary);">
+                            <div
+                                style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);">
+                                <i class="fas fa-lightbulb" style="color: var(--brand-primary);"></i>
+                                <strong style="font-size: 14px; color: var(--text-primary);">自由選修說明</strong>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                                自由選修課程提供您探索不同領域的機會，雖然不計入學位學分，但能豐富您的學習歷程。這些課程包含跨領域課程、開放課程、證照培訓等。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 計算規則說明 -->
+            <div class="card-v2"
+                style="margin-top: var(--space-6); background: rgba(59, 130, 246, 0.02); border-color: var(--brand-primary);">
+                <div class="card-v2__header">
+                    <h2 class="card-v2__title">
+                        <i class="fas fa-calculator"></i>
+                        學位計算規則
+                    </h2>
+                </div>
+                <div class="card-v2__body">
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <div
+                            style="padding: var(--space-3); background: var(--bg-surface); border-radius: var(--radius-sm); border-left: 3px solid var(--brand-primary);">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+                                <i class="fas fa-hashtag" style="color: var(--brand-primary);"></i>
+                                計算優先順序
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                課程完成後，系統會<strong>優先計入必修</strong>。若課程同時屬於必修與領域，且該領域不允許重複計算，則該課程<strong>僅計入必修，不計入領域</strong>。
+                            </div>
+                        </div>
+
+                        <div
+                            style="padding: var(--space-3); background: var(--bg-surface); border-radius: var(--radius-sm); border-left: 3px solid var(--warning);">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+                                <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
+                                重複計算規則
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                大部分領域採取<strong>不允許重複計算</strong>。請注意各領域的規則標示符，確保課程會正確計入對應的領域或必修。
+                            </div>
+                        </div>
+
+                        <div
+                            style="padding: var(--space-3); background: var(--bg-surface); border-radius: var(--radius-sm); border-left: 3px solid var(--success);">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+                                <i class="fas fa-award" style="color: var(--success);"></i>
+                                成績計算
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                重修課程僅計入<strong>最高成績</strong>。已通過的必修課程即使重修，第二次成績不會覆蓋原成績。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 頁籤切換功能
+        document.querySelectorAll('.tabs-v2__tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+
+                // 移除所有 active 狀態
+                document.querySelectorAll('.tabs-v2__tab').forEach(t => {
+                    t.classList.remove('tabs-v2__tab--active');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('tab-content--active');
+                    content.style.display = 'none';
+                });
+
+                // 添加當前 active 狀態
+                tab.classList.add('tabs-v2__tab--active');
+                const targetContent = document.getElementById(targetTab + '-content');
+                targetContent.classList.add('tab-content--active');
+                targetContent.style.display = 'block';
+                targetContent.style.display = 'block';
+            });
+        });
+
+        // 檢查 URL 參數並自動切換頁籤
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                const targetTabBtn = document.querySelector(`.tabs-v2__tab[data-tab="${tabParam}"]`);
+                if (targetTabBtn) {
+                    targetTabBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
