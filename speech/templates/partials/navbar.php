@@ -41,7 +41,7 @@ if ($navbar_mode == 'simple') {
                 $crumbs = $custom_breadcrumbs ?? [];
                 if (empty($crumbs)) {
                     // Default fallback logic
-                    if ($page_title != '影片管理' && $page_title != '公告管理') {
+                    if ($page_title != '影片管理' && $page_title != '公告管理' && $page_title != '帳號管理') {
                         $crumbs[] = ['label' => '影片管理', 'url' => 'manage_videos.php'];
                     }
                 }
@@ -100,6 +100,9 @@ if ($navbar_mode == 'simple') {
                         <a href="manage_videos.php" class="btn-admin"><i class="fa-solid fa-video"></i> <span>影片</span></a>
                         <a href="manage_announcements.php" class="btn-admin"><i class="fa-solid fa-bullhorn"></i>
                             <span>公告</span></a>
+                    <?php endif; ?>
+                    <?php if (is_manager()): ?>
+                        <a href="manage_accounts.php" class="btn-admin"><i class="fa-solid fa-users-gear"></i> <span>帳號</span></a>
                     <?php endif; ?>
 
                     <div class="user-dropdown">

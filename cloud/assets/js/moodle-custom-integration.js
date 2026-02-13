@@ -391,29 +391,25 @@
         }
 
         // ========================================
-        // 7. 強制移除 Sticky Footer
+        // 7. 隱藏頁腳 (保留批次操作工具列)
         // ========================================
-        function removeStickyFooter() {
-            var stickyFooters = document.querySelectorAll(
-                '.sticky-footer, .sticky-footer-content, [data-region="sticky-footer"], .bulkactions, div[class*="sticky-footer"], #page-footer, footer'
-            );
-            stickyFooters.forEach(function (element) {
-                if (element && element.parentNode) {
-                    element.parentNode.removeChild(element);
-                }
+        function hidePageFooter() {
+            // 只隱藏 Moodle 原生頁腳，不動批次操作工具列
+            var pageFooter = document.getElementById('page-footer');
+            if (pageFooter) {
+                pageFooter.style.display = 'none';
+            }
+            // 隱藏 Boost 主題的 footer 元素 (但排除 stickyfooter)
+            var footers = document.querySelectorAll('footer.footer-popover');
+            footers.forEach(function (element) {
+                element.style.display = 'none';
             });
             document.body.style.paddingBottom = '0';
             document.body.style.marginBottom = '0';
         }
 
-        removeStickyFooter();
-        setTimeout(removeStickyFooter, 500);
-        setTimeout(removeStickyFooter, 1000);
-
-        var observer = new MutationObserver(function (mutations) {
-            removeStickyFooter();
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+        hidePageFooter();
+        setTimeout(hidePageFooter, 500);
 
 
         // ========================================

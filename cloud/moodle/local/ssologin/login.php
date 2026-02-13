@@ -56,7 +56,13 @@ if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) 
         complete_user_login($user);
     }
 
-    local_ssologin_log_attempt('success', $user->id, $username);
+    // 先記錄登入事件（在 redirect 之前，避免 session 已關閉）
+    try {
+        local_ssologin_log_attempt('success', $user->id, $username);
+    } catch (\Exception $e) {
+        // 記錄失敗不應影響登入流程
+        debugging('SSO login log failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
 
     // Check for wantsurl
     $wantsurl = optional_param('wantsurl', '', PARAM_URL);
@@ -66,6 +72,10 @@ if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) 
         redirect(new moodle_url('/'));
     }
 } else {
-    local_ssologin_log_attempt('fail', 0, $username);
+    try {
+        local_ssologin_log_attempt('fail', 0, $username);
+    } catch (\Exception $e) {
+        debugging('SSO login log failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
     throw new moodle_exception('loginfailure', 'local_ssologin', '', $username);
 }

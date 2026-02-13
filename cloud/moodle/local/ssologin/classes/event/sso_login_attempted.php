@@ -31,16 +31,19 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package    local_ssologin
  */
-class sso_login_attempted extends \core\event\base {
+class sso_login_attempted extends \core\event\base
+{
 
     /**
      * Initialize event data.
      *
      * @return void
      */
-    protected function init() {
-        $this->data['crud'] = 'r'; // R = Read (login attempt).
+    protected function init()
+    {
+        $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_OTHER;
+        // 不設定 objecttable，因為此事件不關聯特定資料表
     }
 
     /**
@@ -48,7 +51,8 @@ class sso_login_attempted extends \core\event\base {
      *
      * @return string The event name.
      */
-    public static function get_name() {
+    public static function get_name()
+    {
         return get_string('eventssologinattempted', 'local_ssologin');
     }
 
@@ -57,8 +61,11 @@ class sso_login_attempted extends \core\event\base {
      *
      * @return string The event description.
      */
-    public function get_description() {
-        return "SSO login attempt for user '{$this->other['username']}' with status '{$this->other['status']}'.";
+    public function get_description()
+    {
+        $username = $this->other['username'] ?? 'unknown';
+        $status = $this->other['status'] ?? 'unknown';
+        return "SSO login attempt for user '{$username}' with status '{$status}'.";
     }
 
     /**
@@ -66,31 +73,34 @@ class sso_login_attempted extends \core\event\base {
      *
      * @return \moodle_url The event URL.
      */
-    public function get_url() {
+    public function get_url()
+    {
         return new \moodle_url('/local/ssologin/login.php');
     }
 
     /**
-     * Get legacy log data for the event.
+     * Custom validation.
      *
-     * @return array The legacy log data.
+     * @return void
      */
-    protected function get_legacy_logdata() {
-        return [
-            SITEID,
-            'local_ssologin',
-            'SSO login attempted',
-            'login.php',
-            $this->other['username'],
-        ];
+    protected function validate_data()
+    {
+        parent::validate_data();
+        if (!isset($this->other['username'])) {
+            throw new \coding_exception('The \'username\' value must be set in other.');
+        }
+        if (!isset($this->other['status'])) {
+            throw new \coding_exception('The \'status\' value must be set in other.');
+        }
     }
 
     /**
      * Get other mapping for the event.
      *
-     * @return bool False as no mapping is required.
+     * @return array False as no mapping is required.
      */
-    public static function get_other_mapping() {
-        return false;
+    public static function get_other_mapping()
+    {
+        return [];
     }
 }

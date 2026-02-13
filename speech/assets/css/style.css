@@ -691,6 +691,7 @@ h1.logo-text {
 input[type="text"],
 input[type="date"],
 input[type="url"],
+input[type="password"],
 select {
     width: 100%;
     padding: 14px 18px;

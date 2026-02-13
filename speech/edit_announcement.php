@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $campus_id = (int) $_POST['campus_id'];
     }
-    $link_url = $_POST['link_url'] ?? '';
+
     $is_hero = (int) ($_POST['is_hero'] ?? 0);
     $hero_start_date = !empty($_POST['hero_start_date']) ? $_POST['hero_start_date'] : null;
     $hero_end_date = !empty($_POST['hero_end_date']) ? $_POST['hero_end_date'] : null;
@@ -80,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = '標題為必填欄位';
     } else {
         $sql = "UPDATE announcements SET 
-                title=?, speaker_name=?, event_date=?, campus_id=?, link_url=?, 
+                title=?, speaker_name=?, event_date=?, campus_id=?, 
                 image_url=?, is_hero=?, hero_start_date=?, hero_end_date=?, sort_order=?, location=?, affiliation=?, position=?, description=? 
                 WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssississsisssi", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description, $id);
+        $stmt->bind_param("sssissississsi", $title, $speaker_name, $event_date, $campus_id, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description, $id);
 
         if ($stmt->execute()) {
             header("Location: manage_announcements.php?msg=updated");

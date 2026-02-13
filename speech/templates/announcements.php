@@ -120,11 +120,6 @@
                                         <?= nl2br(htmlspecialchars($item['description'])) ?>
                                     </div>
                                 <?php endif; ?>
-                                <?php if ($item['link_url']): ?>
-                                    <a href="<?= htmlspecialchars($item['link_url']) ?>" target="_blank" class="btn-table-action">
-                                        前往 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
-                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

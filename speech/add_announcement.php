@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $position = $_POST['position'] ?? '';
         $event_date = !empty($_POST['event_date']) ? $_POST['event_date'] : null;
         $campus_id = (int) $_POST['campus_id'];
-        $link_url = $_POST['link_url'] ?? '';
+
         $location = $_POST['location'] ?? '';
         $description = $_POST['description'] ?? '';
         $is_hero = (int) ($_POST['is_hero'] ?? 0);
@@ -55,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-        $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, event_date, campus_id, link_url, image_url, is_hero, hero_start_date, hero_end_date, sort_order, location, affiliation, position, description, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
-        $stmt->bind_param("sssississsssss", $title, $speaker_name, $event_date, $campus_id, $link_url, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description);
+        $stmt = $conn->prepare("INSERT INTO announcements (title, speaker_name, event_date, campus_id, image_url, is_hero, hero_start_date, hero_end_date, sort_order, location, affiliation, position, description, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+        $stmt->bind_param("sssisississsss", $title, $speaker_name, $event_date, $campus_id, $image_url, $is_hero, $hero_start_date, $hero_end_date, $sort_order, $location, $affiliation, $position, $description);
 
         if ($stmt->execute()) {
             header("Location: manage_announcements.php?msg=added");

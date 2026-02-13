@@ -44,7 +44,7 @@ include __DIR__ . '/partials/navbar.php';
             <h3><i class="fa-solid fa-circle-info"></i> 使用說明</h3>
             <div class="content">
                 請準備 Excel (.xlsx) 或 CSV (.csv) 檔案，欄位順序如下（第一列標題列會被略過）：
-                <a href="test_upload2.xlsx" download="範例檔案.xlsx"
+                <a href="assets/downloads/batch_template.xlsx" download="範例檔案.xlsx"
                     style="display: inline-flex; align-items: center; background: #f0f9ff; color: var(--primary-color); padding: 2px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; border: 1px solid #bae6fd; margin-left: 8px; vertical-align: middle;">
                     <i class="fa-solid fa-file-excel" style="margin-right: 5px;"></i> 下載 Excel 範例
                 </a>

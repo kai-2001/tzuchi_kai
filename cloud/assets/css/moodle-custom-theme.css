@@ -929,55 +929,123 @@ h6 {
 }
 
 /* ==========================================
-   隱藏批量操作工具列和底部空白區域 (編輯模式) - 超強化版
+   隱藏底部空白區域 (保留批次操作功能)
    ========================================== */
-.sticky-footer,
-.sticky-footer-content,
-.sticky-footer-content.bulkactions,
-.bulkactions,
-[data-region="sticky-footer"],
-div[class*="sticky-footer"],
-#page-footer,
-#page-footer.sticky-footer,
-footer,
-.footer,
 .course-content-footer,
-.activity-navigation,
-.stickyfooter,
-[class*="sticky"][class*="footer"],
-div[style*="bottom: 0"],
-div[style*="position: fixed"][style*="bottom"],
-div[style*="position: sticky"] {
+.activity-navigation {
     display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    max-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-    opacity: 0 !important;
-    position: absolute !important;
-    left: -99999px !important;
-    top: -99999px !important;
-    pointer-events: none !important;
 }
 
-/* 移除所有可能的底部空間預留 */
-body,
-html,
-#page,
-#page-wrapper,
-.pagelayout-course,
-.format-topics {
+/* ==========================================
+   批次操作工具列 - 預設隱藏，批次操作啟用時才顯示
+   ========================================== */
+/* 預設隱藏 */
+.stickyfooter {
+    display: none !important;
+}
+
+/* 批次操作啟用時顯示 + 美化 */
+.hasstickyfooter .stickyfooter {
+    display: block !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 255, 0.88) 100%) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(37, 99, 235, 0.12) !important;
+    box-shadow:
+        0 -4px 20px rgba(99, 179, 237, 0.1),
+        0 -1px 0 rgba(255, 255, 255, 0.8) !important;
+    height: auto !important;
+    z-index: 1050 !important;
+}
+
+/* 修正 .hasstickyfooter 導致的 padding/margin 問題 */
+.hasstickyfooter,
+.hasstickyfooter #page,
+.hasstickyfooter #page-wrapper {
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
 
-/* 確保主內容區不受影響 */
-#region-main-box {
-    margin-bottom: 0 !important;
-    padding-bottom: 20px !important;
+/* 修正左側抽屜底部空白 */
+.hasstickyfooter .drawer,
+.hasstickyfooter .drawer-content,
+.hasstickyfooter #theme_boost-drawers-courseindex {
+    height: calc(100% - 70px) !important;
+    padding-bottom: 0 !important;
+}
+
+/* 工具列內容區 - 緊湊排列 */
+.stickyfooter .sticky-footer-content-wrapper {
+    padding: 6px 16px !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+.stickyfooter .sticky-footer-content {
+    padding: 0 !important;
+    gap: 4px !important;
+}
+
+/* 工具列按鈕美化 */
+.stickyfooter .btn,
+.stickyfooter .bulkactions .btn,
+.stickyfooter [data-action] {
+    border-radius: 8px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--text-secondary, #475569) !important;
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.stickyfooter .btn:hover,
+.stickyfooter .bulkactions .btn:hover,
+.stickyfooter [data-action]:hover {
+    background: rgba(37, 99, 235, 0.08) !important;
+    color: var(--primary, #2563eb) !important;
+    border-color: rgba(37, 99, 235, 0.2) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12) !important;
+}
+
+/* 已選取計數 */
+.stickyfooter .bulkcount,
+.stickyfooter .bulk-selection-count {
+    font-size: 12px !important;
+    color: var(--text-muted, #94a3b8) !important;
+    font-weight: 500 !important;
+}
+
+/* 全選 checkbox 美化 */
+.stickyfooter .form-check-input {
+    border-radius: 4px !important;
+    border: 2px solid rgba(37, 99, 235, 0.3) !important;
+}
+
+.stickyfooter .form-check-input:checked {
+    background-color: var(--primary, #2563eb) !important;
+    border-color: var(--primary, #2563eb) !important;
+}
+
+/* 關閉按鈕 X */
+.stickyfooter .btn-close,
+.stickyfooter [data-action="disableBulk"],
+.stickyfooter .close {
+    color: var(--text-muted, #94a3b8) !important;
+    opacity: 0.6 !important;
+    transition: all 0.2s ease !important;
+}
+
+.stickyfooter .btn-close:hover,
+.stickyfooter [data-action="disableBulk"]:hover,
+.stickyfooter .close:hover {
+    opacity: 1 !important;
+    color: #ef4444 !important;
 }
 
 /* ==========================================
