@@ -8,7 +8,7 @@ class StudentNav extends HTMLElement {
                 <a href="student-dashboard.html" class="nav-v2__brand">
                     <img src="../docs/style-guide/small_logo.svg" alt="雲嘉 e 學院" style="height: 48px;">
                 </a>
-                <div class="nav-v2__menu">
+                <div class="nav-v2__menu" id="navMenu">
                     <a href="student-dashboard.html" class="nav-v2__link ${activePage === 'dashboard' ? 'nav-v2__link--active' : ''}">
                         <i class="fas fa-home"></i>
                         Dashboard
@@ -32,9 +32,25 @@ class StudentNav extends HTMLElement {
                     <i class="fas fa-bell"></i>
                 </button>
                 <div class="nav-v2__avatar">王小明</div>
+                <button class="nav-v2__toggle" id="navToggle" aria-label="選單">
+                    <span class="nav-v2__toggle-bar"></span>
+                    <span class="nav-v2__toggle-bar"></span>
+                    <span class="nav-v2__toggle-bar"></span>
+                </button>
             </div>
         </nav>
         `;
+
+        // Hamburger toggle logic
+        const toggle = this.querySelector('#navToggle');
+        const menu = this.querySelector('#navMenu');
+        if (toggle && menu) {
+            toggle.addEventListener('click', () => {
+                const isOpen = menu.classList.toggle('nav-v2__menu--open');
+                toggle.classList.toggle('nav-v2__toggle--active', isOpen);
+                toggle.setAttribute('aria-expanded', isOpen);
+            });
+        }
     }
 }
 

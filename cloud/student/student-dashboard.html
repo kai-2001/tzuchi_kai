@@ -430,15 +430,48 @@
 
     <script>
         // SVG 圓形進度動畫
-        document.addEventListener('DOMContentLoaded', function () {
+        function updateProgress() {
             const circle = document.querySelector('.progress-circle__fill');
+            const bg = document.querySelector('.progress-circle__bg');
+            if (!circle || !bg) return;
+
+            // 透過 getComputedStyle 獲取當前的半徑 (R)
+            // 注意：getComputedStyle 拿不到 r 屬性，但我們 CSS 有設定 r
+            // 如果 CSS 沒設 r，則從屬性拿
+            let r = 70;
+            const computedStyle = window.getComputedStyle(circle);
+            // 嘗試解析 CSS 中的 r (部分瀏覽器支援) 或直接看 SVG 屬性
+            // 由於 CSS r 屬性支援度不一，我們改用 width/height 推算或直接讀取 inline style (如果被 CSS 覆蓋)
+
+            // 更好的做法：直接讀取 DOM 上的 r 屬性，但因為我們先前用 CSS 覆蓋了 r，
+            // 瀏覽器其實會同時套用。
+            // 為了準確，我們根據視窗寬度判斷，或直接讀取 CSS 變數
+
+            // 在此案例，我們已知 CSS 在 mobile (max-width: 480px) 設定了 r: 35
+            if (window.innerWidth <= 480) {
+                r = 35;
+            } else {
+                r = 70;
+            }
+
             const percentage = 72; // 72%
-            const circumference = 2 * Math.PI * 70; // r=70
+            const circumference = 2 * Math.PI * r;
             const offset = circumference - (percentage / 100) * circumference;
 
-            setTimeout(() => {
+            // 必須同時更新 dasharray 與 dashoffset
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = circumference; // 先歸零 (滿圈是 0? 不，offset=circumference 是空)
+
+            // 重新觸發動畫
+            requestAnimationFrame(() => {
+                circle.style.transition = 'stroke-dashoffset 1s ease-out';
                 circle.style.strokeDashoffset = offset;
-            }, 300);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateProgress();
+            window.addEventListener('resize', updateProgress);
         });
     </script>
 </body>
