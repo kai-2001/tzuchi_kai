@@ -33,7 +33,7 @@ function video_get_ready($campus_id = 0, $search = '', $limit = 10, $offset = 0)
 
     // 講者搜尋使用 HAVING（包含姓名、單位、職位）
     if (!empty($search)) {
-        $query .= " HAVING v.title LIKE ? OR speaker_names LIKE ? OR speaker_affiliations LIKE ? OR speaker_positions LIKE ? OR v.event_date LIKE ? OR c.name LIKE ?";
+        $query .= " HAVING v.title LIKE ? OR speaker_names LIKE ? OR speaker_affiliations LIKE ? OR speaker_positions LIKE ? OR v.event_date LIKE ? OR campus_name LIKE ?";
         $search_param = "%$search%";
         $params[] = $search_param;
         $params[] = $search_param;
@@ -64,6 +64,7 @@ function video_count_ready($campus_id = 0, $search = '')
     $query = "SELECT COUNT(DISTINCT v.id) FROM videos v
               LEFT JOIN video_speakers vs ON v.id = vs.video_id
               LEFT JOIN speakers s ON vs.speaker_id = s.id
+              LEFT JOIN campuses c ON v.campus_id = c.id
               WHERE v.status = 'ready'";
 
     $params = [];

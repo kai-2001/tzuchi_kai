@@ -91,6 +91,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role'] = $role;
         $_SESSION['campus_id'] = $user['campus_id'] ?? null;
 
+        // 先從資料庫取 display_name
+        if (!empty($user['display_name'])) {
+            $_SESSION['display_name'] = $user['display_name'];
+        }
+
+        // 記錄最後登入時間
+        $login_stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+        $login_stmt->bind_param("i", $user_id);
+        $login_stmt->execute();
+
         if (is_array($auth_result) && isset($auth_result['sn'])) {
             $display_name = $auth_result['sn'];
             $_SESSION['display_name'] = $display_name;

@@ -123,11 +123,13 @@ function is_logged_in()
 
 function is_manager()
 {
+    is_logged_in(); // 確保 remember_me session 已恢復
     return isset($_SESSION['role']) && $_SESSION['role'] === 'manager';
 }
 
 function is_campus_admin()
 {
+    is_logged_in(); // 確保 remember_me session 已恢復
     return isset($_SESSION['role']) && $_SESSION['role'] === 'campus_admin' && !empty($_SESSION['campus_id']);
 }
 
@@ -202,6 +204,11 @@ function check_remember_me()
                         $del = $conn->prepare("DELETE FROM user_tokens WHERE id = ?");
                         $del->bind_param("i", $result['id']);
                         $del->execute();
+
+                        // 記錄最後登入時間
+                        $login_stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                        $login_stmt->bind_param("i", $user_id);
+                        $login_stmt->execute();
 
                         // Issue new one
                         remember_me($user_id);
