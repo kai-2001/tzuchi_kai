@@ -1,0 +1,1462 @@
+/* 
+ * 雲嘉學習網 - 學生介面專用樣式
+ * student-styles.css
+ * 
+ * 補充 design-system.css
+ * 專注於學位管理相關元件
+ */
+
+/* ==========================================
+   進度圓圈 (Progress Circle)
+   ========================================== */
+.progress-circle {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto;
+}
+
+.progress-circle__svg {
+    transform: rotate(-90deg);
+}
+
+.progress-circle__bg {
+    fill: none;
+    stroke: var(--gray-200);
+    stroke-width: 12;
+}
+
+.progress-circle__fill {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s var(--ease-out);
+}
+
+.progress-circle__text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.progress-circle__percentage {
+    display: block;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.progress-circle__label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* ==========================================
+   課程狀態徽章
+   ========================================== */
+.course-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+}
+
+.course-status__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* 已完成 - 綠色 */
+.course-status--completed {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success);
+}
+
+.course-status--completed .course-status__dot {
+    background: var(--success);
+}
+
+/* 修習中 - 藍色 */
+.course-status--in-progress {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+}
+
+.course-status--in-progress .course-status__dot {
+    background: var(--info);
+}
+
+/* 未修 - 灰色 */
+.course-status--not-started {
+    background: var(--gray-100);
+    color: var(--text-muted);
+}
+
+.course-status--not-started .course-status__dot {
+    background: var(--gray-400);
+}
+
+/* 未通過 - 紅色 */
+.course-status--failed {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.course-status--failed .course-status__dot {
+    background: var(--error);
+}
+
+/* 候補中 - 黃色 */
+.course-status--waitlist {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.course-status--waitlist .course-status__dot {
+    background: var(--warning);
+}
+
+/* ==========================================
+   課程標籤
+   ========================================== */
+.course-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.course-tag--required {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.course-tag--domain {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--brand-primary);
+}
+
+.course-tag--elective {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--brand-primary);
+}
+
+.course-tag--restricted {
+    background: rgba(163, 163, 163, 0.1);
+    color: var(--text-muted);
+}
+
+.course-tag--warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+/* ==========================================
+   領域進度卡片
+   ========================================== */
+.domain-progress-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+
+
+.domain-progress-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.domain-progress-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.domain-progress-card__count {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--brand-primary);
+}
+
+.domain-progress-card__count-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.domain-progress-card__progress {
+    margin-bottom: var(--space-3);
+}
+
+.domain-progress-card__note {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+}
+
+/* ==========================================
+   進度條 (Progress Bar)
+   ========================================== */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar__fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.6s var(--ease-out);
+}
+
+.progress-bar--sm {
+    height: 6px;
+}
+
+.progress-bar--lg {
+    height: 12px;
+}
+
+/* Success color variant */
+.progress-bar__fill--success {
+    background: var(--success);
+}
+
+/* Warning color variant */
+.progress-bar__fill--warning {
+    background: var(--warning);
+}
+
+/* ==========================================
+   課程卡片
+   ========================================== */
+.course-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    transition: all var(--duration-fast) var(--ease-out);
+    cursor: pointer;
+}
+
+.course-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.course-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.course-card__tags {
+    display: flex;
+    gap: var(--space-1);
+    flex-wrap: wrap;
+}
+
+.course-card__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: var(--space-2) 0 var(--space-1);
+}
+
+.course-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+}
+
+.course-card__meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.course-card__meta-item i {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.course-card__progress {
+    margin-bottom: var(--space-3);
+}
+
+.course-card__progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+}
+
+.course-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+}
+
+/* ==========================================
+   分頁元件 (Tabs) - 支援兩種樣式
+   ========================================== */
+
+/* 樣式一：使用 list/item/button 結構（如「我的課程」頁面） */
+.tabs-v2 {
+    display: flex;
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: var(--space-5);
+}
+
+.tabs-v2__list {
+    display: flex;
+    gap: 0;
+    list-style: none;
+}
+
+.tabs-v2__item {
+    position: relative;
+}
+
+.tabs-v2__button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.tabs-v2__button:hover {
+    color: var(--text-primary);
+}
+
+.tabs-v2__button--active {
+    color: var(--brand-primary);
+    border-bottom-color: var(--brand-primary);
+}
+
+/* 樣式二：直接使用 tab 按鈕（如「修課進度」頁面） */
+.tabs-v2__tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.tabs-v2__tab:hover {
+    color: var(--text-primary);
+}
+
+.tabs-v2__tab--active {
+    color: var(--brand-primary);
+    border-bottom-color: var(--brand-primary);
+}
+
+/* 徽章樣式 - 兩種結構共用 */
+.tabs-v2__tab .badge-v2--sm,
+.tabs-v2__button .badge-v2--sm {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.tabs-v2__tab--active .badge-v2--sm,
+.tabs-v2__button--active .badge-v2--sm {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--brand-primary);
+}
+
+/* 頁籤內容面板 */
+.tabs-v2__panel {
+    display: none;
+}
+
+.tabs-v2__panel--active {
+    display: block;
+    animation: fadeIn var(--duration-fast);
+}
+
+/* 頁籤內容區塊（新） */
+.tab-content {
+    display: none;
+}
+
+.tab-content--active {
+    display: block;
+    animation: fadeIn var(--duration-fast);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+   統計數字卡片
+   ========================================== */
+.stat-card-large {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-align: center;
+}
+
+.stat-card-large__value {
+    font-size: 48px;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.stat-card-large__label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: var(--space-2);
+}
+
+.stat-card-large__sublabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+}
+
+/* ==========================================
+   空白狀態 - 增強版
+   ========================================== */
+.empty-state-simple {
+    text-align: center;
+    padding: var(--space-10) var(--space-6);
+}
+
+.empty-state-simple__icon {
+    font-size: 64px;
+    color: var(--gray-300);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state-simple__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state-simple__desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 400px;
+    margin: 0 auto var(--space-5);
+}
+
+/* ==========================================
+   課程列表項目
+   ========================================== */
+.course-list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    transition: all var(--duration-fast);
+}
+
+.course-list-item:hover {
+    background: var(--bg-muted);
+    border-color: var(--border-strong);
+}
+
+.course-list-item__status-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+}
+
+.course-list-item__status-icon--completed {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success);
+}
+
+.course-list-item__status-icon--in-progress {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+}
+
+.course-list-item__status-icon--not-started {
+    background: var(--gray-100);
+    color: var(--gray-400);
+}
+
+.course-list-item__status-icon--failed {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.course-list-item__content {
+    flex: 1;
+}
+
+.course-list-item__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.course-list-item__meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.course-list-item__grade {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--brand-primary);
+}
+
+/* ==========================================
+   Grid 佈局助手
+   ========================================== */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+}
+
+.grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-5);
+}
+
+/* ==========================================
+   通知項目
+   ========================================== */
+.notification-item {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    transition: all var(--duration-fast);
+}
+
+.notification-item:hover {
+    background: var(--bg-muted);
+}
+
+.notification-item--unread {
+    background: rgba(37, 99, 235, 0.02);
+    border-color: var(--brand-primary);
+}
+
+.notification-item__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-muted);
+    border-radius: var(--radius-md);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.notification-item__content {
+    flex: 1;
+}
+
+.notification-item__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.notification-item__desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.notification-item__time {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+}
+
+/* ==========================================
+   漢堡選單按鈕
+   ========================================== */
+.nav-v2__toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-fast);
+}
+
+.nav-v2__toggle:hover {
+    background: var(--bg-muted);
+}
+
+.nav-v2__toggle-bar {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ==========================================
+   表格響應式容器
+   ========================================== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================
+   響應式調整 — Tablet (≤ 768px)
+   ========================================== */
+@media (max-width: 768px) {
+
+    /* — 導覽列 — */
+    .nav-v2__toggle {
+        display: flex;
+    }
+
+    .nav-v2__menu {
+        display: flex;
+        position: fixed;
+        top: var(--nav-height);
+        right: 0;
+        bottom: 0;
+        width: 250px;
+        left: auto;
+
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+
+        flex-direction: column;
+        padding: 20px;
+        border-left: 1px solid var(--border-default);
+        border-bottom: none;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+    }
+
+    .nav-v2__menu--open {
+        transform: translateX(0);
+    }
+
+    /* 讓頁籤可水平滾動，不換行 */
+    .tabs-v2 {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        /* iOS 滑動慣性 */
+        flex-wrap: nowrap;
+        /* 強制不換行 */
+        padding-bottom: 5px;
+        /* 預留滾動條空間或隱藏 */
+        margin-left: -20px;
+        /* 抵消 container padding */
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .tabs-v2::-webkit-scrollbar {
+        display: none;
+        /* 隱藏滾動條 */
+    }
+
+    .tabs-v2__tab,
+    .tabs-v2__button {
+        flex-shrink: 0;
+        /* 禁止縮小 */
+        white-space: nowrap;
+        /* 維持足夠的點擊區域 */
+    }
+
+    .nav-v2__menu .nav-v2__link {
+        padding: var(--space-3) var(--space-5);
+        border-radius: 0;
+        font-size: 15px;
+    }
+
+    .nav-v2__menu .nav-v2__link:hover {
+        background: var(--bg-muted);
+    }
+
+    /* — 主內容 — */
+    .main-content,
+    .layout-main {
+        padding: var(--space-4);
+    }
+
+    /* — 頁面標題 — */
+    .page-header-v2__title {
+        font-size: 20px;
+    }
+
+    /* — 統計卡片 / 網格 — */
+    .stats-grid-v2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-auto {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    /* — Progress Circle — */
+    .progress-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .progress-circle__percentage {
+        font-size: 28px;
+    }
+
+    /* — 領域進度摘要 — */
+    .domain-progress-summary {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .domain-progress-summary>* {
+        width: 100%;
+    }
+
+    /* — Stat Box — */
+    .stat-box {
+        padding: var(--space-3);
+    }
+
+    .stat-box__value {
+        font-size: 20px;
+    }
+
+    /* — 搜尋列 / 篩選列 — */
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-bar__actions {
+        margin-left: 0;
+        margin-top: var(--space-2);
+    }
+
+    .search-card .d-flex.gap-4 {
+        flex-direction: column;
+    }
+
+    .search-card .flex-1.d-flex.gap-2 {
+        min-width: 0 !important;
+        flex-direction: column;
+    }
+
+    .search-input,
+    .search-select {
+        width: 100%;
+    }
+
+    /* — Tabs — */
+    .tabs-v2 {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs-v2__list {
+        flex-wrap: nowrap;
+        min-width: max-content;
+    }
+
+    /* — 表格 — */
+    .table-v2 {
+        min-width: 600px;
+    }
+
+    /* — 課程卡片 — */
+    .course-card__actions {
+        flex-direction: column;
+    }
+
+    .course-card__actions .btn-v2 {
+        width: 100%;
+    }
+
+    /* — Domain Summary Card — */
+    .domain-summary-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    /* — Stat Card Large — */
+    .stat-card-large {
+        padding: var(--space-4);
+    }
+
+    .stat-card-large__value {
+        font-size: 28px;
+    }
+
+    /* — 通知 — */
+    .notification-item {
+        padding: var(--space-3);
+    }
+}
+
+/* ==========================================
+   響應式調整 — Mobile (≤ 480px)
+   ========================================== */
+@media (max-width: 480px) {
+
+    /* — 主內容更緊湊 — */
+    .main-content,
+    .layout-main {
+        padding: var(--space-3);
+    }
+
+    /* — 頁面標題 — */
+    .page-header-v2__title {
+        font-size: 18px;
+    }
+
+    /* — 所有網格單欄 — */
+    .stats-grid-v2,
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    /* 針對儀表板上方的統計區塊 (grid-3) 進行特化 */
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    /* 首頁儀表板佈局優化 (Bento Grid Style) */
+    .layout-main .grid-3.mb-6 {
+        grid-template-columns: 1fr 1fr;
+        /* 強制兩欄 */
+        gap: var(--space-3);
+    }
+
+    /* 圓圈卡片：跨兩欄 + 水平排列 */
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: var(--space-4);
+        height: auto;
+    }
+
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle {
+        margin: 0;
+        width: 80px;
+        height: 80px;
+    }
+
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle__percentage {
+        font-size: 20px;
+    }
+
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle__label {
+        font-size: 10px;
+        white-space: nowrap;
+        margin-top: 2px;
+    }
+
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle__svg {
+        width: 80px;
+        height: 80px;
+    }
+
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle__bg,
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(1) .progress-circle__fill {
+        cx: 40;
+        cy: 40;
+        r: 35;
+        stroke-width: 6;
+        /* 變細 */
+    }
+
+    /* 其他兩個卡片：保持預設 (各佔 1fr) */
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(2),
+    .layout-main .grid-3.mb-6>.stat-card-large:nth-child(3) {
+        grid-column: span 1;
+    }
+
+    .grid-auto {
+        grid-template-columns: 1fr;
+    }
+
+    /* — Progress Circle — */
+    .progress-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .progress-circle__percentage {
+        font-size: 24px;
+    }
+
+    .progress-circle__label {
+        font-size: 11px;
+    }
+
+    /* — Stat Card Large — */
+    .stat-card-large__value {
+        font-size: 24px;
+    }
+
+    /* — Course Card Meta 換行 — */
+    .course-card__meta {
+        flex-wrap: wrap;
+    }
+
+    /* — Course List Item — */
+    .course-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .course-list-item__grade {
+        align-self: flex-end;
+    }
+
+    /* — 卡片內 padding 縮小 — */
+    .card-v2__body {
+        padding: var(--space-3);
+    }
+
+    .card-v2__header {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    /* — 搜尋按鈕全寬 — */
+    .search-btn {
+        width: 100%;
+    }
+
+    /* — Tabs 標籤文字縮小 — */
+    .tabs-v2__tab,
+    .tabs-v2__button {
+        font-size: 13px;
+        padding: var(--space-2) var(--space-3);
+    }
+
+    /* — Domain Progress Card — */
+    .domain-progress-card {
+        padding: var(--space-3);
+    }
+
+    /* — Empty State — */
+    .empty-state-simple {
+        padding: var(--space-6) var(--space-3);
+    }
+
+    .empty-state-simple__icon {
+        font-size: 36px;
+    }
+}
+
+/* ==========================================
+   Outline 鏤空按鈕（從 style-guide.css 移植）
+   ========================================== */
+.btn-v2--outline-primary {
+    background: linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+        var(--gradient-primary) border-box;
+    color: var(--brand-primary);
+    border: 1.5px solid transparent;
+    box-shadow: none;
+}
+
+.btn-v2--outline-primary:hover:not(:disabled) {
+    background: var(--gradient-primary) padding-box,
+        var(--gradient-primary) border-box;
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-v2--outline-info {
+    background: transparent;
+    color: var(--brand-accent);
+    border: 1px solid var(--brand-accent);
+    box-shadow: none;
+}
+
+.btn-v2--outline-info:hover:not(:disabled) {
+    background: var(--brand-accent);
+    color: white;
+}
+
+/* ==========================================
+   通用工具類 (Utilities)
+   ========================================== */
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.w-auto {
+    width: auto !important;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-6 {
+    margin-top: var(--space-6);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-2);
+}
+
+.mb-4 {
+    margin-bottom: var(--space-4);
+}
+
+.mb-5 {
+    margin-bottom: var(--space-5);
+}
+
+.mb-6 {
+    margin-bottom: var(--space-6);
+}
+
+/* ==========================================
+   頁面標頭擴充
+   ========================================== */
+.page-header-v2__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+/* ==========================================
+   進度統計區塊
+   ========================================== */
+.domain-progress-summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.domain-progress-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.stat-box {
+    text-align: center;
+    padding: var(--space-4);
+    background: var(--bg-muted);
+    border-radius: var(--radius-lg);
+}
+
+.stat-box__value {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-box__label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.stat-box__value--error {
+    color: var(--error);
+}
+
+.stat-box__value--success {
+    color: var(--success);
+}
+
+.stat-box__value--warning {
+    color: var(--warning);
+}
+
+.stat-box__value--primary {
+    color: var(--brand-primary);
+}
+
+/* ==========================================
+   篩選工具列
+   ========================================== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.filter-bar__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.filter-bar__actions {
+    margin-left: auto;
+}
+
+/* ==========================================
+   課程卡片擴充
+   ========================================== */
+.course-card--opacity-60 {
+    opacity: 0.6;
+}
+
+.course-card__details {
+    padding: var(--space-3);
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-3);
+}
+
+.course-card__details--error {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.course-card__details--warning {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.course-card__detail-row {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.course-card__detail-row:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+/* 顏色變異 */
+.text-error {
+    color: var(--error);
+}
+
+.text-warning {
+    color: var(--warning);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.text-primary {
+    color: var(--brand-primary);
+}
+
+/* ==========================================
+   提示訊息區塊 (Alert Box)
+   ========================================== */
+.alert-box {
+    background: rgba(59, 130, 246, 0.02);
+    border-color: var(--brand-primary);
+}
+
+.alert-box__content {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.alert-box__icon {
+    font-size: 24px;
+    color: var(--brand-primary);
+}
+
+.alert-box__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+
+.alert-box__list {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* ==========================================
+   學位審核頁面擴充
+   ========================================== */
+.domain-summary-card {
+    padding: var(--space-5);
+    background: var(--bg-muted);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-5);
+}
+
+.domain-summary-card--success {
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.domain-summary-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+/* 更多工具類 */
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-sm {
+    font-size: 13px;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+
+.gap-2 {
+    gap: var(--space-2);
+}
+
+.gap-3 {
+    gap: var(--space-3);
+}
+
+
+.d-flex {
+    display: flex;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.pl-4 {
+    padding-left: var(--space-4);
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-4 {
+    gap: var(--space-4);
+}
+
+.status-label--warning {
+    padding: var(--space-2) var(--space-3);
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--warning);
+}
+
+.mt-3 {
+    margin-top: var(--space-3);
+}
+
+.align-stretch {
+    align-items: stretch;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.search-card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0 20px;
+    height: 44px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-default);
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-select {
+    height: 44px;
+    padding-left: 12px;
+    padding-right: 36px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-default);
+    cursor: pointer;
+    background-position: right 12px center;
+}
+
+.search-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+}
+
+.p-5 {
+    padding: var(--space-5);
+}

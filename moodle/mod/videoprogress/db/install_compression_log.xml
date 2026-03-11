@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLDB PATH="mod/videoprogress/db" VERSION="20251231" COMMENT="XMLDB file for mod/videoprogress">
+  <TABLES>
+    <TABLE NAME="videoprogress" COMMENT="主表：影片進度追蹤活動">
+      <!-- 原有表格，這裡省略 -->
+    </TABLE>
+    
+    <TABLE NAME="videoprogress_compression_log" COMMENT="影片壓縮記錄">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Context ID"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="壓縮後的檔案 ID"/>
+        <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="檔案名稱"/>
+        <FIELD NAME="original_size" TYPE="int" LENGTH="20" NOTNULL="true" COMMENT="原始大小（位元組）"/>
+        <FIELD NAME="compressed_size" TYPE="int" LENGTH="20" NOTNULL="true" COMMENT="壓縮後大小（位元組）"/>
+        <FIELD NAME="saved_size" TYPE="int" LENGTH="20" NOTNULL="true" COMMENT="節省大小（位元組）"/>
+        <FIELD NAME="saved_percent" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="true" COMMENT="節省百分比"/>
+        <FIELD NAME="crf" TYPE="int" LENGTH="2" NOTNULL="true" COMMENT="壓縮品質 CRF 值"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="壓縮時間"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="contextid_idx" UNIQUE="false" FIELDS="contextid"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

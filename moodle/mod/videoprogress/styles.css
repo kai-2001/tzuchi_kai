@@ -1,0 +1,55 @@
+/* Video Progress 樣式 */
+
+.videoprogress-player {
+    margin-top: 1rem;
+}
+
+.videoprogress-player .ratio-16x9 {
+    --bs-aspect-ratio: 56.25%;
+}
+
+.videoprogress-status .progress {
+    height: 25px;
+    border-radius: 12px;
+    background-color: #e9ecef;
+}
+
+.videoprogress-status .progress-bar {
+    border-radius: 12px;
+    font-weight: bold;
+    transition: width 0.5s ease;
+}
+
+#videoprogress-resume-prompt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#videoprogress-resume-btn {
+    white-space: nowrap;
+}
+
+/* YouTube 播放器容器 */
+#videoprogress-youtube-container {
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    /* 確保絕對定位相對於此容器 */
+}
+
+#videoprogress-youtube-container iframe,
+#videoprogress-youtube-container #videoprogress-youtube-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* HTML5 播放器 */
+#videoprogress-html5-player {
+    border-radius: 8px;
+    background: #000;
+}

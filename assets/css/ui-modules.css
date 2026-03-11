@@ -1,0 +1,231 @@
+/**
+ * UI 模組通用樣式
+ * assets/css/ui-modules.css
+ */
+
+/* ==================
+   Toast 通知
+   ================== */
+
+.ui-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    min-width: 280px;
+    max-width: 400px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: #333;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ui-toast-show {
+    transform: translateX(0);
+}
+
+.ui-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ui-toast-content i {
+    font-size: 18px;
+}
+
+.ui-toast-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.ui-toast-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.ui-toast-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.ui-toast-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* ==================
+   Loading 狀態
+   ================== */
+
+.ui-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.ui-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: ui-spin 0.8s linear infinite;
+}
+
+@keyframes ui-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ui-loading p {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+/* ==================
+   Empty 狀態
+   ================== */
+
+.ui-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.ui-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.ui-empty p {
+    font-size: 15px;
+}
+
+/* ==================
+   Error 狀態
+   ================== */
+
+.ui-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #ef4444;
+}
+
+.ui-error i {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.ui-error p {
+    margin-bottom: 16px;
+    color: #6b7280;
+}
+
+/* ==================
+   Modal 對話框
+   ================== */
+
+.ui-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.ui-modal-backdrop.show {
+    opacity: 1;
+}
+
+.ui-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.ui-modal-backdrop.show .ui-modal {
+    transform: scale(1);
+}
+
+.ui-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ui-modal-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ui-modal-body {
+    padding: 20px;
+}
+
+.ui-modal-body p {
+    margin: 0;
+    color: #4b5563;
+}
+
+.ui-modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ==================
+   深色模式支援
+   ================== */
+
+@media (prefers-color-scheme: dark) {
+    .ui-modal {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+
+    .ui-modal-header {
+        border-color: #374151;
+    }
+
+    .ui-modal-body p {
+        color: #d1d5db;
+    }
+
+    .ui-modal-footer {
+        border-color: #374151;
+    }
+
+    .ui-empty,
+    .ui-loading {
+        color: #9ca3af;
+    }
+
+    .ui-loading-spinner {
+        border-color: #374151;
+        border-top-color: #3b82f6;
+    }
+}

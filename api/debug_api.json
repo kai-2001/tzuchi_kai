@@ -1,0 +1,353 @@
+{
+    "success": true,
+    "is_admin": false,
+    "type": "curriculum",
+    "data": {
+        "my_courses_raw": [
+            {
+                "id": 22,
+                "fullname": "台北營養1",
+                "shortname": "台北營養1",
+                "category": 81,
+                "startdate": 1771804800,
+                "enddate": 1803340800,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養職類",
+                "display_category": "台北類別 - 營養職類"
+            },
+            {
+                "id": 24,
+                "fullname": "台北呼吸1",
+                "shortname": "台北呼吸1",
+                "category": 75,
+                "startdate": 1771804800,
+                "enddate": 1803340800,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "呼吸治療",
+                "display_category": "台北類別 - 呼吸治療"
+            },
+            {
+                "id": 25,
+                "fullname": "tp1",
+                "shortname": "tp1",
+                "category": 72,
+                "startdate": 1771804800,
+                "enddate": 1803340800,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "",
+                "display_category": "台北類別"
+            },
+            {
+                "id": 31,
+                "fullname": "營養子1必修",
+                "shortname": "營養子1必修",
+                "category": 90,
+                "startdate": 1771804800,
+                "enddate": 1803340800,
+                "visible": 0,
+                "progress": 50,
+                "completed": false,
+                "failed": true,
+                "is_hidden_course": true,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            },
+            {
+                "id": 32,
+                "fullname": "營養子2必修",
+                "shortname": "營養子2必修",
+                "category": 91,
+                "startdate": 1771891200,
+                "enddate": 1803427200,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養子2",
+                "display_category": "台北類別 - 營養子2"
+            },
+            {
+                "id": 34,
+                "fullname": "tp10",
+                "shortname": "tp10",
+                "category": 91,
+                "startdate": 1771891200,
+                "enddate": 1803427200,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養子2",
+                "display_category": "台北類別 - 營養子2"
+            },
+            {
+                "id": 36,
+                "fullname": "營養子1必修2",
+                "shortname": "營養子1必修2",
+                "category": 90,
+                "startdate": 1771977600,
+                "enddate": 1803513600,
+                "visible": 1,
+                "progress": 100,
+                "completed": true,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            },
+            {
+                "id": 37,
+                "fullname": "營養子1必修3",
+                "shortname": "營養子1必修3",
+                "category": 90,
+                "startdate": 1771977600,
+                "enddate": 1803513600,
+                "visible": 0,
+                "progress": 100,
+                "completed": true,
+                "failed": false,
+                "is_hidden_course": true,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            },
+            {
+                "id": 38,
+                "fullname": "營養子1選修1",
+                "shortname": "營養子1選修1",
+                "category": 90,
+                "startdate": 1772064000,
+                "enddate": 1803600000,
+                "visible": 1,
+                "progress": 100,
+                "completed": true,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            },
+            {
+                "id": 44,
+                "fullname": "教師一助產1",
+                "shortname": "教師一助產1",
+                "category": 84,
+                "startdate": 1772409600,
+                "enddate": 1803945600,
+                "visible": 0,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": true,
+                "parent_category": "台北類別",
+                "child_category": "助產職類",
+                "display_category": "台北類別 - 助產職類"
+            },
+            {
+                "id": 45,
+                "fullname": "教師一營養1",
+                "shortname": "教師一營養1",
+                "category": 81,
+                "startdate": 1772409600,
+                "enddate": 1803945600,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養職類",
+                "display_category": "台北類別 - 營養職類"
+            },
+            {
+                "id": 46,
+                "fullname": "營樣測試",
+                "shortname": "營樣測試",
+                "category": 81,
+                "startdate": 1772496000,
+                "enddate": 1804032000,
+                "visible": 1,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": false,
+                "parent_category": "台北類別",
+                "child_category": "營養職類",
+                "display_category": "台北類別 - 營養職類"
+            },
+            {
+                "id": 49,
+                "fullname": "北老師的課",
+                "shortname": "北老師的課",
+                "category": 90,
+                "startdate": 1772582400,
+                "enddate": 1804118400,
+                "visible": 0,
+                "progress": 100,
+                "completed": true,
+                "failed": false,
+                "is_hidden_course": true,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            },
+            {
+                "id": 51,
+                "fullname": "營養子1選修2",
+                "shortname": "營養子1選修2",
+                "category": 90,
+                "startdate": 1772582400,
+                "enddate": 1804118400,
+                "visible": 0,
+                "progress": 0,
+                "completed": false,
+                "failed": false,
+                "is_hidden_course": true,
+                "parent_category": "台北類別",
+                "child_category": "營養子1",
+                "display_category": "台北類別 - 營養子1"
+            }
+        ],
+        "history_by_year": [],
+        "available_courses": [],
+        "latest_announcements": [],
+        "curriculum_status": {
+            "status": {
+                "營養職類 - 營養子1": [
+                    {
+                        "id": 31,
+                        "fullname": "營養子1必修",
+                        "status": "red",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": true
+                    },
+                    {
+                        "id": 36,
+                        "fullname": "營養子1必修2",
+                        "status": "green",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": true
+                    },
+                    {
+                        "id": 37,
+                        "fullname": "營養子1必修3",
+                        "status": "green",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 38,
+                        "fullname": "營養子1選修1",
+                        "status": "green",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 49,
+                        "fullname": "北老師的課",
+                        "status": "green",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 50,
+                        "fullname": "北老師的課的2",
+                        "status": "",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 51,
+                        "fullname": "營養子1選修2",
+                        "status": "yellow",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 52,
+                        "fullname": "營養子1選修3",
+                        "status": "",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 53,
+                        "fullname": "北老師的課3",
+                        "status": "",
+                        "category_name": "營養職類 - 營養子1",
+                        "is_mandatory_section": false
+                    }
+                ],
+                "營養職類 - 營養子2": [
+                    {
+                        "id": 32,
+                        "fullname": "營養子2必修",
+                        "status": "yellow",
+                        "category_name": "營養職類 - 營養子2",
+                        "is_mandatory_section": true
+                    },
+                    {
+                        "id": 34,
+                        "fullname": "tp10",
+                        "status": "yellow",
+                        "category_name": "營養職類 - 營養子2",
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 0,
+                        "fullname": "請挑選此領域中的課程修課",
+                        "status": "red",
+                        "category_name": "營養職類 - 營養子2",
+                        "available_count": 0,
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 0,
+                        "fullname": "請挑選此領域中的課程修課",
+                        "status": "red",
+                        "category_name": "營養職類 - 營養子2",
+                        "available_count": 0,
+                        "is_mandatory_section": false
+                    },
+                    {
+                        "id": 0,
+                        "fullname": "請挑選此領域中的課程修課",
+                        "status": "red",
+                        "category_name": "營養職類 - 營養子2",
+                        "available_count": 0,
+                        "is_mandatory_section": false
+                    }
+                ]
+            },
+            "quotas": {
+                "營養職類 - 營養子1": 3,
+                "營養職類 - 營養子2": 5
+            }
+        },
+        "grades": [],
+        "moodle_uid": 32,
+        "error": null
+    },
+    "source": "live_db"
+}
