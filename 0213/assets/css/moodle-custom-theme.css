@@ -1,0 +1,998 @@
+/* 
+    ============================================
+    雲嘉學習網 - Moodle 完整自訂主題（整合版）
+    整合了 head.html, body-top.html 的樣式
+    ============================================
+*/
+
+/* 引入 Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ==========================================
+   CSS 變數 (與入口網一致)
+   ========================================== */
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #3b82f6;
+    --accent: #06b6d4;
+    --accent-light: #22d3ee;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   隱藏 Moodle 原生導覽列
+   ========================================== */
+header#header,
+.navbar.fixed-top,
+nav.navbar,
+.primary-navigation,
+.page-context-header,
+header.navbar,
+.navbar-academi,
+.academi-header {
+    display: none !important;
+}
+
+/* 保留麵包屑導覽 */
+#page-header {
+    background: transparent !important;
+    padding: 15px 30px !important;
+    margin-top: 5px !important;
+    margin-bottom: 20px !important;
+}
+
+#page-header .breadcrumb {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 8px 0 !important;
+    /* border-radius: 0 !important; */
+    border-radius: var(--radius-md);
+    box-shadow: none !important;
+}
+
+#page-header .breadcrumb a {
+    color: var(--primary) !important;
+}
+
+#page-header .breadcrumb-item.active {
+    color: var(--text-secondary) !important;
+}
+
+/* ==========================================
+   全域背景 - 淺藍漸層
+   ========================================== */
+body {
+    background: var(--bg-body) !important;
+    background-attachment: fixed !important;
+    font-family: var(--font-sans) !important;
+    color: var(--text-primary) !important;
+    padding-top: 70px !important;
+}
+
+/* 移除舊的動畫背景與浮游粒子 */
+body::before,
+body::after {
+    display: none !important;
+    content: none !important;
+}
+
+@keyframes bgGradientFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(2%, 3%) scale(1.02);
+    }
+
+    50% {
+        transform: translate(-1%, 2%) scale(1);
+    }
+
+    75% {
+        transform: translate(3%, -2%) scale(1.01);
+    }
+}
+
+@keyframes bodyParticleFloat {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 150px -350px;
+    }
+}
+
+/* ==========================================
+   修正手機版側邊欄被導覽列遮擋問題
+   ========================================== */
+@media (max-width: 768px) {
+
+    /* 針對所有側邊欄 (Drawer) */
+    .drawer,
+    .drawer-content,
+    #theme_boost-drawers-courseindex,
+    div[data-region="drawer"] {
+        top: 70px !important;
+        /* 讓出導覽列高度 */
+        height: calc(100% - 70px) !important;
+    }
+
+    /* 確保其內部標題不再需要額外 padding */
+    .drawer-header {
+        padding-top: 15px !important;
+    }
+}
+
+/* ==========================================
+   自訂導覽列樣式 
+   ========================================== */
+/* 原生毛玻璃老師導覽列與學生導覽列的共用位置設定 */
+#portal-global-nav,
+.nav-v2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 9999 !important;
+}
+
+/* === 以下為學生版專用 (.nav-v2) 的樣式 === */
+.nav-v2 {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px !important;
+    padding: 0 24px !important;
+}
+
+.nav-v2__brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #171717;
+    text-decoration: none;
+}
+
+.nav-v2__brand-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.nav-v2__menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 32px;
+}
+
+.nav-v2__link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: #525252 !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.nav-v2 .nav-v2__link:hover {
+    color: #171717 !important;
+    background: #f5f5f5 !important;
+    text-decoration: none !important;
+}
+
+.nav-v2__link--active {
+    color: #2563eb !important;
+    background: rgba(37, 99, 235, 0.08) !important;
+}
+
+.nav-v2__link i {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.nav-v2__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-v2__avatar {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-v2__avatar:hover {
+    transform: scale(1.05);
+}
+
+.nav-v2__toggle {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .nav-v2__menu {
+        display: none;
+    }
+
+    .nav-v2__toggle {
+        display: block;
+        border: none;
+        background: transparent;
+        font-size: 20px;
+    }
+}
+
+/* === 學生版專用: 導覽列右側使用者選單 (.ha-nav-user) === */
+.ha-nav-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ha-nav-user__trigger {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 150ms;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.ha-nav-user:hover .ha-nav-user__trigger {
+    background: rgba(241, 245, 249, 0.8);
+    border-color: #e5e5e5;
+}
+
+.ha-nav-user__name {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #171717 !important;
+    display: none;
+    margin-right: 4px;
+    /* Optional extra breathing room if gap fails */
+    white-space: nowrap !important;
+}
+
+@media (min-width: 768px) {
+    .ha-nav-user__name {
+        display: block !important;
+    }
+}
+
+.ha-nav-user__dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0;
+    padding-top: 8px;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99999;
+}
+
+.ha-nav-user__dropdown::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: transparent;
+}
+
+.ha-nav-user__dropdown-inner {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+}
+
+.ha-nav-user:hover .ha-nav-user__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ha-nav-user__info {
+    padding: 12px 12px 8px 12px;
+    margin-bottom: 0;
+}
+
+.ha-nav-user__info-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #171717 !important;
+    margin-bottom: 2px;
+}
+
+.ha-nav-user__info-role {
+    font-size: 12px;
+    color: #525252 !important;
+}
+
+.ha-nav-user__divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 8px 0;
+}
+
+.ha-nav-user__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    color: #525252 !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 150ms;
+}
+
+.ha-nav-user__item:hover {
+    background: #f5f5f5 !important;
+    text-decoration: none !important;
+    color: #171717 !important;
+}
+
+.ha-nav-user__item--danger:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+
+#portal-global-nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+}
+
+.pg-brand {
+    font-size: 20px;
+    font-weight: 600;
+    color: #475569 !important;
+    text-decoration: none !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--transition-fast);
+    cursor: pointer !important;
+}
+
+.pg-brand:hover {
+    color: var(--accent-light) !important;
+}
+
+.pg-brand i {
+    font-size: 24px;
+    color: var(--accent-light);
+    background: none;
+    background-clip: border-box;
+    -webkit-background-clip: border-box;
+    -webkit-text-fill-color: initial;
+    filter: none;
+}
+
+.pg-menu {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 30px;
+}
+
+.pg-divider {
+    width: 1px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 0 10px;
+}
+
+.pg-admin-only {
+    display: flex;
+    align-items: center;
+}
+
+.pg-link {
+    text-decoration: none !important;
+    /* Moodle 常強制加底線，保留 important */
+    color: var(--text-secondary) !important;
+    /* Moodle 連結預設為藍色，必須強制覆蓋 */
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+/* 增加選擇器權重以避免依賴 important */
+#portal-global-nav .pg-link:hover {
+    color: var(--accent);
+    background: rgba(6, 182, 212, 0.08);
+}
+
+/* 增加選擇器權重 */
+#portal-global-nav .pg-link-active {
+    color: var(--primary);
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.pg-link i {
+    font-size: 15px;
+}
+
+/* 下拉選單 */
+.pg-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.pg-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding-top: 8px;
+    z-index: 100;
+    min-width: 200px;
+}
+
+.pg-dropdown-content>a,
+.pg-dropdown-content>.pg-dropdown-divider {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: block;
+}
+
+.pg-dropdown-content>a:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    border-bottom: none;
+}
+
+.pg-dropdown-content>a:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    border-top: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.pg-dropdown-content>a:only-child {
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.pg-dropdown-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08) !important;
+    margin: 4px 0;
+    border-left: 1px solid rgba(37, 99, 235, 0.1);
+    border-right: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 手機版/通用：點擊觸發 (.active) */
+.pg-dropdown.active .pg-dropdown-content {
+    display: block;
+    animation: dropdownFade 0.2s ease forwards;
+}
+
+/* 電腦版 (寬度 > 768px)：額外支援 Hover 觸發 */
+@media (min-width: 769px) {
+    .pg-dropdown:hover .pg-dropdown-content {
+        display: block;
+        animation: dropdownFade 0.2s ease forwards;
+    }
+}
+
+.pg-dropdown-content a {
+    color: var(--text-secondary) !important;
+    padding: 12px 18px;
+    text-decoration: none !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    transition: var(--transition-fast);
+    border-left: 1px solid rgba(37, 99, 235, 0.1);
+    border-right: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.pg-dropdown-content a:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--primary) !important;
+}
+
+.pg-back-portal {
+    color: var(--accent) !important;
+}
+
+/* 右側區域 */
+#pg-right-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: var(--transition-fast);
+}
+
+.user-avatar-circle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+}
+
+/* ==========================================
+   編輯模式開關美化
+   ========================================== */
+#custom-edit-mode-container {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    position: relative;
+    top: 0.6px;
+}
+
+#custom-edit-mode-container .editmode-switch-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#custom-edit-mode-container label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    margin-bottom: 0 !important;
+    position: relative;
+    top: 1.5px;
+}
+
+/* ==========================================
+   切換角色按鈕樣式
+   ========================================== */
+#switch-role-link {
+    background: transparent !important;
+    border: none !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.2s ease !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+}
+
+#switch-role-link:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+    color: #6366f1 !important;
+}
+
+#switch-role-link i {
+    color: #6366f1 !important;
+    font-size: 15px !important;
+    transition: transform 0.2s ease;
+}
+
+#switch-role-link:hover i {
+    transform: scale(1.1);
+}
+
+#switch-role-link span {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+#switch-role-link:hover span {
+    color: #6366f1 !important;
+}
+
+/* ==========================================
+   主要內容區域 - 新版學生入口網風格 (Minimalist & Clean)
+   ========================================== */
+#page,
+#page-wrapper,
+#page-content,
+#region-main,
+.main-inner {
+    background: transparent !important;
+    position: relative;
+    z-index: 1;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* 主內容外框 */
+#region-main-box {
+    background: var(--bg-surface, #ffffff) !important;
+    border: 1px solid var(--border-default, #e5e5e5) !important;
+    border-radius: var(--radius-xl, 16px) !important;
+    box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.06)) !important;
+    padding: 32px !important;
+    position: relative !important;
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+}
+
+/* 確保內部元件不受原有的盒模型干擾 */
+#region-main-box .generalbox,
+#region-main-box .mform,
+#region-main-box .box {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* 獨立區塊 (側邊欄 Blocks 或課程卡片) */
+.block,
+.course-card {
+    background: var(--bg-surface, #ffffff) !important;
+    border: 1px solid var(--border-default, #e5e5e5) !important;
+    border-radius: var(--radius-lg, 12px) !important;
+    box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.04)) !important;
+    transition: box-shadow var(--duration-normal, 250ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), transform var(--duration-normal, 250ms) !important;
+}
+
+.block:hover {
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08)) !important;
+    transform: translateY(-2px);
+}
+
+.card-header,
+.card-title {
+    color: var(--text-primary, #171717) !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--border-default, #e5e5e5) !important;
+}
+
+/* ==========================================
+   原生物件樣式調整
+   ========================================== */
+/* 頁籤 */
+.nav-tabs {
+    border-bottom: 1px solid var(--border-default, #e5e5e5) !important;
+    gap: 16px !important;
+    padding-bottom: 0 !important;
+}
+
+.nav-tabs .nav-link,
+.secondary-navigation .nav-link {
+    color: var(--text-secondary, #525252) !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 12px 4px !important;
+    font-weight: 500 !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.nav-tabs .nav-link:hover,
+.secondary-navigation .nav-link:hover {
+    color: var(--text-primary, #171717) !important;
+    border-bottom: 2px solid var(--border-strong, #d4d4d4) !important;
+}
+
+.nav-tabs .nav-link.active,
+.secondary-navigation .nav-link.active {
+    color: var(--brand-primary, #2563eb) !important;
+    border-bottom: 2px solid var(--brand-primary, #2563eb) !important;
+    font-weight: 600 !important;
+}
+
+/* 按鈕 */
+.btn-primary {
+    background: var(--brand-primary, #2563eb) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: var(--radius-md, 8px) !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+    transition: background 0.2s !important;
+}
+
+.btn-primary:hover {
+    background: var(--brand-primary-hover, #1d4ed8) !important;
+}
+
+/* 表單與輸入框 */
+.form-control,
+input[type="text"],
+select {
+    background: var(--bg-surface, #ffffff) !important;
+    border: 1px solid var(--border-default, #e5e5e5) !important;
+    border-radius: var(--radius-md, 8px) !important;
+    color: var(--text-primary, #171717) !important;
+    padding: 8px 12px !important;
+    box-shadow: var(--shadow-xs) !important;
+}
+
+.form-control:focus,
+input:focus {
+    border-color: var(--brand-primary, #2563eb) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+/* 表格 */
+.table,
+.generaltable {
+    background: var(--bg-surface, #ffffff) !important;
+    border-radius: var(--radius-lg, 12px) !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border-default, #e5e5e5) !important;
+}
+
+.table thead th,
+.generaltable thead th {
+    background: var(--gray-50, #fafafa) !important;
+    color: var(--text-secondary, #525252) !important;
+    font-weight: 500 !important;
+    border-bottom: 1px solid var(--border-default, #e5e5e5) !important;
+}
+
+/* ==========================================
+   核心層級與功能修正 (不可刪除)
+   ========================================== */
+/* Tooltip、下拉選單與側邊欄遮罩的層級宣告 */
+.dropdown-menu,
+.action-menu,
+.moodle-actionmenu,
+.popover,
+.tooltip,
+div[role="tooltip"] {
+    z-index: 99999 !important;
+}
+
+div[data-region="drawer"],
+#theme_boost-drawers-courseindex,
+.drawer {
+    z-index: 1300 !important;
+    /* 高於導覽列 */
+}
+
+.drawer-backdrop,
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+/* 隱藏 Moodle 原生難看的 Tooltip */
+.tooltip,
+div[role="tooltip"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* 移除底部版權與空白區域 (Sticky Footer) */
+.sticky-footer,
+#page-footer,
+footer,
+div[style*="bottom: 0"] {
+    display: none !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body,
+html,
+#page,
+#page-wrapper {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* 課程目錄左側高亮 */
+.courseindex-item.current,
+.courseindex-section.current {
+    background: var(--gray-50, #fafafa) !important;
+    border-radius: var(--radius-md, 8px) !important;
+}
+
+.courseindex-item.current a {
+    color: var(--brand-primary, #2563eb) !important;
+    font-weight: 600 !important;
+}
+
+/* ====== 學生版 nav-v2 手機選單漢堡按鈕 (Toggle) ====== */
+.nav-v2__toggle {
+    display: none;
+    /* 預設在桌機隱藏 */
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    /* 稍微拉近線條間距以符合一般漢堡樣式 */
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    /* 移除 padding 讓 align-items 完全置中起作用 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm, 6px);
+    transition: background var(--duration-fast, 150ms);
+}
+
+.nav-v2__toggle:hover {
+    background: var(--bg-muted, #f5f5f5);
+}
+
+.nav-v2__toggle-bar {
+    display: block;
+    width: 20px !important;
+    /* 基本寬度 */
+    height: 2px !important;
+    background: var(--text-primary, #171717) !important;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    margin: 0 auto;
+}
+
+/* 漢堡按鈕啟動狀態 (X 形狀) */
+.nav-v2__toggle.active .nav-v2__toggle-bar:nth-child(1),
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.nav-v2__toggle.active .nav-v2__toggle-bar:nth-child(2),
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-v2__toggle.active .nav-v2__toggle-bar:nth-child(3),
+.nav-v2__toggle--active .nav-v2__toggle-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* 響應式基礎修正與學生導覽列 (nav-v2) 手機版 Drawer */
+@media (max-width: 768px) {
+
+    /* Moodle 原生內容頂部空間 */
+    body {
+        padding-top: 70px !important;
+    }
+
+    /* 舊版管理者導覽列修正 */
+    #portal-global-nav {
+        padding: 0 15px !important;
+        justify-content: flex-start !important;
+    }
+
+    /* ====== 學生版 nav-v2 手機選單 (Drawer) ====== */
+    .nav-v2__toggle {
+        display: flex !important;
+        /* 手機版顯示漢堡按鈕 */
+    }
+
+    .nav-v2__menu {
+        position: fixed !important;
+        top: 70px !important;
+        /* 閃避標題列 */
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 250px !important;
+        background: var(--bg-surface, rgba(255, 255, 255, 0.98)) !important;
+        backdrop-filter: blur(20px) !important;
+        flex-direction: column !important;
+        padding: 20px !important;
+        margin-left: 0 !important;
+        border-left: 1px solid var(--border-default, rgba(0, 0, 0, 0.08)) !important;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05) !important;
+        align-items: stretch !important;
+        z-index: 9998 !important;
+        transform: translateX(100%) !important;
+        /* 預設移出畫面右側 */
+        transition: transform 0.3s ease-in-out !important;
+        display: flex !important;
+        /* 覆蓋桌機版可能的 display 狀態 */
+        gap: 8px !important;
+    }
+
+    .nav-v2__menu.active {
+        transform: translateX(0) !important;
+        /* 滑入顯示 */
+    }
+
+    .nav-v2__link {
+        width: 100% !important;
+        padding: 12px 16px !important;
+        justify-content: flex-start !important;
+        border-radius: 8px !important;
+    }
+
+    .nav-v2__link:hover {
+        background: var(--bg-muted, #f5f5f5) !important;
+    }
+
+    /* 手機版隱藏姓名，只留頭像 */
+    #custom-user-name {
+        display: none !important;
+    }
+
+    .ha-nav-user__trigger {
+        gap: 0 !important;
+    }
+}

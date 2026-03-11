@@ -6,6 +6,19 @@
 /speech/temp_log.txt
 /speech/.agent/
 
+# 0213 project - exclude large/private files
+/0213/moodle/
+/0213/includes/config.php
+/0213/.git/
+/0213/.git_backup/
+/0213/.gemini/
+/0213/.idea/
+/0213/.vscode/
+
+# Cloud project - exclude moodle
+/cloud/moodle/
+/cloud/includes/config.php
+
 # Windows system files
 Thumbs.db
 Desktop.ini

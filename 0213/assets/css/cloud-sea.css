@@ -1,0 +1,340 @@
+/* ============================================
+   Cloud Sea Background - 雲海動態背景
+   45度角俯視雲海效果，帶有波浪動畫
+   ============================================ */
+
+.cloud-sea-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    perspective: 1000px;
+    background: linear-gradient(180deg,
+            #0a4a8c 0%,
+            /* 深藍天空 */
+            #1a7fd4 25%,
+            /* 中藍色 */
+            #4da6e8 50%,
+            /* 淺藍色 */
+            #87ceeb 75%,
+            /* 天藍色 */
+            #b8e0f7 100%
+            /* 接近雲層的淡藍 */
+        );
+}
+
+.cloud-sea-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: -50%;
+    width: 200%;
+    height: 70%;
+    transform: rotateX(45deg);
+    transform-origin: center bottom;
+    transform-style: preserve-3d;
+}
+
+/* 雲層基礎樣式 */
+.cloud-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-repeat: repeat-x;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+/* 第一層雲 - 最近的大雲朵 */
+.cloud-layer-1 {
+    background:
+        radial-gradient(ellipse 200px 150px at 10% 50%, rgba(255, 255, 255, 0.95) 0%, transparent 70%),
+        radial-gradient(ellipse 180px 130px at 25% 55%, rgba(255, 255, 255, 0.9) 0%, transparent 65%),
+        radial-gradient(ellipse 220px 160px at 40% 48%, rgba(255, 255, 255, 0.92) 0%, transparent 70%),
+        radial-gradient(ellipse 190px 140px at 55% 52%, rgba(255, 255, 255, 0.88) 0%, transparent 65%),
+        radial-gradient(ellipse 210px 155px at 70% 50%, rgba(255, 255, 255, 0.93) 0%, transparent 70%),
+        radial-gradient(ellipse 175px 125px at 85% 55%, rgba(255, 255, 255, 0.87) 0%, transparent 65%),
+        radial-gradient(ellipse 195px 145px at 100% 50%, rgba(255, 255, 255, 0.91) 0%, transparent 68%);
+    animation: cloudMove1 35s linear infinite;
+    opacity: 0.95;
+    z-index: 5;
+}
+
+/* 第二層雲 - 中層雲 */
+.cloud-layer-2 {
+    background:
+        radial-gradient(ellipse 250px 180px at 5% 45%, rgba(255, 255, 255, 0.85) 0%, transparent 65%),
+        radial-gradient(ellipse 230px 165px at 20% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 60%),
+        radial-gradient(ellipse 270px 190px at 35% 42%, rgba(255, 255, 255, 0.83) 0%, transparent 65%),
+        radial-gradient(ellipse 240px 170px at 50% 48%, rgba(255, 255, 255, 0.78) 0%, transparent 60%),
+        radial-gradient(ellipse 260px 185px at 65% 45%, rgba(255, 255, 255, 0.82) 0%, transparent 65%),
+        radial-gradient(ellipse 225px 160px at 80% 52%, rgba(255, 255, 255, 0.77) 0%, transparent 60%),
+        radial-gradient(ellipse 255px 175px at 95% 46%, rgba(255, 255, 255, 0.81) 0%, transparent 62%);
+    animation: cloudMove2 45s linear infinite;
+    opacity: 0.85;
+    z-index: 4;
+    transform: translateY(15%);
+}
+
+/* 第三層雲 - 遠處雲層 */
+.cloud-layer-3 {
+    background:
+        radial-gradient(ellipse 300px 200px at 8% 40%, rgba(255, 255, 255, 0.7) 0%, transparent 60%),
+        radial-gradient(ellipse 280px 185px at 25% 45%, rgba(255, 255, 255, 0.65) 0%, transparent 55%),
+        radial-gradient(ellipse 320px 210px at 42% 38%, rgba(255, 255, 255, 0.68) 0%, transparent 60%),
+        radial-gradient(ellipse 290px 195px at 58% 42%, rgba(255, 255, 255, 0.63) 0%, transparent 55%),
+        radial-gradient(ellipse 310px 205px at 75% 40%, rgba(255, 255, 255, 0.67) 0%, transparent 58%),
+        radial-gradient(ellipse 275px 180px at 92% 44%, rgba(255, 255, 255, 0.62) 0%, transparent 55%);
+    animation: cloudMove3 55s linear infinite;
+    opacity: 0.75;
+    z-index: 3;
+    transform: translateY(25%);
+}
+
+/* 第四層雲 - 最遠的朦朧雲層 */
+.cloud-layer-4 {
+    background:
+        radial-gradient(ellipse 350px 220px at 12% 35%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
+        radial-gradient(ellipse 330px 200px at 30% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 50%),
+        radial-gradient(ellipse 370px 230px at 48% 33%, rgba(255, 255, 255, 0.53) 0%, transparent 55%),
+        radial-gradient(ellipse 340px 210px at 66% 37%, rgba(255, 255, 255, 0.48) 0%, transparent 50%),
+        radial-gradient(ellipse 360px 225px at 84% 35%, rgba(255, 255, 255, 0.52) 0%, transparent 52%);
+    animation: cloudMove4 70s linear infinite;
+    opacity: 0.6;
+    z-index: 2;
+    transform: translateY(35%);
+}
+
+/* 波浪效果覆蓋層 */
+.wave-overlay {
+    position: absolute;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.08) 75%,
+            transparent 100%);
+    animation: waveMove 8s ease-in-out infinite;
+    z-index: 6;
+}
+
+/* 動畫定義 */
+@keyframes cloudMove1 {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+
+    25% {
+        transform: translateX(-5%) translateY(-2%);
+    }
+
+    50% {
+        transform: translateX(-10%) translateY(0);
+    }
+
+    75% {
+        transform: translateX(-5%) translateY(2%);
+    }
+
+    100% {
+        transform: translateX(0) translateY(0);
+    }
+}
+
+@keyframes cloudMove2 {
+    0% {
+        transform: translateX(0) translateY(15%);
+    }
+
+    25% {
+        transform: translateX(-8%) translateY(13%);
+    }
+
+    50% {
+        transform: translateX(-15%) translateY(15%);
+    }
+
+    75% {
+        transform: translateX(-8%) translateY(17%);
+    }
+
+    100% {
+        transform: translateX(0) translateY(15%);
+    }
+}
+
+@keyframes cloudMove3 {
+    0% {
+        transform: translateX(0) translateY(25%);
+    }
+
+    25% {
+        transform: translateX(-10%) translateY(23%);
+    }
+
+    50% {
+        transform: translateX(-20%) translateY(25%);
+    }
+
+    75% {
+        transform: translateX(-10%) translateY(27%);
+    }
+
+    100% {
+        transform: translateX(0) translateY(25%);
+    }
+}
+
+@keyframes cloudMove4 {
+    0% {
+        transform: translateX(0) translateY(35%);
+    }
+
+    25% {
+        transform: translateX(-12%) translateY(33%);
+    }
+
+    50% {
+        transform: translateX(-25%) translateY(35%);
+    }
+
+    75% {
+        transform: translateX(-12%) translateY(37%);
+    }
+
+    100% {
+        transform: translateX(0) translateY(35%);
+    }
+}
+
+@keyframes waveMove {
+
+    0%,
+    100% {
+        transform: translateX(0) scaleY(1);
+    }
+
+    50% {
+        transform: translateX(-25%) scaleY(1.05);
+    }
+}
+
+/* 霧氣效果 - 雲海與天空的過渡 */
+.mist-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.3) 100%);
+    z-index: 7;
+    pointer-events: none;
+}
+
+/* 光暈效果 */
+.sun-glow {
+    position: absolute;
+    top: 5%;
+    right: 15%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle,
+            rgba(255, 255, 200, 0.4) 0%,
+            rgba(255, 255, 150, 0.2) 30%,
+            transparent 70%);
+    border-radius: 50%;
+    animation: glowPulse 4s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* 浮動雲朵動畫 - 額外的立體效果 */
+.floating-cloud {
+    position: absolute;
+    background: radial-gradient(ellipse, rgba(255, 255, 255, 0.9) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: floatCloud 20s ease-in-out infinite;
+}
+
+.floating-cloud:nth-child(1) {
+    width: 150px;
+    height: 80px;
+    top: 15%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.floating-cloud:nth-child(2) {
+    width: 200px;
+    height: 100px;
+    top: 20%;
+    left: 60%;
+    animation-delay: -5s;
+}
+
+.floating-cloud:nth-child(3) {
+    width: 180px;
+    height: 90px;
+    top: 25%;
+    left: 35%;
+    animation-delay: -10s;
+}
+
+@keyframes floatCloud {
+
+    0%,
+    100% {
+        transform: translateX(0) translateY(0);
+    }
+
+    25% {
+        transform: translateX(20px) translateY(-10px);
+    }
+
+    50% {
+        transform: translateX(0) translateY(-20px);
+    }
+
+    75% {
+        transform: translateX(-20px) translateY(-10px);
+    }
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .cloud-sea-wrapper {
+        height: 60%;
+    }
+
+    .sun-glow {
+        width: 120px;
+        height: 120px;
+        right: 10%;
+    }
+}
+
+@media (max-width: 480px) {
+    .cloud-sea-wrapper {
+        height: 50%;
+    }
+}
