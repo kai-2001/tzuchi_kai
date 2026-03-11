@@ -649,17 +649,16 @@ class CourseController extends Controller
                 return;
             }
 
-            // 寫入 course_visibility_exclusions (記錄過濾選項)
+            // 直接招生後，確保這些學員不在「開放選修排除名單」中
+            // （course_visibility_exclusions 代表「不適用」而不是「已加入」）
             $conn = $this->db->getConnection();
             $this->ensureVisibilityTable($conn);
-            $filterSnapshot = $this->inputString('filter_snapshot') ?: null;
-
-            $visStmt = $conn->prepare("INSERT IGNORE INTO course_visibility_exclusions (course_id, user_id, filter_snapshot) VALUES (?, ?, ?)");
+            $delStmt = $conn->prepare("DELETE FROM course_visibility_exclusions WHERE course_id = ? AND user_id = ?");
             foreach ($userIds as $uid) {
-                $visStmt->bind_param("iis", $courseId, $uid, $filterSnapshot);
-                $visStmt->execute();
+                $delStmt->bind_param("ii", $courseId, $uid);
+                $delStmt->execute();
             }
-            $visStmt->close();
+            $delStmt->close();
 
             // 設 Moodle visible=1
             $this->moodle->call('core_course_update_courses', [
